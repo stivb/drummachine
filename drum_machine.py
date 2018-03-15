@@ -27,8 +27,7 @@ import pygame
 MAX_DRUM_NUM = 5
 
 
-def label_released():
-    print "label_released"
+
 
 def play_back():
     print "play_back"
@@ -42,13 +41,9 @@ def key_released():
 def record_on_off():
     print "record_on_off"
 
-def button_pressed():
-    print "button_pressed"
 
-def showdlg():
-    print "show dialog"
-    d = MyDialog(dm.root)
-    dm.wait_window(d.top)
+
+
 
 class DrumMachine():
 
@@ -69,6 +64,7 @@ class DrumMachine():
         pygame.init()
         pygame.mixer.set_num_channels(16)
         self.dict = {}
+
 
 
     def about(self):
@@ -245,7 +241,7 @@ class DrumMachine():
                 btn = self.button[i][j]
                 color = 'lightpink'
                 if btn.cget('bg') != 'green':
-                    showdlg()
+                    Piano(self.root,btn)
                     new_color='green'
                 else:
                     new_color=color
@@ -377,19 +373,12 @@ class DrumMachine():
         if os.path.isfile('images/beast.ico'): self.root.wm_iconbitmap('images/beast.ico')
         self.root.mainloop()
 
-class MyDialog:
-
-    def __init__(self, parent):
-
-        top = self.top = Toplevel(parent)
-
-        app = Piano(top)
-        app.mainloop()
 
 
 
 
 class Piano(Frame):
+
 
     ##########################################################
     # Description: __init__ is a method that creates         #
@@ -398,7 +387,7 @@ class Piano(Frame):
     # Accepts: self, which contains the window; parent,      #
     # which is a reference to the window.                    #
     ##########################################################
-    def __init__(self, parent):
+    def __init__(self, parent,bttn):
 
         # This is the initialization of the window along with the
         # coloring of the background.
@@ -410,6 +399,17 @@ class Piano(Frame):
         # A call to the init_user_interface method.
         self.init_user_interface()
 
+        self.btn = bttn
+
+    def label_released(self,other):
+        print other.widget.name
+        self.btn.config(text=other.widget.name)
+        self.btn.config(bg='green')
+
+    def button_pressed(self,other):
+        print other.widget.name
+        self.btn.config(text=other.widget.name)
+        self.btn.config(bg='green')
     ##########################################################
     # Description: init_user_interface is a method that      #
     # populates the window passed in all of the Labels,      #
@@ -479,7 +479,7 @@ class Piano(Frame):
         play_button.place(x=700, y=50)
         play_button.name = 'green_button'
         play_button.bind('<Button-1>', play_back)
-        play_button.bind('<ButtonRelease-1>', label_released)
+        #play_button.bind('<ButtonRelease-1>', label_released)
 
         # This titles the window.
         self.parent.title('The Piano')
@@ -526,8 +526,9 @@ class Piano(Frame):
         label.image = key_image
         label.place(x=key[0], y=0)
         label.name = key[1]
-        label.bind('<Button-1>', button_pressed)
-        label.bind('<ButtonRelease-1>', label_released)
+        label.bind('<Button-1>', self.button_pressed)
+        label.bind('<ButtonRelease-1>', self.label_released)
+        print key
         return label
  
 class soundThing():
