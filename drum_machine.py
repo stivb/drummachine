@@ -377,7 +377,7 @@ class DrumMachine():
 
 
 
-class Piano(Frame):
+class Piano:
 
 
     ##########################################################
@@ -391,7 +391,9 @@ class Piano(Frame):
 
         # This is the initialization of the window along with the
         # coloring of the background.
-        Frame.__init__(self, parent, background='SkyBlue3')
+        #Frame.__init__(self, parent, background='SkyBlue3')
+
+        self.top = Toplevel(parent)
 
         # So that the parent reference does not go out of scope.
         self.parent = parent
@@ -400,6 +402,7 @@ class Piano(Frame):
         self.init_user_interface()
 
         self.btn = bttn
+        #print self.btn
 
     def label_released(self,other):
         print other.widget.name
@@ -410,6 +413,7 @@ class Piano(Frame):
         print other.widget.name
         self.btn.config(text=other.widget.name)
         self.btn.config(bg='green')
+        self.top.destroy()
     ##########################################################
     # Description: init_user_interface is a method that      #
     # populates the window passed in all of the Labels,      #
@@ -466,7 +470,7 @@ class Piano(Frame):
 
         # This group of lines creates the record Label.
         img = PhotoImage(file='pictures/red_button.gif')
-        record_button = Label(self, image=img, bd=0)
+        record_button = Label(self.top, image=img, bd=0)
         record_button.image = img
         record_button.place(x=700, y=0)
         record_button.name = 'red_button'
@@ -474,7 +478,7 @@ class Piano(Frame):
 
         # This group of lines creates the play Label.
         img = PhotoImage(file='pictures/green_button.gif')
-        play_button = Label(self, image=img, bd=0)
+        play_button = Label(self.top, image=img, bd=0)
         play_button.image = img
         play_button.place(x=700, y=50)
         play_button.name = 'green_button'
@@ -492,7 +496,7 @@ class Piano(Frame):
         sh = self.parent.winfo_screenheight()
         x = (sw - w) / 2
         y = (sh - h) / 2
-        self.parent.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.top.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
         # This group of lines saves a reference to keys so that
         # it does not go out of scope and binds the presses and
@@ -509,7 +513,7 @@ class Piano(Frame):
         self.parent.bind('2', play_back)
 
         # This line packs all elements bound to the window.
-        self.pack(fill=BOTH, expand=1)
+        #self.pack(fill=BOTH, expand=1)
 
     ##########################################################
     # Description: create_key is a method that creates and   #
@@ -522,7 +526,7 @@ class Piano(Frame):
     ##########################################################
     def create_key(self, img, key):
         key_image = PhotoImage(file=img)
-        label = Label(self, image=key_image, bd=0)
+        label = Label(self.top, image=key_image, bd=0)
         label.image = key_image
         label.place(x=key[0], y=0)
         label.name = key[1]
