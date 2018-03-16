@@ -241,7 +241,7 @@ class DrumMachine():
                 btn = self.button[i][j]
                 color = 'lightpink'
                 if btn.cget('bg') != 'green':
-                    Piano(self.root,btn)
+                    Piano(self.root,btn,self.dict)
                     new_color='green'
                 else:
                     new_color=color
@@ -387,7 +387,7 @@ class Piano:
     # Accepts: self, which contains the window; parent,      #
     # which is a reference to the window.                    #
     ##########################################################
-    def __init__(self, parent,bttn):
+    def __init__(self, parent,bttn,thedict):
 
         # This is the initialization of the window along with the
         # coloring of the background.
@@ -398,10 +398,14 @@ class Piano:
         # So that the parent reference does not go out of scope.
         self.parent = parent
 
+        self.btn = bttn
+
+        self.dict = thedict
+
         # A call to the init_user_interface method.
         self.init_user_interface()
 
-        self.btn = bttn
+
         #print self.btn
 
     def label_released(self,other):
@@ -412,6 +416,7 @@ class Piano:
     def button_pressed(self,other):
         print other.widget.name
         self.btn.config(text=other.widget.name)
+        self.dict[other.widget.name].play()
         self.btn.config(bg='green')
         self.top.destroy()
     ##########################################################
@@ -467,6 +472,9 @@ class Piano:
             if len(key[1]) > 2:
                 img = 'pictures/black_key.gif'
                 key.append(self.create_key(img, key))
+
+        for key in keys:
+            self.dict[key[1]] =  pygame.mixer.Sound('notes/' + key[1] + '.wav')
 
         # This group of lines creates the record Label.
         img = PhotoImage(file='pictures/red_button.gif')
