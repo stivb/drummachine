@@ -64,6 +64,8 @@ class DrumMachine():
         pygame.init()
         pygame.mixer.set_num_channels(16)
         self.dict = {}
+        #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/bassdrum1.wav",0)
+        #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
 
 
 
@@ -167,12 +169,15 @@ class DrumMachine():
                 self.keep_playing = True
                 while self.keep_playing:
                       for i in range(len(self.button[0])):
+                            print i
+                            print len(self.button)
                             for item in self.button:
+
                                 try:
                                     if item[i].cget('bg') == 'green':
                                         if not self.widget_drum_file_name[self.button.index(item)]:continue
                                         sound_filename = self.widget_drum_file_name[self.button.index(item)]
-                                        print sound_filename
+                                        print i,sound_filename
 
                                         self.dict[sound_filename].play()
                                 except Exception as e:
@@ -194,6 +199,28 @@ class DrumMachine():
     def loop_play(self, xval):
         self.loop = xval
 
+    def addFileToDrumset(self, file_name, drum_no):
+
+        try:
+            del self.widget_drum_file_name[drum_no]
+        except:
+            pass
+        self.widget_drum_file_name.insert(drum_no, file_name)
+        # line added by me
+
+        self.dict[file_name] = pygame.mixer.Sound(file_name)
+        self.widget_drum_file_sound.insert(drum_no, pygame.mixer.Sound(file_name))
+        # self.widget_drum_file_sound[drum_no].play()
+        self.dict[file_name].play()
+        # end me
+
+        # self.dict[file_name] = soundThing(pygame.mixer(), file_name, drum_no)
+        # self.dict[file_name].play()
+
+        drum_name = os.path.basename(file_name)
+        self.widget_drum_name[drum_no].delete(0, END)
+        self.widget_drum_name[drum_no].insert(0, drum_name)
+
 
     def drum_load(self, drum_no):
         def callback():
@@ -201,29 +228,11 @@ class DrumMachine():
             try:
                 file_name = tkFileDialog.askopenfilename(defaultextension=".wav",filetypes=[("Wave Files","*.wav"),("OGG Files","*.ogg")])
                 if not file_name: return
-                try:
-                    del self.widget_drum_file_name[drum_no]
-                except:pass
-                self.widget_drum_file_name.insert(drum_no, file_name)
-                #line added by me
+                print file_name,drum_no
+                self.addFileToDrumset(file_name,drum_no)
 
-                self.dict[file_name] = pygame.mixer.Sound(file_name)
-                self.widget_drum_file_sound.insert(drum_no, pygame.mixer.Sound(file_name))
-                #self.widget_drum_file_sound[drum_no].play()
-                self.dict[file_name].play()
-                #end me
-
-                # self.dict[file_name] = soundThing(pygame.mixer(), file_name, drum_no)
-                # self.dict[file_name].play()
-
-
-
-                drum_name = os.path.basename(file_name)
-                self.widget_drum_name[drum_no].delete(0, END)
-                self.widget_drum_name[drum_no].insert(0, drum_name)
             except:
                 tkMessageBox.showerror('Invalid', "Error loading drum samples")
-
         return callback
 
 
