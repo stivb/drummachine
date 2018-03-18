@@ -177,14 +177,18 @@ class DrumMachine():
                                 currentRowNumber = self.buttonrowz.index(thisrow)
                                 try:
 
+                                    if currentRowNumber==4:
+                                        btnTxt = currentButton['text']
+                                        if btnTxt!="":
+                                            self.dict[btnTxt].play()
+                                        print btnTxt
+
                                     if currentButton.cget('bg') == 'green':
                                         print "drum file name is: ", self.widget_drum_file_name[currentRowNumber]
                                         #print i, sound_filename, self.buttonrowz.index(item)
                                         #this line tests for no associated sound with the green ness
                                         if not self.widget_drum_file_name[currentRowNumber]:continue
                                         sound_filename = self.widget_drum_file_name[currentRowNumber]
-
-
                                         self.dict[sound_filename].play()
                                 except Exception as e:
                                     print "exception at ",i,str(e)
@@ -278,7 +282,7 @@ class DrumMachine():
                 btn = self.buttonrowz[i][j]
                 color = 'lightpink'
                 if btn.cget('bg') != 'green':
-                    Piano(self.root,btn,self.dict)
+                    Piano(self,btn)
                     new_color='green'
                     self.addToDrumWidget("piano",4)
                 else:
@@ -426,20 +430,21 @@ class Piano:
     # Accepts: self, which contains the window; parent,      #
     # which is a reference to the window.                    #
     ##########################################################
-    def __init__(self, parent,bttn,thedict):
+    def __init__(self, parentself,srcBtn):
 
         # This is the initialization of the window along with the
         # coloring of the background.
         #Frame.__init__(self, parent, background='SkyBlue3')
 
-        self.top = Toplevel(parent)
+        self.top = Toplevel(parentself.root)
+
+        self.parentself = parentself
 
         # So that the parent reference does not go out of scope.
-        self.parent = parent
+        self.parent = parentself.root
 
-        self.btn = bttn
-
-        self.dict = thedict
+        self.btn = srcBtn
+        self.dict = parentself.dict
 
         # A call to the init_user_interface method.
         self.init_user_interface()
@@ -453,10 +458,11 @@ class Piano:
         self.btn.config(bg='green')
 
     def button_pressed(self,other):
-        print other.widget.name
-        self.btn.config(text=other.widget.name)
-        self.dict[other.widget.name].play()
+        note= other.widget.name
+        self.btn.config(text=note)
+        self.dict[note].play()
         self.btn.config(bg='green')
+        self.parentself.bass_load(note,4)
         self.top.destroy()
     ##########################################################
     # Description: init_user_interface is a method that      #
