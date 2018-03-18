@@ -61,8 +61,9 @@ class DrumMachine():
         self.file3=""
         self.file4=""
         self.file5=""
+        pygame.mixer.pre_init(44100, -16, 2, 1024)
+        pygame.mixer.init()
         pygame.init()
-        pygame.mixer.set_num_channels(16)
         self.dict = {}
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/bassdrum1.wav",0)
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
@@ -168,21 +169,23 @@ class DrumMachine():
     def play(self):
                 self.keep_playing = True
                 while self.keep_playing:
+                      #self.button is an an array of button rows
                       for i in range(len(self.button[0])):
-                            print i
-                            print len(self.button)
+                            print "the number of buttons in self.button is ",len(self.button)
                             for item in self.button:
 
                                 try:
                                     if item[i].cget('bg') == 'green':
+                                        #this line tests for no associated sound with the green ness
                                         if not self.widget_drum_file_name[self.button.index(item)]:continue
                                         sound_filename = self.widget_drum_file_name[self.button.index(item)]
-                                        print i,sound_filename
+                                        print i,sound_filename,self.button.index(item)
 
                                         self.dict[sound_filename].play()
                                 except Exception as e:
                                     print "exception at ",i,str(e)
                                     continue
+                            print int(round(time.time() * 1000))
                             time.sleep(1/6.0)
                             if self.loop == False: self.keep_playing = False
 
