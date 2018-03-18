@@ -115,7 +115,7 @@ class DrumMachine():
         self.buttonpickleformat = [[0] * c for x in range(MAX_DRUM_NUM)]
         for i in range(MAX_DRUM_NUM):
             for j in range(c):
-                if self.button[i][j].config('bg')[-1] == 'green':
+                if self.buttonrowz[i][j].config('bg')[-1] == 'green':
                     self.buttonpickleformat[i][j] = 'active'
         self.pattern_list[prevpval] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu':bpu, 'units':units}
         self.reconstruct_pattern(pattern_num, bpu, units)
@@ -156,7 +156,7 @@ class DrumMachine():
             for i in range(MAX_DRUM_NUM):
                 for j in range(c):
                     if self.pattern_list[pattern_num]['bl'][i][j] == 'active':
-                        self.button[i][j].config(bg='green')
+                        self.buttonrowz[i][j].config(bg='green')
         except:return
 
 
@@ -170,24 +170,28 @@ class DrumMachine():
                 self.keep_playing = True
                 while self.keep_playing:
                       #self.button is an an array of button rows
-                      for i in range(len(self.button[0])):
-                            print "the number of buttons in self.button is ",len(self.button)
-                            for item in self.button:
-
+                      buttoncolzlength = len(self.buttonrowz[0])
+                      for i in range(buttoncolzlength):
+                             for thisrow in self.buttonrowz:
+                                currentButton = thisrow[i]
+                                currentRowNumber = self.buttonrowz.index(thisrow)
                                 try:
-                                    if item[i].cget('bg') == 'green':
+
+                                    if currentButton.cget('bg') == 'green':
+                                        print "drum file name is: ", self.widget_drum_file_name[currentRowNumber]
+                                        #print i, sound_filename, self.buttonrowz.index(item)
                                         #this line tests for no associated sound with the green ness
-                                        if not self.widget_drum_file_name[self.button.index(item)]:continue
-                                        sound_filename = self.widget_drum_file_name[self.button.index(item)]
-                                        print i,sound_filename,self.button.index(item)
+                                        if not self.widget_drum_file_name[currentRowNumber]:continue
+                                        sound_filename = self.widget_drum_file_name[currentRowNumber]
+
 
                                         self.dict[sound_filename].play()
                                 except Exception as e:
                                     print "exception at ",i,str(e)
                                     continue
-                            print int(round(time.time() * 1000))
-                            time.sleep(1/6.0)
-                            if self.loop == False: self.keep_playing = False
+                             print int(round(time.time() * 1000))
+                             time.sleep(1/6.0)
+                             if self.loop == False: self.keep_playing = False
 
 
 
@@ -221,8 +225,15 @@ class DrumMachine():
         # self.dict[file_name].play()
 
         drum_name = os.path.basename(file_name)
+
+        self.addToDrumWidget(file_name,drum_no)
+
+
+    def addToDrumWidget(self,drum_name,drum_no):
+        #basically this is clearing and filling  a text box
         self.widget_drum_name[drum_no].delete(0, END)
         self.widget_drum_name[drum_no].insert(0, drum_name)
+        print "inserting this", self.widget_drum_name[drum_no]
 
 
     def drum_load(self, drum_no):
@@ -238,10 +249,24 @@ class DrumMachine():
                 tkMessageBox.showerror('Invalid', "Error loading drum samples")
         return callback
 
+    def bass_load(self, drum_no,note):
+        def callback():
+            pth = os.path.dirname(os.path.realpath(__file__))
+            file_name = pth + "\\notes\\" + note + ".wav"
+            self.current_drum_no = drum_no
+            try:
+                if not file_name: return
+                print file_name,drum_no
+                self.addFileToDrumset(file_name,drum_no)
+
+            except:
+                tkMessageBox.showerror('Invalid', "Error loading drum samples")
+        return callback
+
 
     def button_clicked(self,i,j,bpu):
             def callback():
-                btn = self.button[i][j]
+                btn = self.buttonrowz[i][j]
                 color = 'grey55' if (j/bpu)%2 else 'khaki'
                 new_color = 'green' if btn.cget('bg') != 'green' else color
                 btn.config(bg=new_color)
@@ -250,11 +275,12 @@ class DrumMachine():
 
     def bass_clicked(self, i, j, bpu):
             def callback():
-                btn = self.button[i][j]
+                btn = self.buttonrowz[i][j]
                 color = 'lightpink'
                 if btn.cget('bg') != 'green':
                     Piano(self.root,btn,self.dict)
                     new_color='green'
+                    self.addToDrumWidget("piano",4)
                 else:
                     new_color=color
                 print color,btn.cget('bg'),new_color
@@ -306,13 +332,14 @@ class DrumMachine():
 
 
 
+
     def create_right_pad(self):
         bpu = self.bpu.get()
         units = self.units.get()
         c = bpu * units
         right_frame = Frame(self.root)
         right_frame.grid(row=10, column=6,sticky=W+E+N+S, padx=15, pady=2)
-        self.button = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
+        self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
         for i in range(MAX_DRUM_NUM):
             for j in range(c):
                 self.active = False
@@ -320,10 +347,10 @@ class DrumMachine():
                 basscolor =  'lightpink'
                 print i,MAX_DRUM_NUM
                 if i<MAX_DRUM_NUM-1:
-                    self.button[i][j] = Button(right_frame,  bg=color, width=1, command=self.button_clicked(i,j,bpu))
+                    self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1, command=self.button_clicked(i, j, bpu))
                 else:
-                    self.button[i][j] = Button(right_frame, bg=basscolor, width=1, command=self.bass_clicked(i, j, bpu))
-                self.button[i][j].grid(row=i, column=j)
+                    self.buttonrowz[i][j] = Button(right_frame, bg=basscolor, width=1, command=self.bass_clicked(i, j, bpu))
+                self.buttonrowz[i][j].grid(row=i, column=j)
 
 
     def create_top_bar(self):
