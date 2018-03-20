@@ -61,6 +61,7 @@ class DrumMachine():
         self.file3=""
         self.file4=""
         self.file5=""
+        self.bpm = 120.0/960.0
         pygame.mixer.pre_init(44100, -16, 2, 1024)
         pygame.mixer.init()
         pygame.init()
@@ -194,7 +195,7 @@ class DrumMachine():
                                     print "exception at ",i,str(e)
                                     continue
                              print int(round(time.time() * 1000))
-                             time.sleep(1/6.0)
+                             time.sleep(0.5/4)
                              if self.loop == False: self.keep_playing = False
 
 
@@ -304,9 +305,9 @@ class DrumMachine():
         loopbutton.grid(row=ln, column=16,padx=1)
 
         Label(playbar_frame, text='BPM:').grid(row=ln, column=35, padx=30)
-        self.bpm = IntVar()
-        self.bpm.set(120)
-        self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpm, command= self.changeBpm)
+        self.bpmTxt = StringVar()
+        self.bpmTxt.set(120)
+        self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt, command= self.changeBpm)
         self.bpu_widget.grid(row=ln, column=45)
 
 
@@ -319,7 +320,8 @@ class DrumMachine():
 
 
     def changeBpm(self):
-        print "change bpm"
+        self.bpm = float(self.bpu_widget.get())/960.0
+        print self.bpm
 
     def create_left_pad(self):
         '''creating actual pattern editor pad'''
