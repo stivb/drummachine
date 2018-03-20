@@ -289,6 +289,7 @@ class DrumMachine():
                     self.addToDrumWidget("piano",4)
                 else:
                     new_color=color
+                    btn.config(text="")
                 print color,btn.cget('bg'),new_color
                 btn.config(bg=new_color)
             return callback
