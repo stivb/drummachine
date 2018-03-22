@@ -380,7 +380,7 @@ class DrumMachine():
 
         Label(topbar_frame, text='Units:').grid(row=0, column=4)
         self.units = IntVar()
-        self.units.set(4)
+        self.units.set(8)
         self.units_widget = Spinbox(topbar_frame, from_=1, to=8, width=5, textvariable=self.units, command=self.create_right_pad)
         self.units_widget.grid(row=0, column=5)
 
