@@ -22,6 +22,8 @@ import pickle
 import ttk
 
 import pygame
+import pygame.midi
+
 
 #constants
 MAX_DRUM_NUM = 5
@@ -65,6 +67,12 @@ class DrumMachine():
         pygame.mixer.pre_init(44100, -16, 2, 1024)
         pygame.mixer.init()
         pygame.init()
+        pygame.midi.init()
+        self.input_id = pygame.midi.get_default_input_id()
+        self.port = pygame.midi.get_default_output_id()
+        self.midi_out = pygame.midi.Output(self.port, 0)
+        self._print_device_info()
+        self.noteNowOn=-1
         self.dict = {}
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/bassdrum1.wav",0)
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
@@ -185,7 +193,12 @@ class DrumMachine():
                                         print btnTxt
 
                                     if currentButton.cget('bg') == 'green':
-                                        print "drum file name is: ", self.widget_drum_file_name[currentRowNumber]
+                                        if currentRowNumber==0:
+                                            self.midi_out.set_instrument(9, channel=9)
+                                            self.midi_out.note_on(50, 127)
+                                            self.noteNowOn=50
+
+                                        #print "drum file name is: ", self.widget_drum_file_name[currentRowNumber]
                                         #print i, sound_filename, self.buttonrowz.index(item)
                                         #this line tests for no associated sound with the green ness
                                         if not self.widget_drum_file_name[currentRowNumber]:continue
@@ -195,8 +208,12 @@ class DrumMachine():
                                     print "exception at ",i,str(e)
                                     continue
                              bpm_based_delay = (60.0/self.bpm)/4.0
-                             print bpm_based_delay
+                             #print bpm_based_delay
                              time.sleep(bpm_based_delay)
+                             if self.noteNowOn>=0:
+                                 self.midi_out.note_off(self.noteNowOn)
+                                 self.noteNowOn=-1
+
                              if self.loop == False: self.keep_playing = False
 
 
@@ -421,6 +438,20 @@ class DrumMachine():
         self.root.mainloop()
 
 
+
+    def _print_device_info(self):
+        for i in range( pygame.midi.get_count() ):
+            r = pygame.midi.get_device_info(i)
+            (interf, name, input, output, opened) = r
+
+            in_out = ""
+            if input:
+                in_out = "(input)"
+            if output:
+                in_out = "(output)"
+
+            print ("%2i: interface :%s:, name :%s:, opened :%s:  %s" %
+                   (i, interf, name, opened, in_out))
 
 
 
