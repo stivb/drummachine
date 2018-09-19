@@ -72,6 +72,8 @@ class DrumMachine():
         self.port = pygame.midi.get_default_output_id()
         self.midi_out = pygame.midi.Output(self.port, 0)
         self._print_device_info()
+        print "the port is", self.port
+        self.port = 1
         self.noteNowOn=-1
         self.dict = {}
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/bassdrum1.wav",0)
@@ -194,7 +196,7 @@ class DrumMachine():
 
                                     if currentButton.cget('bg') == 'green':
                                         if currentRowNumber==0:
-                                            self.midi_out.set_instrument(9, channel=9)
+                                            self.midi_out.set_instrument(18, channel=9)
                                             self.midi_out.note_on(50, 127)
                                             self.noteNowOn=50
 
