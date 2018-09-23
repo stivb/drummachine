@@ -70,12 +70,15 @@ class DrumMachine():
         pygame.midi.init()
         self.input_id = pygame.midi.get_default_input_id()
         self.port = pygame.midi.get_default_output_id()
+        self.port = 8
         self.midi_out = pygame.midi.Output(self.port, 0)
         self._print_device_info()
         print "the port is", self.port
-        self.port = 1
+
         self.noteNowOn=-1
+        self.bassNowOn=-1
         self.dict = {}
+        self.mididict = {}
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/bassdrum1.wav",0)
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
 
@@ -188,42 +191,70 @@ class DrumMachine():
                                 currentRowNumber = self.buttonrowz.index(thisrow)
                                 try:
 
-                                    if currentRowNumber==4:
-                                        btnTxt = currentButton['text']
-                                        if btnTxt!="":
-                                            self.dict[btnTxt].play()
-                                        print btnTxt
+                                    # if currentRowNumber==4:
+                                    #     btnTxt = currentButton['text']
+                                    #     if btnTxt!="":
+                                    #         self.dict[btnTxt].play()
+                                    #     print btnTxt
 
                                     if currentButton.cget('bg') == 'green':
-                                        if currentRowNumber==0:
-                                            self.midi_out.set_instrument(18, channel=9)
-                                            self.midi_out.note_on(50, 127)
-                                            self.noteNowOn=50
+                                        if currentRowNumber!=4:
+                                            self.play_drum(self.row_to_drum_num(currentRowNumber))
+                                        else:
+                                            note_to_play = currentButton['text']
+                                            if note_to_play != "":
+                                                self.play_bass(self.mididict[note_to_play])
+
+
 
                                         #print "drum file name is: ", self.widget_drum_file_name[currentRowNumber]
                                         #print i, sound_filename, self.buttonrowz.index(item)
                                         #this line tests for no associated sound with the green ness
-                                        if not self.widget_drum_file_name[currentRowNumber]:continue
-                                        sound_filename = self.widget_drum_file_name[currentRowNumber]
-                                        self.dict[sound_filename].play()
+
+
+                                        #this part used to work!  check!
+                                        #if not self.widget_drum_file_name[currentRowNumber]:continue
+                                        #sound_filename = self.widget_drum_file_name[currentRowNumber]
+                                        #self.dict[sound_filename].play()
                                 except Exception as e:
                                     print "exception at ",i,str(e)
                                     continue
                              bpm_based_delay = (60.0/self.bpm)/4.0
                              #print bpm_based_delay
                              time.sleep(bpm_based_delay)
-                             if self.noteNowOn>=0:
-                                 self.midi_out.note_off(self.noteNowOn)
-                                 self.noteNowOn=-1
-
+                             self.end_drum()
+                             self.end_bass()
                              if self.loop == False: self.keep_playing = False
 
 
 
-  
+    def row_to_drum_num(self,rownum):
+        if rownum==0: return 36
+        if rownum==1: return 38
+        if rownum==2: return 46
+        if rownum==3: return 42
  
+    def play_drum(self,num):
+        self.midi_out.set_instrument(18, channel=9)
+        self.midi_out.note_on(num, 127)
+        self.noteNowOn = num
 
-  
+    def play_bass(self,num):
+        self.midi_out.set_instrument(34, channel=0)
+        self.midi_out.note_on(num, 127)
+        self.bassNowOn = num
+
+    def end_drum(self):
+        if self.noteNowOn >= 0:
+            self.midi_out.note_off(self.noteNowOn)
+            self.noteNowOn = -1
+
+    def end_bass(self):
+        if self.bassNowOn >= 0:
+            self.midi_out.note_off(self.bassNowOn)
+            self.bassNowOn = -1
+
+
     def stop_play(self):
         self.keep_playing = False
         return
@@ -482,6 +513,7 @@ class Piano:
 
         self.btn = srcBtn
         self.dict = parentself.dict
+        self.mididict = parentself.dict
 
         # A call to the init_user_interface method.
         self.init_user_interface()
@@ -541,6 +573,9 @@ class Piano:
             [650, 'B2']
         ]
 
+
+
+
         # This for loop populates the window with the white key Labels
         # and appends a Label to each slot in keys.
         for key in keys:
@@ -555,8 +590,11 @@ class Piano:
                 img = 'pictures/black_key.gif'
                 key.append(self.create_key(img, key))
 
+        counter = 60
         for key in keys:
             self.dict[key[1]] =  pygame.mixer.Sound('notes/' + key[1] + '.wav')
+            self.mididict[key[1]] = counter
+            counter = counter + 1
 
         # This group of lines creates the record Label.
         img = PhotoImage(file='pictures/red_button.gif')
