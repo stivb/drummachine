@@ -70,7 +70,7 @@ class DrumMachine():
         pygame.midi.init()
         self.input_id = pygame.midi.get_default_input_id()
         self.port = pygame.midi.get_default_output_id()
-        self.port = 8
+        #self.port = 8
         self.midi_out = pygame.midi.Output(self.port, 0)
         self._print_device_info()
         print "the port is", self.port
@@ -83,6 +83,7 @@ class DrumMachine():
         self.keyNumz ={'C1':24,'C#1':25,'D1':26,'D#1':27,'E1':28,'F1':29,'F#1':30,'G1':31,'G#1':32,'A1':33,'A#1':34,'B1':35,'C2':36,'C#2':37,'D2':38,'D#2':39,'E2':40,'F2':41,'F#2':42,'G2':43,'G#2':44,'A2':45,'A#2':46,'B2':47,'C3':48,'C#3':49,'D3':50,'D#3':51}
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/bassdrum1.wav",0)
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
+        self.deviceDict = self._midi_dev_dict()
 
 
 
@@ -359,6 +360,23 @@ class DrumMachine():
         self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt, command= self.changeBpm)
         self.bpu_widget.grid(row=ln, column=45)
 
+        percDevice = StringVar()
+        bassDevice = StringVar()
+
+        # Dictionary with options
+
+        percDevice.set('')  # set the default option
+        bassDevice.set('')
+
+        #popupMenu = OptionMenu(playbar_frame, tkvar, *choices)
+        percDeviceMenu = OptionMenu(playbar_frame, percDevice, *self.deviceDict)
+        Label(playbar_frame, text="Percussion").grid(row=ln+2, column=0)
+        percDeviceMenu.grid(row=ln+2, column=3)
+
+        bassDeviceMenu = OptionMenu(playbar_frame, bassDevice, *self.deviceDict)
+        Label(playbar_frame, text="Bass").grid(row=ln + 4, column=0)
+        bassDeviceMenu.grid(row=ln + 4, column=3)
+
 
 
 
@@ -482,6 +500,23 @@ class DrumMachine():
 
             print ("%2i: interface :%s:, name :%s:, opened :%s:  %s" %
                    (i, interf, name, opened, in_out))
+
+    def _midi_dev_dict(self):
+        mydict = {}
+        for i in range( pygame.midi.get_count() ):
+            r = pygame.midi.get_device_info(i)
+            (interf, name, input, output, opened) = r
+
+            in_out = ""
+            if input:
+                in_out = "(input)"
+            if output:
+                in_out = "(output)"
+
+            s ="{}: interface :{}:, name :{}:, opened :{}:  {}".format(i, interf, name, opened, in_out)
+            mydict[s] = i
+        return mydict
+
 
 
 
