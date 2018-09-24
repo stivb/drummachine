@@ -282,6 +282,8 @@ class DrumMachine():
 
         self.addToDrumWidget(file_name,drum_no)
 
+        print self.dict
+
 
     def addToDrumWidget(self,drum_name,drum_no):
         #basically this is clearing and filling  a text box
@@ -545,7 +547,7 @@ class Piano:
 
         self.btn = srcBtn
         self.dict = parentself.dict
-        self.mididict = parentself.dict
+        self.mididict = parentself.mididict
 
         # A call to the init_user_interface method.
         self.init_user_interface()
@@ -625,11 +627,12 @@ class Piano:
 
         counter = 60
         for key in keys:
-            print key[1]
             self.dict[key[1]] =  pygame.mixer.Sound('notes/' + key[1] + '.wav')
+            print "we play ", self.dict[key[1]]
             self.mididict[key[1]] = counter
             counter = counter + 1
 
+        print self.dict
         # This group of lines creates the record Label.
         img = PhotoImage(file='pictures/red_button.gif')
         record_button = Label(self.top, image=img, bd=0)
