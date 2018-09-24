@@ -79,6 +79,8 @@ class DrumMachine():
         self.bassNowOn=-1
         self.dict = {}
         self.mididict = {}
+        self.notesOn = []
+        self.keyNumz ={'C1':24,'C#1':25,'D1':26,'D#1':27,'E1':28,'F1':29,'F#1':30,'G1':31,'G#1':32,'A1':33,'A#1':34,'B1':35,'C2':36,'C#2':37,'D2':38,'D#2':39,'E2':40,'F2':41,'F#2':42,'G2':43,'G#2':44,'A2':45,'A#2':46,'B2':47,'C3':48,'C#3':49,'D3':50,'D#3':51}
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/bassdrum1.wav",0)
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
 
@@ -203,7 +205,8 @@ class DrumMachine():
                                         else:
                                             note_to_play = currentButton['text']
                                             if note_to_play != "":
-                                                self.play_bass(self.mididict[note_to_play])
+                                                print "looking to play", self.keyNumz[note_to_play]
+                                                self.play_bass(self.keyNumz[note_to_play])
 
 
 
@@ -222,8 +225,7 @@ class DrumMachine():
                              bpm_based_delay = (60.0/self.bpm)/4.0
                              #print bpm_based_delay
                              time.sleep(bpm_based_delay)
-                             self.end_drum()
-                             self.end_bass()
+                             self.end_notes()
                              if self.loop == False: self.keep_playing = False
 
 
@@ -237,23 +239,18 @@ class DrumMachine():
     def play_drum(self,num):
         self.midi_out.set_instrument(18, channel=9)
         self.midi_out.note_on(num, 127)
-        self.noteNowOn = num
+        self.notesOn.append((num,9))
 
     def play_bass(self,num):
+        print "attempting to play", num
         self.midi_out.set_instrument(34, channel=0)
         self.midi_out.note_on(num, 127)
-        self.bassNowOn = num
+        self.notesOn.append((num,0))
 
-    def end_drum(self):
-        if self.noteNowOn >= 0:
-            self.midi_out.note_off(self.noteNowOn)
-            self.noteNowOn = -1
-
-    def end_bass(self):
-        if self.bassNowOn >= 0:
-            self.midi_out.note_off(self.bassNowOn)
-            self.bassNowOn = -1
-
+    def end_notes(self):
+        for note in self.notesOn:
+            self.midi_out.note_off(note[0],None,note[1])
+        self.notesOn=[]
 
     def stop_play(self):
         self.keep_playing = False
@@ -529,6 +526,7 @@ class Piano:
     def button_pressed(self,other):
         note= other.widget.name
         self.btn.config(text=note)
+        print "about to try tp play",self.dict[note]
         self.dict[note].play()
         self.btn.config(bg='green')
         self.parentself.bass_load(note,4)
@@ -592,6 +590,7 @@ class Piano:
 
         counter = 60
         for key in keys:
+            print key[1]
             self.dict[key[1]] =  pygame.mixer.Sound('notes/' + key[1] + '.wav')
             self.mididict[key[1]] = counter
             counter = counter + 1
