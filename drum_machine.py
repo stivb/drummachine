@@ -422,11 +422,30 @@ class DrumMachine():
                 basscolor =  'lightpink'
                 print i,MAX_DRUM_NUM
                 if i<MAX_DRUM_NUM-1:
-                    self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1, command=self.button_clicked(i, j, bpu))
+                    btnName = "btn" + str(i) + ":" + str(j)
+                    self.buttonrowz[i][j] = Button(right_frame, name=btnName, bg=color, width=1, command=self.button_clicked(i, j, bpu))
+                    #self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
+                    self.buttonrowz[i][j].bind('<Double-1>', self.percDblClicked)
                 else:
-                    self.buttonrowz[i][j] = Button(right_frame, bg=basscolor, width=1, command=self.bass_clicked(i, j, bpu))
+                    self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=1, command=self.bass_clicked(i, j, bpu))
                 self.buttonrowz[i][j].grid(row=i, column=j)
 
+    def percDblClicked(self,event):
+        a = str(event.widget).split(".")[-1]
+        rw= a[3:].split(":")[0]
+        cl = a[3:].split(":")[1]
+        print rw
+        print cl
+        self.popupmsg(str(rw) + ":" + str(cl))
+
+    def popupmsg(self, msg):
+        popup = Toplevel(self.root)
+        popup.wm_title("!")
+        label = ttk.Label(popup, text=msg)
+        label.pack(side="top", fill="x", pady=10)
+        B1 = ttk.Button(popup, text="Okay", command=popup.destroy)
+        B1.pack()
+        popup.mainloop()
 
     def create_top_bar(self):
         '''creating top buttons'''
@@ -486,6 +505,7 @@ class DrumMachine():
         self.root.protocol('WM_DELETE_WINDOW', self.exit_app)
         if os.path.isfile('images/beast.ico'): self.root.wm_iconbitmap('images/beast.ico')
         self.root.mainloop()
+        self.popupmsg("hello")
 
 
 
