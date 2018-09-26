@@ -10,6 +10,7 @@ adding comment
 from Tkinter import *
 import tkFileDialog
 import tkMessageBox
+import math
 import os
 
 #modules for playing sounds
@@ -440,12 +441,31 @@ class DrumMachine():
 
     def popupmsg(self, msg):
         popup = Toplevel(self.root)
+        popup.geometry("302x115+645+237")
+        popup.title("Add Beats")
+        popup.configure(background="#d9d9d9")
         popup.wm_title("!")
+        self.btn = [None]*5
+        btnXpos = 0.17
+        for i in range(5):
+            self.btn[i] = Button(popup,name="beats"+str(i),command = lambda: self.add_beats(str(i)) and popup.destroy())
+            self.btn[i].place(relx=btnXpos, rely=0.43, height=25, width=37)
+            self.btn[i].configure(pady="0")
+            self.btn[i].configure(text=str(int(math.pow(2,i+1))))
+            btnXpos = btnXpos+ 0.13
+
         label = ttk.Label(popup, text=msg)
         label.pack(side="top", fill="x", pady=10)
-        B1 = ttk.Button(popup, text="Okay", command=popup.destroy)
-        B1.pack()
+        B1 = ttk.Button(popup, text="Cancel", command=popup.destroy)
+        B1.place(relx=0.40,rely=0.70, height=25, width=50)
         popup.mainloop()
+
+    def add_beats(self,num):
+        print "adding beats"
+        print num
+        return True
+
+
 
     def create_top_bar(self):
         '''creating top buttons'''
