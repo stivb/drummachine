@@ -448,7 +448,8 @@ class DrumMachine():
         self.btn = [None]*5
         btnXpos = 0.17
         for i in range(5):
-            self.btn[i] = Button(popup,name="beats"+str(i),command = lambda: self.add_beats(str(i)) and popup.destroy())
+            btnName = "beats"+str(i)
+            self.btn[i] = Button(popup,name=btnName,command = lambda name=str(int(math.pow(2,i+1))): self.add_beats(name) and popup.destroy())
             self.btn[i].place(relx=btnXpos, rely=0.43, height=25, width=37)
             self.btn[i].configure(pady="0")
             self.btn[i].configure(text=str(int(math.pow(2,i+1))))
