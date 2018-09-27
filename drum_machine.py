@@ -439,17 +439,22 @@ class DrumMachine():
                 print "now at",j
 
             drumPadName= "d_" + str(i)
-            self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=2, text="Beat", command=self.drum_clicked(drumPadName))
+            self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=1, command=self.d_clicked(drumPadName))
             self.drumpads[i].grid(row=i, column=j+2)
-            delPadName = "x" + str(i)
-            self.clearpads[i] = Button(right_frame, name=delPadName, bg=color, width=2, text="Del",
-                                      command=self.del_clicked(delPadName))
-            self.clearpads[i].grid(row=i, column=j + 4)
 
-    def drum_clicked(self,dname):
-        print dname
-        rowclicked = int(dname.split("_")[1])
-        self.buttonrowz[rowclicked][self.currNote].config(bg='green')
+            #delPadName = "x" + str(i)
+            #self.clearpads[i] = Button(right_frame, name=delPadName, bg=color, width=2, command=self.del_clicked(delPadName))
+            #self.clearpads[i].grid(row=i, column=j + 4)
+
+    def d_clicked(self,dname):
+        def callback():
+            if self.currNote<0:
+                return
+            rowclicked = int(dname.split("_")[1])
+            print rowclicked,self.currNote
+            rowclicked = int(dname.split("_")[1])
+            self.buttonrowz[rowclicked][self.currNote].config(bg='green')
+        return callback
 
     def del_clicked(self,xname):
         print xname
@@ -490,7 +495,7 @@ class DrumMachine():
         col = int(msg.split(':')[1])
         while col<32:
             self.buttonrowz[row][col].config(bg='green')
-            col=col+4
+            col=col+int(num)
         print "adding beats to ",msg, " every ", num
         return True
 
