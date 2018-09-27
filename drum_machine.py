@@ -76,6 +76,7 @@ class DrumMachine():
         self._print_device_info()
         print "the port is", self.port
 
+        self.currNote=-1
         self.noteNowOn=-1
         self.bassNowOn=-1
         self.dict = {}
@@ -228,7 +229,9 @@ class DrumMachine():
                              #print bpm_based_delay
                              time.sleep(bpm_based_delay)
                              self.end_notes()
+                             self.currNote = i
                              if self.loop == False: self.keep_playing = False
+
 
 
 
@@ -414,22 +417,42 @@ class DrumMachine():
         units = self.units.get()
         c = bpu * units
         right_frame = Frame(self.root)
-        right_frame.grid(row=10, column=6,sticky=W+E+N+S, padx=15, pady=2)
+        right_frame.grid(row=10, column=16,sticky=W+E+N+S, padx=15, pady=2)
         self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
+        self.drumpads = [None]*MAX_DRUM_NUM
+        self.clearpads = [None]*MAX_DRUM_NUM
         for i in range(MAX_DRUM_NUM):
             for j in range(c):
                 self.active = False
                 color = 'grey55' if (j/bpu)%2 else 'khaki'
                 basscolor =  'lightpink'
-                print i,MAX_DRUM_NUM
+                btnName = "btn" + str(i) + ":" + str(j)
                 if i<MAX_DRUM_NUM-1:
-                    btnName = "btn" + str(i) + ":" + str(j)
+
                     self.buttonrowz[i][j] = Button(right_frame, name=btnName, bg=color, width=1, command=self.button_clicked(i, j, bpu))
                     #self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
                     self.buttonrowz[i][j].bind('<Double-1>', self.percDblClicked)
                 else:
                     self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=1, command=self.bass_clicked(i, j, bpu))
+
                 self.buttonrowz[i][j].grid(row=i, column=j)
+                print "now at",j
+
+            drumPadName= "d_" + str(i)
+            self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=2, text="Beat", command=self.drum_clicked(drumPadName))
+            self.drumpads[i].grid(row=i, column=j+2)
+            delPadName = "x" + str(i)
+            self.clearpads[i] = Button(right_frame, name=delPadName, bg=color, width=2, text="Del",
+                                      command=self.del_clicked(delPadName))
+            self.clearpads[i].grid(row=i, column=j + 4)
+
+    def drum_clicked(self,dname):
+        print dname
+        rowclicked = int(dname.split("_")[1])
+        self.buttonrowz[rowclicked][self.currNote].config(bg='green')
+
+    def del_clicked(self,xname):
+        print xname
 
     def percDblClicked(self,event):
         a = str(event.widget).split(".")[-1]
@@ -440,6 +463,7 @@ class DrumMachine():
         self.popupmsg(str(rw) + ":" + str(cl))
 
     def popupmsg(self, msg):
+
         popup = Toplevel(self.root)
         popup.geometry("302x115+645+237")
         popup.title("Add Beats")
@@ -449,7 +473,7 @@ class DrumMachine():
         btnXpos = 0.17
         for i in range(5):
             btnName = "beats"+str(i)
-            self.btn[i] = Button(popup,name=btnName,command = lambda name=str(int(math.pow(2,i+1))): self.add_beats(name) and popup.destroy())
+            self.btn[i] = Button(popup,name=btnName,command = lambda name=str(int(math.pow(2,i+1))): self.add_beats(name,msg) and popup.destroy())
             self.btn[i].place(relx=btnXpos, rely=0.43, height=25, width=37)
             self.btn[i].configure(pady="0")
             self.btn[i].configure(text=str(int(math.pow(2,i+1))))
@@ -461,9 +485,13 @@ class DrumMachine():
         B1.place(relx=0.40,rely=0.70, height=25, width=50)
         popup.mainloop()
 
-    def add_beats(self,num):
-        print "adding beats"
-        print num
+    def add_beats(self,num,msg):
+        row = int(msg.split(':')[0])
+        col = int(msg.split(':')[1])
+        while col<32:
+            self.buttonrowz[row][col].config(bg='green')
+            col=col+4
+        print "adding beats to ",msg, " every ", num
         return True
 
 
