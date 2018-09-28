@@ -191,6 +191,12 @@ class DrumMachine():
                       #self.button is an an array of button rows
                       buttoncolzlength = len(self.buttonrowz[0])
                       for i in range(buttoncolzlength):
+                             self.colbtnz[i].config(bg='green')
+                             if i>0:
+                                 self.colbtnz[i-1].config(bg='white')
+                             else:
+                                 self.colbtnz[buttoncolzlength-1].config(bg='white')
+
                              for thisrow in self.buttonrowz:
                                 currentButton = thisrow[i]
                                 currentRowNumber = self.buttonrowz.index(thisrow)
@@ -419,8 +425,18 @@ class DrumMachine():
         right_frame = Frame(self.root)
         right_frame.grid(row=10, column=16,sticky=W+E+N+S, padx=15, pady=2)
         self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
+        self.colbtnz = [0 for x in range(c)]
         self.drumpads = [None]*MAX_DRUM_NUM
         self.clearpads = [None]*MAX_DRUM_NUM
+
+
+        for q in range(c):
+            btnName ="col"+ str(q)
+            self.colbtnz[q] = Button(right_frame, name=btnName, bg='white', width=1, command=self.col_clicked(q))
+            self.colbtnz[q].grid(row=0, column=q)
+
+
+
         for i in range(MAX_DRUM_NUM):
             for j in range(c):
                 self.active = False
@@ -435,16 +451,19 @@ class DrumMachine():
                 else:
                     self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=1, command=self.bass_clicked(i, j, bpu))
 
-                self.buttonrowz[i][j].grid(row=i, column=j)
+                self.buttonrowz[i][j].grid(row=i+1, column=j)
                 print "now at",j
 
             drumPadName= "d_" + str(i)
             self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=1, command=self.d_clicked(drumPadName))
-            self.drumpads[i].grid(row=i, column=j+2)
+            self.drumpads[i].grid(row=i+1, column=j+2)
 
             #delPadName = "x" + str(i)
             #self.clearpads[i] = Button(right_frame, name=delPadName, bg=color, width=2, command=self.del_clicked(delPadName))
             #self.clearpads[i].grid(row=i, column=j + 4)
+
+    def col_clicked(self,num):
+        print num
 
     def d_clicked(self,dname):
         def callback():
