@@ -186,6 +186,7 @@ class DrumMachine():
         self.thread.start()
 
     def play(self):
+                self.thetime = time.time()
                 self.keep_playing = True
                 while self.keep_playing:
                       #self.button is an an array of button rows
@@ -236,6 +237,7 @@ class DrumMachine():
                              time.sleep(bpm_based_delay)
                              self.end_notes()
                              self.currNote = i
+                             self.thetime = time.time()
                              if self.loop == False: self.keep_playing = False
 
 
@@ -469,10 +471,21 @@ class DrumMachine():
         def callback():
             if self.currNote<0:
                 return
+
+            delay = (60.0 / self.bpm) / 4.0
+            timesincenotechange = time.time() - self.thetime
+
             rowclicked = int(dname.split("_")[1])
             print rowclicked,self.currNote
             rowclicked = int(dname.split("_")[1])
-            self.buttonrowz[rowclicked][self.currNote].config(bg='green')
+
+            notepos = self.currNote
+            if (timesincenotechange/delay>0.5):
+                self.buttonrowz[rowclicked][notepos].config(bg='green')
+            else:
+                notepos = notepos-1
+                if notepos<0: notepos=31
+                self.buttonrowz[rowclicked][notepos].config(bg='green')
         return callback
 
     def del_clicked(self,xname):
