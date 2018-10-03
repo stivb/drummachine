@@ -135,7 +135,9 @@ class DrumMachine():
         for i in range(MAX_DRUM_NUM):
             for j in range(c):
                 if self.buttonrowz[i][j].config('bg')[-1] == 'green':
-                    self.buttonpickleformat[i][j] = 'active'
+                    self.buttonpickleformat[i][j] = '*'
+                else:
+                    self.buttonpickleformat[i][j] = ' '
         self.pattern_list[prevpval] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu':bpu, 'units':units}
         self.reconstruct_pattern(pattern_num, bpu, units)
 
@@ -174,8 +176,9 @@ class DrumMachine():
         try:
             for i in range(MAX_DRUM_NUM):
                 for j in range(c):
-                    if self.pattern_list[pattern_num]['bl'][i][j] == 'active':
+                    if self.pattern_list[pattern_num]['bl'][i][j] == '*':
                         self.buttonrowz[i][j].config(bg='green')
+                        self.buttonrowz[i][j].config(text='*')
         except:return
 
 
@@ -334,11 +337,18 @@ class DrumMachine():
 
     def button_clicked(self,i,j,bpu):
             def callback():
-                btn = self.buttonrowz[i][j]
-                color = 'grey55' if (j/bpu)%2 else 'khaki'
-                new_color = 'green' if btn.cget('bg') != 'green' else color
-                btn.config(bg=new_color)
+                self.change_beat(i,j,bpu)
             return callback
+
+
+    def change_beat(self,i,j,bpu):
+        btn = self.buttonrowz[i][j]
+        color = 'grey55' if (j / bpu) % 2 else 'khaki'
+        txt = ' '
+        new_color = 'green' if btn.cget('bg') != 'green' else color
+        new_text = '*' if (btn.cget('text') == '' or btn.cget('text') == ' ') else txt
+        btn.config(bg=new_color)
+        btn.config(text=new_text)
 
 
     def bass_clicked(self, i, j, bpu):
@@ -447,7 +457,7 @@ class DrumMachine():
                 btnName = "btn" + str(i) + ":" + str(j)
                 if i<MAX_DRUM_NUM-1:
 
-                    self.buttonrowz[i][j] = Button(right_frame, name=btnName, bg=color, width=1, command=self.button_clicked(i, j, bpu))
+                    self.buttonrowz[i][j] = Button(right_frame, name=btnName, bg=color, width=1, command=self.button_clicked(i, j,bpu))
                     #self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
                     self.buttonrowz[i][j].bind('<Double-1>', self.percDblClicked)
                 else:
@@ -526,7 +536,8 @@ class DrumMachine():
         row = int(msg.split(':')[0])
         col = int(msg.split(':')[1])
         while col<32:
-            self.buttonrowz[row][col].config(bg='green')
+            #self.buttonrowz[row][col].config(bg='green')
+            self.change_beat(row,col,self.bpu.get())
             col=col+int(num)
         print "adding beats to ",msg, " every ", num
         return True
