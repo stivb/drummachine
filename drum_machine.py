@@ -262,13 +262,13 @@ class DrumMachine():
         self.notesOn.append((num,1))
 
     def play_bass(self,num):
-        print "attempting to play", num
-        self.midi_out.set_instrument(34, channel=0)
+        self.midi_out.set_instrument(65, channel=0)
         self.midi_out.note_on(num, 127)
         self.notesOn.append((num,0))
 
     def end_notes(self):
         for note in self.notesOn:
+            print "Note off",note[0],note[1]
             self.midi_out.note_off(note[0],None,note[1])
         self.notesOn=[]
 
