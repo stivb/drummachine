@@ -135,7 +135,8 @@ class DrumMachine():
         for i in range(MAX_DRUM_NUM):
             for j in range(c):
                 if self.buttonrowz[i][j].config('bg')[-1] == 'green':
-                    self.buttonpickleformat[i][j] = '*'
+                    self.buttonpickleformat[i][j] = self.buttonrowz[i][j].cget('text')
+                    print self.buttonrowz[i][j].cget('text')
                 else:
                     self.buttonpickleformat[i][j] = ' '
         self.pattern_list[prevpval] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu':bpu, 'units':units}
@@ -176,15 +177,18 @@ class DrumMachine():
         try:
             for i in range(MAX_DRUM_NUM):
                 for j in range(c):
-                    if self.pattern_list[pattern_num]['bl'][i][j] == '*':
+                    #if self.pattern_list[pattern_num]['bl'][i][j] == '*':
+                    toPlay = self.pattern_list[pattern_num]['bl'][i][j]
+                    if len(toPlay)>0 and toPlay!=" ":
                         self.buttonrowz[i][j].config(bg='green')
-                        self.buttonrowz[i][j].config(text='*')
+                        self.buttonrowz[i][j].config(text=toPlay)
         except:return
 
 
 
 
     def play_in_thread(self):
+        #print "About to play ",self.percPort, self.bassPort
         self.thread = threading.Thread(None,self.play, None, (), {})
         self.thread.start()
 
@@ -253,9 +257,9 @@ class DrumMachine():
         if rownum==3: return 42
  
     def play_drum(self,num):
-        self.midi_out.set_instrument(18, channel=9)
+        self.midi_out.set_instrument(70, channel=1)
         self.midi_out.note_on(num, 127)
-        self.notesOn.append((num,9))
+        self.notesOn.append((num,1))
 
     def play_bass(self,num):
         print "attempting to play", num
@@ -393,14 +397,20 @@ class DrumMachine():
         bassDevice.set('')
 
         #popupMenu = OptionMenu(playbar_frame, tkvar, *choices)
-        percDeviceMenu = OptionMenu(playbar_frame, percDevice, *self.deviceDict)
+        percDeviceMenu = OptionMenu(playbar_frame, percDevice, *self.deviceDict, command=self.percValue)
         Label(playbar_frame, text="Percussion").grid(row=ln+2, column=0)
         percDeviceMenu.grid(row=ln+2, column=3)
 
-        bassDeviceMenu = OptionMenu(playbar_frame, bassDevice, *self.deviceDict)
+        bassDeviceMenu = OptionMenu(playbar_frame, bassDevice, *self.deviceDict, command=self.bassValue)
         Label(playbar_frame, text="Bass").grid(row=ln + 4, column=0)
         bassDeviceMenu.grid(row=ln + 4, column=3)
 
+    def percValue(self,value):
+        self.percPort = int(value[0])
+        self.midi_out = pygame.midi.Output(self.percPort, 0)
+
+    def bassValue(self,value):
+        self.bassPort = int(value[1])
 
 
 
