@@ -257,7 +257,7 @@ class DrumMachine():
         if rownum==3: return 42
  
     def play_drum(self,num):
-        self.midi_out.set_instrument(70, channel=1)
+        self.midi_out.set_instrument(50, channel=9)
         self.midi_out.note_on(num, 127)
         self.notesOn.append((num,1))
 
@@ -388,29 +388,14 @@ class DrumMachine():
         self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt, command= self.changeBpm)
         self.bpu_widget.grid(row=ln, column=45)
 
-        percDevice = StringVar()
-        bassDevice = StringVar()
 
-        # Dictionary with options
 
-        percDevice.set('')  # set the default option
-        bassDevice.set('')
-
-        #popupMenu = OptionMenu(playbar_frame, tkvar, *choices)
-        percDeviceMenu = OptionMenu(playbar_frame, percDevice, *self.deviceDict, command=self.percValue)
-        Label(playbar_frame, text="Percussion").grid(row=ln+2, column=0)
-        percDeviceMenu.grid(row=ln+2, column=3)
-
-        bassDeviceMenu = OptionMenu(playbar_frame, bassDevice, *self.deviceDict, command=self.bassValue)
-        Label(playbar_frame, text="Bass").grid(row=ln + 4, column=0)
-        bassDeviceMenu.grid(row=ln + 4, column=3)
 
     def percValue(self,value):
         self.percPort = int(value[0])
         self.midi_out = pygame.midi.Output(self.percPort, 0)
 
-    def bassValue(self,value):
-        self.bassPort = int(value[1])
+
 
 
 
@@ -508,6 +493,33 @@ class DrumMachine():
                 self.buttonrowz[rowclicked][notepos].config(bg='green')
         return callback
 
+
+
+    def popupSettings(self):
+
+        popup = Toplevel(self.root)
+        popup.geometry("302x115+900+237")
+        percDevice = StringVar()
+
+        # Dictionary with options
+
+        percDevice.set('')  # set the default option
+
+        # popupMenu = OptionMenu(playbar_frame, tkvar, *choices)
+        percDeviceMenu = OptionMenu(popup, percDevice, *self.deviceDict, command=self.percValue)
+        Label(popup, text="Midi Device").grid(row=0, column=0)
+        percDeviceMenu.grid(row=0, column=2)
+
+        for i in range(1,5):
+            Label(popup, text="Drum" + str(i)).grid(row=i, column=0)
+
+
+        popup.title("Major Settings")
+        popup.configure(background="#d9d9d9")
+        popup.wm_title("!")
+        popup.mainloop()
+
+
     def del_clicked(self,xname):
         print xname
 
@@ -597,6 +609,7 @@ class DrumMachine():
 
         self.aboutmenu = Menu(self.menubar, tearoff=0 )
         self.aboutmenu.add_command(label="About", command=self.about)
+        self.aboutmenu.add_command(label="Settings", command=self.popupSettings)
         self.menubar.add_cascade(label="About", menu=self.aboutmenu)
 
         self.root.config(menu=self.menubar)
