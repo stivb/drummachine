@@ -86,7 +86,7 @@ class DrumMachine():
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/bassdrum1.wav",0)
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
         self.deviceDict = self._midi_dev_dict()
-
+        self.transpose = 0
 
 
     def about(self):
@@ -171,9 +171,9 @@ class DrumMachine():
         self.bpu_widget.insert(0, bpu)
         self.units_widget.delete(0, END)
         self.units_widget.insert(0, units)
-        self.create_right_pad()
+        self.createTimeLine()
         c = bpu * units
-        self.create_right_pad()
+        self.createTimeLine()
         try:
             for i in range(MAX_DRUM_NUM):
                 for j in range(c):
@@ -193,17 +193,18 @@ class DrumMachine():
         self.thread.start()
 
     def play(self):
+                self.numMeasures = len(self.buttonrowz[0])
                 self.thetime = time.time()
                 self.keep_playing = True
                 while self.keep_playing:
                       #self.button is an an array of button rows
-                      buttoncolzlength = len(self.buttonrowz[0])
-                      for i in range(buttoncolzlength):
+
+                      for i in range(self.numMeasures):
                              self.colbtnz[i].config(bg='green')
                              if i>0:
                                  self.colbtnz[i-1].config(bg='white')
                              else:
-                                 self.colbtnz[buttoncolzlength-1].config(bg='white')
+                                 self.colbtnz[self.numMeasures-1].config(bg='white')
 
                              for thisrow in self.buttonrowz:
                                 currentButton = thisrow[i]
@@ -222,7 +223,7 @@ class DrumMachine():
                                         else:
                                             note_to_play = currentButton['text']
                                             if note_to_play != "":
-                                                print "looking to play", self.keyNumz[note_to_play]
+                                                #print "looking to play", self.keyNumz[note_to_play]
                                                 self.play_bass(self.keyNumz[note_to_play])
 
 
@@ -253,17 +254,18 @@ class DrumMachine():
     def row_to_drum_num(self,rownum):
         if rownum==0: return 36
         if rownum==1: return 38
-        if rownum==2: return 46
+        if rownum==2: return 40
         if rownum==3: return 42
  
     def play_drum(self,num):
         self.midi_out.set_instrument(50, channel=9)
-        self.midi_out.note_on(num, 127)
-        self.notesOn.append((num,1))
+        self.midi_out.note_on(num, 127,9)
+        self.notesOn.append((num,9))
 
     def play_bass(self,num):
+        num = num + self.transpose
         self.midi_out.set_instrument(65, channel=0)
-        self.midi_out.note_on(num, 127)
+        self.midi_out.note_on(num, 127,0)
         self.notesOn.append((num,0))
 
     def end_notes(self):
@@ -370,6 +372,8 @@ class DrumMachine():
                 btn.config(bg=new_color)
             return callback
 
+
+
     def create_play_bar(self):
         playbar_frame = Frame(self.root, height=15)
         ln = MAX_DRUM_NUM+10
@@ -388,12 +392,18 @@ class DrumMachine():
         self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt, command= self.changeBpm)
         self.bpu_widget.grid(row=ln, column=45)
 
+        playbar_frame.bind("<Key>", self.quay)
 
 
+    def quay(self,event):
+        print "pressed", repr(event.char)
 
     def percValue(self,value):
-        self.percPort = int(value[0])
+        portId = self.deviceDict[value]
+        print "The port is ", portId
+        self.percPort = portId
         self.midi_out = pygame.midi.Output(self.percPort, 0)
+        self.settingsPopup.destroy()
 
 
 
@@ -424,25 +434,39 @@ class DrumMachine():
 
 
 
-
-    def create_right_pad(self):
+    def createTimeLine(self):
         bpu = self.bpu.get()
         units = self.units.get()
         c = bpu * units
         right_frame = Frame(self.root)
         right_frame.grid(row=10, column=16,sticky=W+E+N+S, padx=15, pady=2)
+
         self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
         self.colbtnz = [0 for x in range(c)]
+        self.stopBtnz = [0 for x in range(c+1)] #needs extra one because going up to 32
         self.drumpads = [None]*MAX_DRUM_NUM
         self.clearpads = [None]*MAX_DRUM_NUM
 
 
+
+
+        for q in range(c+1):
+            btnName ="btnEnd"+ str(q)
+            self.stopBtnz[q] = Button(right_frame, name=btnName, bg='white', text=str(q), width=1,command=self.stop_clicked(q))
+            self.stopBtnz[q].grid(row=0, column=q)
+
+        right_frame.grid_rowconfigure(1, minsize=20)
+
         for q in range(c):
             btnName ="col"+ str(q)
-            self.colbtnz[q] = Button(right_frame, name=btnName, bg='white', width=1, command=self.col_clicked(q))
-            self.colbtnz[q].grid(row=0, column=q)
+            numToShow = str(q % 12)
+            self.colbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=1, command=self.col_clicked(q))
+            self.colbtnz[q].grid(row=2, column=q)
 
 
+
+        right_frame.grid_rowconfigure(3,minsize=20)
+        row_base = 4
 
         for i in range(MAX_DRUM_NUM):
             for j in range(c):
@@ -458,19 +482,29 @@ class DrumMachine():
                 else:
                     self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=1, command=self.bass_clicked(i, j, bpu))
 
-                self.buttonrowz[i][j].grid(row=i+1, column=j)
+                self.buttonrowz[i][j].grid(row=i+row_base, column=j)
                 print "now at",j
 
             drumPadName= "d_" + str(i)
             self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=1, command=self.d_clicked(drumPadName))
-            self.drumpads[i].grid(row=i+1, column=j+2)
+            right_frame.grid_columnconfigure(j+1, minsize=10)
+            self.drumpads[i].grid(row=i+row_base, column=j+2)
 
             #delPadName = "x" + str(i)
             #self.clearpads[i] = Button(right_frame, name=delPadName, bg=color, width=2, command=self.del_clicked(delPadName))
             #self.clearpads[i].grid(row=i, column=j + 4)
 
     def col_clicked(self,num):
-        print num
+        def callback():
+            self.transpose = num
+            print "self transpose is now ",self.transpose
+        return callback
+
+    def stop_clicked(self,num):
+        def callback():
+            self.numMeasures = num
+            print "self numMeasures is now ",self.numMeasures
+        return callback
 
     def d_clicked(self,dname):
         def callback():
@@ -487,10 +521,12 @@ class DrumMachine():
             notepos = self.currNote
             if (timesincenotechange/delay>0.5):
                 self.buttonrowz[rowclicked][notepos].config(bg='green')
+                self.buttonrowz[rowclicked][notepos].config(text='*')
             else:
                 notepos = notepos-1
                 if notepos<0: notepos=31
                 self.buttonrowz[rowclicked][notepos].config(bg='green')
+                self.buttonrowz[rowclicked][notepos].config(text='*')
         return callback
 
 
@@ -498,6 +534,7 @@ class DrumMachine():
     def popupSettings(self):
 
         popup = Toplevel(self.root)
+        self.settingsPopup = popup
         popup.geometry("302x115+900+237")
         percDevice = StringVar()
 
@@ -506,7 +543,7 @@ class DrumMachine():
         percDevice.set('')  # set the default option
 
         # popupMenu = OptionMenu(playbar_frame, tkvar, *choices)
-        percDeviceMenu = OptionMenu(popup, percDevice, *self.deviceDict, command=self.percValue)
+        percDeviceMenu = OptionMenu(popup, percDevice, *sorted(self.deviceDict.keys()), command=self.percValue)
         Label(popup, text="Midi Device").grid(row=0, column=0)
         percDeviceMenu.grid(row=0, column=2)
 
@@ -586,16 +623,16 @@ class DrumMachine():
         Label(topbar_frame, text='Units:').grid(row=0, column=4)
         self.units = IntVar()
         self.units.set(8)
-        self.units_widget = Spinbox(topbar_frame, from_=1, to=8, width=5, textvariable=self.units, command=self.create_right_pad)
+        self.units_widget = Spinbox(topbar_frame, from_=1, to=8, width=5, textvariable=self.units, command=self.createTimeLine)
         self.units_widget.grid(row=0, column=5)
 
         Label(topbar_frame, text='BPUs:').grid(row=0, column=6)
         self.bpu = IntVar()
         self.bpu.set(4)
-        self.bpu_widget = Spinbox(topbar_frame, from_=1, to=10, width=5, textvariable=self.bpu, command= self.create_right_pad)
+        self.bpu_widget = Spinbox(topbar_frame, from_=1, to=10, width=5, textvariable=self.bpu, command= self.createTimeLine)
         self.bpu_widget.grid(row=0, column=7)
 
-        self.create_right_pad()
+        self.createTimeLine()
 
     def top_menu(self):
         self.menubar = Menu(self.root)
@@ -627,7 +664,8 @@ class DrumMachine():
         self.root.mainloop()
         self.popupmsg("hello")
 
-
+    def key(event):
+        print "pressed", repr(event.char)
 
     def _print_device_info(self):
         for i in range( pygame.midi.get_count() ):
