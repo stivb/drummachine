@@ -256,7 +256,7 @@ class DrumMachine():
         if rownum==1: return 38
         if rownum==2: return 40
         if rownum==3: return 42
- 
+
     def play_drum(self,num):
         self.midi_out.set_instrument(50, channel=9)
         self.midi_out.note_on(num, 127,9)
@@ -395,8 +395,8 @@ class DrumMachine():
         playbar_frame.bind("<Key>", self.quay)
 
 
-    def quay(self,event):
-        print "pressed", repr(event.char)
+    def quay(self):
+        print "pressed"
 
     def percValue(self,value):
         portId = self.deviceDict[value]
