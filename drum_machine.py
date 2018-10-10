@@ -35,11 +35,7 @@ MAX_DRUM_NUM = 5
 def play_back():
     print "play_back"
 
-def key_pressed():
-    print "key_pressed"
 
-def key_released():
-    print "key_released"
 
 def record_on_off():
     print "record_on_off"
@@ -91,6 +87,21 @@ class DrumMachine():
 
     def about(self):
         tkMessageBox.showinfo("About","Tkinter GUI Application\n Development Hotshot")
+
+    def key_pressed(self, event):
+        c = repr(event.char)
+        if c == 'a': self.d_clicked("_1")
+        if c == 's': self.d_clicked("_2")
+        if c == 'd': self.d_clicked("_3")
+        if c == 'f': self.d_clicked("_4")
+
+
+    def key_released(self, event):
+        c = repr(event.char)
+        if c == 'a': self.d_clicked("_1")
+        if c == 's': self.d_clicked("_2")
+        if c == 'd': self.d_clicked("_3")
+        if c == 'f': self.d_clicked("_4")
 
 
     def exit_app(self):
@@ -395,7 +406,7 @@ class DrumMachine():
         playbar_frame.bind("<Key>", self.quay)
 
 
-    def quay(self):
+    def quay(self,event):
         print "pressed"
 
     def percValue(self,value):
@@ -511,6 +522,8 @@ class DrumMachine():
             if self.currNote<0:
                 return
 
+            print "dclicked"
+            print dname
             delay = (60.0 / self.bpm) / 4.0
             timesincenotechange = time.time() - self.thetime
 
@@ -661,8 +674,11 @@ class DrumMachine():
         self.create_play_bar()
         self.root.protocol('WM_DELETE_WINDOW', self.exit_app)
         if os.path.isfile('images/beast.ico'): self.root.wm_iconbitmap('images/beast.ico')
+        self.root.bind('<KeyPress>', self.key_released)
+        self.root.bind('<KeyRelease>', self.key_released)
         self.root.mainloop()
         self.popupmsg("hello")
+
 
     def key(event):
         print "pressed", repr(event.char)
@@ -845,8 +861,7 @@ class Piano:
         # it does not go out of scope and binds the presses and
         # releases of keys to their respective methods
         self.parent.keys = keys
-        self.parent.bind('<KeyPress>', key_pressed)
-        self.parent.bind('<KeyRelease>', key_released)
+
 
         # These 2 lines bind the '1' and '2' keys on the keyboard
         # to the playback method, which then hooks them up to their
