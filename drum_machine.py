@@ -674,7 +674,7 @@ class DrumMachine():
         self.create_play_bar()
         self.root.protocol('WM_DELETE_WINDOW', self.exit_app)
         if os.path.isfile('images/beast.ico'): self.root.wm_iconbitmap('images/beast.ico')
-        self.root.bind('<KeyPress>', self.key_released)
+        self.root.bind('<KeyPress>', self.key_pressed)
         self.root.bind('<KeyRelease>', self.key_released)
         self.root.mainloop()
         self.popupmsg("hello")
