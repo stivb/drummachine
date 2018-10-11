@@ -90,18 +90,22 @@ class DrumMachine():
 
     def key_pressed(self, event):
         c = repr(event.char)
-        if c == 'a': self.d_clicked("_1")
-        if c == 's': self.d_clicked("_2")
-        if c == 'd': self.d_clicked("_3")
-        if c == 'f': self.d_clicked("_4")
+        print "pressed ",c
 
 
     def key_released(self, event):
-        c = repr(event.char)
-        if c == 'a': self.d_clicked("_1")
-        if c == 's': self.d_clicked("_2")
-        if c == 'd': self.d_clicked("_3")
-        if c == 'f': self.d_clicked("_4")
+
+        print "released ", event.char
+
+        if event.char == "a":
+            print "yes"
+            self.hitDrum("_0")
+        if event.char == 's':
+            self.hitDrum("_1")
+        if event.char == 'd':
+            self.hitDrum("_2")
+        if event.char == 'f':
+            self.hitDrum("_3")
 
 
     def exit_app(self):
@@ -281,7 +285,7 @@ class DrumMachine():
 
     def end_notes(self):
         for note in self.notesOn:
-            print "Note off",note[0],note[1]
+            #print "Note off",note[0],note[1]
             self.midi_out.note_off(note[0],None,note[1])
         self.notesOn=[]
 
@@ -418,8 +422,6 @@ class DrumMachine():
 
 
 
-
-
 ##        photo = PhotoImage(file='images/sig.gif')
 ##        label = Label(playbar_frame, image=photo)
 ##        label.image = photo
@@ -519,28 +521,33 @@ class DrumMachine():
 
     def d_clicked(self,dname):
         def callback():
-            if self.currNote<0:
-                return
-
-            print "dclicked"
-            print dname
-            delay = (60.0 / self.bpm) / 4.0
-            timesincenotechange = time.time() - self.thetime
-
-            rowclicked = int(dname.split("_")[1])
-            print rowclicked,self.currNote
-            rowclicked = int(dname.split("_")[1])
-
-            notepos = self.currNote
-            if (timesincenotechange/delay>0.5):
-                self.buttonrowz[rowclicked][notepos].config(bg='green')
-                self.buttonrowz[rowclicked][notepos].config(text='*')
-            else:
-                notepos = notepos-1
-                if notepos<0: notepos=31
-                self.buttonrowz[rowclicked][notepos].config(bg='green')
-                self.buttonrowz[rowclicked][notepos].config(text='*')
+            self.hitDrum(dname)
         return callback
+
+
+    def hitDrum(self,dname):
+        print dname
+        if self.currNote < 0:
+            return
+
+        print "dclicked"
+        print dname
+        delay = (60.0 / self.bpm) / 4.0
+        timesincenotechange = time.time() - self.thetime
+
+        rowclicked = int(dname.split("_")[1])
+        print rowclicked, self.currNote
+        rowclicked = int(dname.split("_")[1])
+
+        notepos = self.currNote
+        if (timesincenotechange / delay > 0.5):
+            self.buttonrowz[rowclicked][notepos].config(bg='green')
+            self.buttonrowz[rowclicked][notepos].config(text='*')
+        else:
+            notepos = notepos - 1
+            if notepos < 0: notepos = 31
+            self.buttonrowz[rowclicked][notepos].config(bg='green')
+            self.buttonrowz[rowclicked][notepos].config(text='*')
 
 
 
