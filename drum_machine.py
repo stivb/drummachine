@@ -614,11 +614,13 @@ class DrumMachine():
     def add_beats(self,num,msg):
         row = int(msg.split(':')[0])
         col = int(msg.split(':')[1])
+        r = row
+        c = col
         while col<32:
             #self.buttonrowz[row][col].config(bg='green')
             self.change_beat(row,col,self.bpu.get())
             col=col+int(num)
-        print "adding beats to ",msg, " every ", num
+        self.change_beat(r, c, self.bpu.get())
         return True
 
 
