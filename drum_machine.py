@@ -407,7 +407,7 @@ class DrumMachine():
         self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt, command= self.changeBpm)
         self.bpu_widget.grid(row=ln, column=45)
 
-        playbar_frame.bind("<Key>", self.quay)
+        #playbar_frame.bind("<Key>", self.quay)
 
 
     def quay(self,event):
@@ -452,7 +452,7 @@ class DrumMachine():
         units = self.units.get()
         c = bpu * units
         right_frame = Frame(self.root)
-        right_frame.grid(row=10, column=16,sticky=W+E+N+S, padx=15, pady=2)
+        right_frame.grid(row=10, column=0,sticky=W+E+N+S, padx=15, pady=2)
 
         self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
         self.colbtnz = [0 for x in range(c)]
@@ -679,7 +679,7 @@ class DrumMachine():
         self.root.title('Drum Beast')
         self.top_menu()
         self.create_top_bar()
-        self.create_left_pad()
+        #self.create_left_pad()
         self.create_play_bar()
         self.root.protocol('WM_DELETE_WINDOW', self.exit_app)
         if os.path.isfile('images/beast.ico'): self.root.wm_iconbitmap('images/beast.ico')
