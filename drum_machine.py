@@ -84,6 +84,8 @@ class DrumMachine():
         self.deviceDict = self._midi_dev_dict()
         self.transpose = 0
 
+        self.btnW = 6
+        self.btnH = 4
 
     def about(self):
         tkMessageBox.showinfo("About","Tkinter GUI Application\n Development Hotshot")
@@ -465,7 +467,7 @@ class DrumMachine():
 
         for q in range(c+1):
             btnName ="btnEnd"+ str(q)
-            self.stopBtnz[q] = Button(right_frame, name=btnName, bg='white', text=str(q), width=1,command=self.stop_clicked(q))
+            self.stopBtnz[q] = Button(right_frame, name=btnName, bg='white', text=str(q), width=self.btnW, height=self.btnH,command=self.stop_clicked(q))
             self.stopBtnz[q].grid(row=0, column=q)
 
         right_frame.grid_rowconfigure(1, minsize=20)
@@ -473,7 +475,7 @@ class DrumMachine():
         for q in range(c):
             btnName ="col"+ str(q)
             numToShow = str(q % 12)
-            self.colbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=1, command=self.col_clicked(q))
+            self.colbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=self.btnW, height=self.btnH, command=self.col_clicked(q))
             self.colbtnz[q].grid(row=2, column=q)
 
 
@@ -489,17 +491,17 @@ class DrumMachine():
                 btnName = "btn" + str(i) + ":" + str(j)
                 if i<MAX_DRUM_NUM-1:
 
-                    self.buttonrowz[i][j] = Button(right_frame, name=btnName, bg=color, width=1, command=self.button_clicked(i, j,bpu))
+                    self.buttonrowz[i][j] = Button(right_frame, name=btnName, bg=color, width=self.btnW, height=self.btnH, command=self.button_clicked(i, j,bpu))
                     #self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
                     self.buttonrowz[i][j].bind('<Double-1>', self.percDblClicked)
                 else:
-                    self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=1, command=self.bass_clicked(i, j, bpu))
+                    self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=self.btnW, height=self.btnH, command=self.bass_clicked(i, j, bpu))
 
                 self.buttonrowz[i][j].grid(row=i+row_base, column=j)
                 print "now at",j
 
             drumPadName= "d_" + str(i)
-            self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=1, command=self.d_clicked(drumPadName))
+            self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=self.btnW, height=self.btnH, command=self.d_clicked(drumPadName))
             right_frame.grid_columnconfigure(j+1, minsize=10)
             self.drumpads[i].grid(row=i+row_base, column=j+2)
 
