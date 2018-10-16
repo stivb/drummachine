@@ -155,7 +155,6 @@ class DrumMachine():
             for j in range(c):
                 if self.buttonrowz[i][j].config('bg')[-1] == 'green':
                     self.buttonpickleformat[i][j] = self.buttonrowz[i][j].cget('text')
-                    print self.buttonrowz[i][j].cget('text')
                 else:
                     self.buttonpickleformat[i][j] = ' '
         self.pattern_list[prevpval] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu':bpu, 'units':units}
@@ -174,38 +173,41 @@ class DrumMachine():
         # your code here
         self.printTimeElapsed("START RECONSTRUCT PATTERN")
 
-        self.widget_drum_file_name = [0]*MAX_DRUM_NUM
-        try:
-            self.df = self.pattern_list[pattern_num]['df']
-            for i in range(len(self.df)):
-                    file_name = self.df[i]
-                    if file_name == 0:
-                        self.widget_drum_name[i].delete(0, END)
-                        continue
-                    self.widget_drum_file_name.insert(i, file_name)
-                    drum_name = os.path.basename(file_name)
-                    self.widget_drum_name[i].delete(0, END)
-                    self.widget_drum_name[i].insert(0, drum_name)
-        except:
-                for i in range(MAX_DRUM_NUM):
-                    try: self.df
-                    except:self.widget_drum_name[i].delete(0, END)
+        # self.widget_drum_file_name = [0]*MAX_DRUM_NUM
+        # try:
+        #     self.df = self.pattern_list[pattern_num]['df']
+        #     for i in range(len(self.df)):
+        #             file_name = self.df[i]
+        #             if file_name == 0:
+        #                 self.widget_drum_name[i].delete(0, END)
+        #                 continue
+        #             self.widget_drum_file_name.insert(i, file_name)
+        #             drum_name = os.path.basename(file_name)
+        #             self.widget_drum_name[i].delete(0, END)
+        #             self.widget_drum_name[i].insert(0, drum_name)
+        # except:
+        #         for i in range(MAX_DRUM_NUM):
+        #             try: self.df
+        #             except:self.widget_drum_name[i].delete(0, END)
 
-        self.printTimeElapsed("AFTER FIRST LOOP")
-        try:
-            bpu = self.pattern_list[pattern_num]['bpu']
-            units = self.pattern_list[pattern_num]['units']
-        except:
-            return
-
-        self.printTimeElapsed("AFTER TRY CATCH")
-        self.bpu_widget.delete(0, END)
-        self.bpu_widget.insert(0, bpu)
-        self.units_widget.delete(0, END)
-        self.units_widget.insert(0, units)
+        # self.printTimeElapsed("AFTER FIRST LOOP")
+        # try:
+        #     bpu = self.pattern_list[pattern_num]['bpu']
+        #     units = self.pattern_list[pattern_num]['units']
+        # except:
+        #     return
+        #
+        # self.printTimeElapsed("AFTER TRY CATCH")
+        # self.bpu_widget.delete(0, END)
+        # self.bpu_widget.insert(0, bpu)
+        # self.units_widget.delete(0, END)
+        # self.units_widget.insert(0, units)
+        # #self.createTimeLine()
+        # c = bpu * units
         #self.createTimeLine()
         c = bpu * units
-        #self.createTimeLine()
+        self.printTimeElapsed("BEFORE RINSE TIMELINE")
+        self.rinseTimeline(c,bpu)
         self.printTimeElapsed("AFTER CREATE TIMELINE")
 
         try:
@@ -390,6 +392,14 @@ class DrumMachine():
         new_text = '*' if (btn.cget('text') == '' or btn.cget('text') == ' ') else txt
         btn.config(bg=new_color)
         btn.config(text=new_text)
+
+    def rinseTimeline(self, numCols, bpu):
+        for i in range(MAX_DRUM_NUM):
+            for j in range(numCols):
+                color = 'grey55' if (j / bpu) % 2 else 'khaki'
+                self.buttonrowz[i][j].config(text=' ',bg=color)
+                #self.buttonrowz[i][j].config(bg=color)
+
 
 
     def bass_clicked(self, i, j, bpu):
