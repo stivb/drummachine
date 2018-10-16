@@ -12,6 +12,7 @@ import tkFileDialog
 import tkMessageBox
 import math
 import os
+import time
 
 #modules for playing sounds
 import time
@@ -86,6 +87,7 @@ class DrumMachine():
 
         self.btnW = 6
         self.btnH = 4
+        self.prevTime = time.clock()
 
     def about(self):
         tkMessageBox.showinfo("About","Tkinter GUI Application\n Development Hotshot")
@@ -161,8 +163,17 @@ class DrumMachine():
 
 
 
+    def printTimeElapsed(self,msg):
+        currTime = time.clock()
+        print msg, currTime-self.prevTime
+        self.prevTime=currTime
+
 
     def reconstruct_pattern(self,pattern_num, bpu, units):
+        self.prevTime = time.clock()
+        # your code here
+        self.printTimeElapsed("START RECONSTRUCT PATTERN")
+
         self.widget_drum_file_name = [0]*MAX_DRUM_NUM
         try:
             self.df = self.pattern_list[pattern_num]['df']
@@ -179,18 +190,24 @@ class DrumMachine():
                 for i in range(MAX_DRUM_NUM):
                     try: self.df
                     except:self.widget_drum_name[i].delete(0, END)
+
+        self.printTimeElapsed("AFTER FIRST LOOP")
         try:
             bpu = self.pattern_list[pattern_num]['bpu']
             units = self.pattern_list[pattern_num]['units']
         except:
             return
+
+        self.printTimeElapsed("AFTER TRY CATCH")
         self.bpu_widget.delete(0, END)
         self.bpu_widget.insert(0, bpu)
         self.units_widget.delete(0, END)
         self.units_widget.insert(0, units)
-        self.createTimeLine()
+        #self.createTimeLine()
         c = bpu * units
-        self.createTimeLine()
+        #self.createTimeLine()
+        self.printTimeElapsed("AFTER CREATE TIMELINE")
+
         try:
             for i in range(MAX_DRUM_NUM):
                 for j in range(c):
@@ -200,6 +217,7 @@ class DrumMachine():
                         self.buttonrowz[i][j].config(bg='green')
                         self.buttonrowz[i][j].config(text=toPlay)
         except:return
+        self.printTimeElapsed("AFTER LAST LOOP")
 
 
 
@@ -498,7 +516,7 @@ class DrumMachine():
                     self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=self.btnW, height=self.btnH, command=self.bass_clicked(i, j, bpu))
 
                 self.buttonrowz[i][j].grid(row=i+row_base, column=j)
-                print "now at",j
+                #print "now at",j
 
             drumPadName= "d_" + str(i)
             self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=self.btnW, height=self.btnH, command=self.d_clicked(drumPadName))
