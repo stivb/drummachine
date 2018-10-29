@@ -513,30 +513,57 @@ class DrumMachine():
         row_base = 4
 
         for i in range(MAX_DRUM_NUM):
-            for j in range(c):
-                self.active = False
-                color = 'grey55' if (j/bpu)%2 else 'khaki'
-                basscolor =  'lightpink'
-                btnName = "btn" + str(i) + ":" + str(j)
-                if i<MAX_DRUM_NUM-1:
-
-                    self.buttonrowz[i][j] = Button(right_frame, name=btnName, bg=color, width=self.btnW, height=self.btnH, command=self.button_clicked(i, j,bpu))
-                    #self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
-                    self.buttonrowz[i][j].bind('<Double-1>', self.percDblClicked)
-                else:
-                    self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=self.btnW, height=self.btnH, command=self.bass_clicked(i, j, bpu))
-
-                self.buttonrowz[i][j].grid(row=i+row_base, column=j)
-                #print "now at",j
-
-            drumPadName= "d_" + str(i)
-            self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=self.btnW, height=self.btnH, command=self.d_clicked(drumPadName))
-            right_frame.grid_columnconfigure(j+1, minsize=10)
-            self.drumpads[i].grid(row=i+row_base, column=j+2)
+            self.makeTrackButtons(right_frame,i,row_base,c,bpu)
+            # for j in range(c):
+            #     self.active = False
+            #     color = 'grey55' if (j/bpu)%2 else 'khaki'
+            #     basscolor =  'lightpink'
+            #     btnName = "btn" + str(i) + ":" + str(j)
+            #     if i<MAX_DRUM_NUM-1:
+            #
+            #         self.buttonrowz[i][j] = Button(right_frame, name=btnName, bg=color, width=self.btnW, height=self.btnH, command=self.button_clicked(i, j,bpu))
+            #         #self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
+            #         self.buttonrowz[i][j].bind('<Double-1>', self.percDblClicked)
+            #     else:
+            #         self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=self.btnW, height=self.btnH, command=self.bass_clicked(i, j, bpu))
+            #
+            #     self.buttonrowz[i][j].grid(row=i+row_base, column=j)
+            #     #print "now at",j
+            #
+            # drumPadName= "d_" + str(i)
+            # self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=self.btnW, height=self.btnH, command=self.d_clicked(drumPadName))
+            # right_frame.grid_columnconfigure(j+1, minsize=10)
+            # self.drumpads[i].grid(row=i+row_base, column=j+2)
 
             #delPadName = "x" + str(i)
             #self.clearpads[i] = Button(right_frame, name=delPadName, bg=color, width=2, command=self.del_clicked(delPadName))
             #self.clearpads[i].grid(row=i, column=j + 4)
+
+    def makeTrackButtons(self, frameBase, rowNum, rowBase, maxBeats, beatsPerUnit):
+        for j in range(maxBeats):
+
+            self.active = False
+            color = 'grey55' if (j / beatsPerUnit) % 2 else 'khaki'
+            basscolor = 'lightpink'
+            btnName = "btn" + str(rowNum) + ":" + str(j)
+            if rowNum < MAX_DRUM_NUM - 1:
+                self.buttonrowz[rowNum][j] = Button(frameBase, name=btnName, bg=color, width=self.btnW, height=self.btnH,
+                                                    command=self.button_clicked(rowNum, j, beatsPerUnit))
+                # self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
+                self.buttonrowz[rowNum][j].bind('<Double-1>', self.percDblClicked)
+            else:
+                self.buttonrowz[rowNum][j] = Button(frameBase, bg=basscolor, width=self.btnW, height=self.btnH,
+                                                    command=self.bass_clicked(rowNum, j, beatsPerUnit))
+
+            self.buttonrowz[rowNum][j].grid(row=rowNum + rowBase, column=j)
+
+        drumPadName = "d_" + str(rowNum)
+        self.drumpads[rowNum] = Button(frameBase, name=drumPadName, bg=color, width=self.btnW, height=self.btnH,
+                                       command=self.d_clicked(drumPadName))
+        frameBase.grid_columnconfigure(j + 1, minsize=10)
+        self.drumpads[rowNum].grid(row=rowNum + rowBase, column=j + 2)
+
+
 
     def col_clicked(self,num):
         def callback():
