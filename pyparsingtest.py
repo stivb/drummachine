@@ -1,3 +1,25 @@
+import pyparsing as pp
+
+number = pp.Word( pp.nums,max=2 )
+plusOrMinus  = pp.Word( "+-/", max=1 )
+transposition= pp.Combine(plusOrMinus + number)
+lpar  = pp.Literal( '{' ).suppress()
+rpar = pp.Literal( '}' ).suppress()
+startend = pp.Optional(pp.Combine(number + "-" + number))
+whitespace = pp.ZeroOrMore(" ")
+space = pp.Optional(pp.OneOrMore(" "))
+pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
+repeatCount = pp.Combine("*",number)
+patterns = pp.OneOrMore(pattern|repeatCount)
+
+print patterns.parseString("{0 +0 0-31} {0 +0} {0 +0 0-31} {0 +0 0-31} {0 +5 0-31} {0 +5 0-31} {0 +0 0-31} {0 +0 0-31} {0 +7 0-31} {0 +7 0-31} {0 +0 0-31}")
+
+
+
+
+
+
+
 # from pyparsing import Literal,Word,ZeroOrMore,Forward,nums,oneOf,Group
 #
 # def Syntax():
@@ -31,25 +53,25 @@
 #  Simple example of using nestedExpr to define expressions using
 #  paired delimiters for grouping lists and sublists
 #
-
-from pyparsing import *
-import pprint
-
-data = """
-{ 
-     { item1 "item with } in it" } 
-     { 
-      {item2a item2b } 
-      {item3} 
-     } 
-
-}
-"""
-
-# use {}'s for nested lists
-nestedItems = nestedExpr("{", "}")
-print(( (nestedItems+stringEnd).parseString(data).asList() ))
-
-# use default delimiters of ()'s
-mathExpr = nestedExpr()
-print(( mathExpr.parseString( "((( ax + by)*C) *(Z | (E^F) & D))") ))
+#
+# from pyparsing import *
+# import pprint
+#
+# data = """
+# {
+#      { item1 "item with } in it" }
+#      {
+#       {item2a item2b }
+#       {item3}
+#      }
+#
+# }
+# """
+#
+# # use {}'s for nested lists
+# nestedItems = nestedExpr("{", "}")
+# print(( (nestedItems+stringEnd).parseString(data).asList() ))
+#
+# # use default delimiters of ()'s
+# mathExpr = nestedExpr()
+# print(( mathExpr.parseString( "((( ax + by)*C) *(Z | (E^F) & D))") ))
