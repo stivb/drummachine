@@ -68,7 +68,7 @@ class Song:
 class Break:
     def __init__(self):
         self.pattern = 0
-        self.transpose = 0g
+        self.transpose = 0
         self.startAt = 0
         self.endAt = 31
 
@@ -77,5 +77,5 @@ class Break:
 
 
     def toString(self):
-        return "P" + self.pattern + " T" + self.transpose + ":" + self.startAt + "-" + self.endAt
+        return "{" + self.pattern + " " + self.transpose + " " + self.startAt + "-" + self.endAt + "}"
 
