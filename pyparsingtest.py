@@ -9,10 +9,10 @@ startend = pp.Optional(pp.Combine(number + "-" + number))
 whitespace = pp.ZeroOrMore(" ")
 space = pp.Optional(pp.OneOrMore(" "))
 pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
-repeatCount = pp.Combine("*",number)
+repeatCount = pp.Combine("*"+number)
 patterns = pp.OneOrMore(pattern|repeatCount)
+print patterns.parseString("{0 +0 1-32}*4 {0 +5 1-32}*2 {0 +0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}")
 
-print patterns.parseString("{0 +0 0-31} {0 +0} {0 +0 0-31} {0 +0 0-31} {0 +5 0-31} {0 +5 0-31} {0 +0 0-31} {0 +0 0-31} {0 +7 0-31} {0 +7 0-31} {0 +0 0-31}")
 
 
 
