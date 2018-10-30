@@ -13,6 +13,7 @@ import threading
 import pickle
 
 import ttk
+import pyparsing as pp
 
 import pygame
 import pygame.midi
@@ -65,16 +66,53 @@ class Song:
         return retval;
 
 
+    def getSequenceArray(self,inputString):
+        number = pp.Word(pp.nums, max=2)
+        plusOrMinus = pp.Word("+-/", max=1)
+        transposition = pp.Optional(pp.Combine(plusOrMinus + number))
+        lpar = pp.Literal('{').suppress()
+        rpar = pp.Literal('}').suppress()
+        startend = pp.Optional(pp.Combine(number + "-" + number))
+        whitespace = pp.ZeroOrMore(" ")
+        space = pp.Optional(pp.OneOrMore(" "))
+        pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
+        repeatCount = pp.Combine("*" + number)
+        patterns = pp.OneOrMore(pattern | repeatCount)
+        shorthand = inputString
+        # shorthand = patterns.parseString(
+        #     "{0 +0 1-32}*4 {0 +5 1-32}*2 {0 +0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}")
+        longhand = []
+        for i in range(len(shorthand)):
+            s = shorthand[i]
+            if s[0] == '*':
+                repeat = int(s[1:]) - 1
+                for j in range(repeat):
+                    longhand.append(shorthand[i - 1])
+            else:
+                longhand.append(shorthand[i])
+        return longhand
+
+
 class Break:
     def __init__(self):
         self.pattern = 0
         self.transpose = 0
-        self.startAt = 0
-        self.endAt = 31
+        self.startAt = 1
+        self.endAt = 32
+
+    def setBreak(self,inputString):
+        items = filter(None, inputString.split(' '))
+        self.pattern = int(items[0])
+        if len(items)>=2:
+            self.transpose = int(items[1])
+        if len(items)==3:
+            startend = items[2]
+            self.startAt = startend.split('-')[0]
+            self.endAt = startend.split('-')[1] 
+
 
     def __eq__(self, other):
         return self.pattern == other.pattern and self.transpose == other.transpose and self.startAt==other.startAt and self.endAt==other.endAt
-
 
     def toString(self):
         return "{" + self.pattern + " " + self.transpose + " " + self.startAt + "-" + self.endAt + "}"

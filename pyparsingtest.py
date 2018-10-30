@@ -2,7 +2,7 @@ import pyparsing as pp
 
 number = pp.Word( pp.nums,max=2 )
 plusOrMinus  = pp.Word( "+-/", max=1 )
-transposition= pp.Combine(plusOrMinus + number)
+transposition = pp.Optional(pp.Combine(plusOrMinus + number))
 lpar  = pp.Literal( '{' ).suppress()
 rpar = pp.Literal( '}' ).suppress()
 startend = pp.Optional(pp.Combine(number + "-" + number))
@@ -11,9 +11,18 @@ space = pp.Optional(pp.OneOrMore(" "))
 pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
 repeatCount = pp.Combine("*"+number)
 patterns = pp.OneOrMore(pattern|repeatCount)
-print patterns.parseString("{0 +0 1-32}*4 {0 +5 1-32}*2 {0 +0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}")
+shorthand = patterns.parseString("{0 +0 1-32}*4 {0 +5 1-32}*2 {0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}")
+longhand = []
+for i in range(len(shorthand)):
+    s = shorthand[i]
+    if s[0]=='*':
+        repeat = int(s[1:])-1
+        for j in range(repeat):
+            longhand.append(shorthand[i-1])
+    else:
+        longhand.append(shorthand[i])
 
-
+print longhand
 
 
 
