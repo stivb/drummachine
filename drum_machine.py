@@ -493,7 +493,7 @@ class DrumMachine():
 
 
 
-
+        #this creates the stop/start buttons
         for q in range(c+1):
             btnName ="btnEnd"+ str(q)
             self.stopBtnz[q] = Button(right_frame, name=btnName, bg='white', text=str(q), width=self.btnW, height=self.btnH,command=self.stop_clicked(q))
@@ -501,6 +501,7 @@ class DrumMachine():
 
         right_frame.grid_rowconfigure(1, minsize=20)
 
+        #these are the transpose buttons
         for q in range(c):
             btnName ="col"+ str(q)
             numToShow = str(q % 12)
