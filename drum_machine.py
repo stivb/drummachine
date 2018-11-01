@@ -13,6 +13,7 @@ import tkMessageBox
 import math
 import os
 import time
+import datetime
 
 #modules for playing sounds
 import time
@@ -124,6 +125,12 @@ class DrumMachine():
         pickle.dump( self.pattern_list, open( file_name, "wb" ) )
         self.root.title(os.path.basename(file_name) + " - DrumBeast")
 
+    def save_tmpfile(self):
+        self.record_pattern()
+        filename = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M.bt")
+        filename = os.path.dirname(os.path.abspath(__file__)) + "\\loops\\" + filename
+        pickle.dump(self.pattern_list, open(filename[2:], "wb"))
+
 
 
     def load_project(self):
@@ -227,6 +234,7 @@ class DrumMachine():
 
     def play_in_thread(self):
         #print "About to play ",self.percPort, self.bassPort
+        self.save_tmpfile()
         self.thread = threading.Thread(None,self.play, None, (), {})
         self.thread.start()
 
@@ -238,11 +246,11 @@ class DrumMachine():
                       #self.button is an an array of button rows
 
                       for i in range(self.numMeasures):
-                             self.colbtnz[i].config(bg='green')
+                             self.stopBtnz[i].config(bg='green')
                              if i>0:
-                                 self.colbtnz[i-1].config(bg='white')
+                                 self.stopBtnz[i-1].config(bg='white')
                              else:
-                                 self.colbtnz[self.numMeasures-1].config(bg='white')
+                                 self.stopBtnz[self.numMeasures-1].config(bg='white')
 
                              for thisrow in self.buttonrowz:
                                 currentButton = thisrow[i]
@@ -302,14 +310,14 @@ class DrumMachine():
 
     def play_bass(self,num):
         num = num + self.transpose
-        self.midi_out.set_instrument(65, channel=0)
+        self.midi_out.set_instrument(32, channel=1)
         self.midi_out.note_on(num, 127,0)
         self.notesOn.append((num,0))
 
     def end_notes(self):
         for note in self.notesOn:
-            #print "Note off",note[0],note[1]
-            self.midi_out.note_off(note[0],None,note[1])
+            print "Note off",note[0],note[1]
+            self.midi_out.note_off(note[0],0,note[1])
         self.notesOn=[]
 
     def stop_play(self):
@@ -494,25 +502,27 @@ class DrumMachine():
 
 
         #this creates the stop/start buttons
-        for q in range(c+1):
+        Label(right_frame,text="Trunc").grid(row=0,column=0)
+        for q in range(0,c):
             btnName ="btnEnd"+ str(q)
-            self.stopBtnz[q] = Button(right_frame, name=btnName, bg='white', text=str(q), width=self.btnW, height=self.btnH,command=self.stop_clicked(q))
-            self.stopBtnz[q].grid(row=0, column=q)
+            self.stopBtnz[q] = Button(right_frame, name=btnName, bg='white', text=str(q+1), width=self.btnW, height=self.btnH,command=self.stop_clicked(q+1))
+            self.stopBtnz[q].grid(row=1, column=q)
 
         right_frame.grid_rowconfigure(1, minsize=20)
 
+        Label(right_frame, text="Trans").grid(row=2, column=0)
         #these are the transpose buttons
         for q in range(c):
             btnName ="col"+ str(q)
             numToShow = str(q % 12)
             self.colbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=self.btnW, height=self.btnH, command=self.col_clicked(q))
-            self.colbtnz[q].grid(row=2, column=q)
+            self.colbtnz[q].grid(row=3, column=q)
 
 
 
         right_frame.grid_rowconfigure(3,minsize=20)
-        row_base = 4
-
+        row_base = 5
+        Label(right_frame, text="Music").grid(row=4, column=0)
         for i in range(MAX_DRUM_NUM):
             self.makeTrackButtons(right_frame,i,row_base,c,bpu)
             # for j in range(c):
@@ -687,16 +697,22 @@ class DrumMachine():
     def create_top_bar(self):
         '''creating top buttons'''
         topbar_frame = Frame(self.root)
-        topbar_frame.config(height=25)
-        topbar_frame.grid(row=0, columnspan=12, rowspan=10, padx=5, pady=5)
+        topbar_frame.config(height=30)
+        topbar_frame.grid(row=0)
 
-        Label(topbar_frame, text='Pattern Number:').grid(row=0, column=1)
+        Label(topbar_frame, text='Sequence Text:').grid(row=0, column=1, sticky=W)
+        formula = StringVar()
+        txtformula = Entry(topbar_frame,textvariable=formula,width=150)
+        txtformula.grid(row=0,column=2,columnspan=1, sticky=W)
+
+
+        Label(topbar_frame, text='Pattern Number:').grid(row=0, column=3)
         self.patt = IntVar()
         self.patt.set(0)
         self.prevpatvalue = 0 # to trace last click
-        Spinbox(topbar_frame, from_=0, to=9, width=5, textvariable=self.patt, command=self.record_pattern).grid(row=0, column=2)
+        Spinbox(topbar_frame, from_=0, to=9, width=20, textvariable=self.patt, command=self.record_pattern).grid(row=0, column=4)
         self.pat_name = Entry(topbar_frame)
-        self.pat_name.grid(row=0, column=3, padx=7,pady=2)
+        self.pat_name.grid(row=0, column=5, padx=7,pady=2)
         self.pat_name.insert(0, 'Pattern %s'%self.patt.get())
         self.pat_name.config(state='readonly')
 
