@@ -108,7 +108,7 @@ class Break:
         if len(items)==3:
             startend = items[2]
             self.startAt = startend.split('-')[0]
-            self.endAt = startend.split('-')[1] 
+            self.endAt = startend.split('-')[1]
 
 
     def __eq__(self, other):

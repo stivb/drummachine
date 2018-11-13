@@ -38,6 +38,7 @@ class Piano:
         #Frame.__init__(self, parent, background='SkyBlue3')
 
         self.top = Toplevel(parentself.root)
+        self.top.geometry('800x200')
 
         self.parentself = parentself
 
@@ -47,6 +48,8 @@ class Piano:
         self.btn = srcBtn
         self.dict = parentself.dict
         self.mididict = parentself.mididict
+
+        self.hover=false
 
         # A call to the init_user_interface method.
         self.init_user_interface()
@@ -62,11 +65,11 @@ class Piano:
     def button_pressed(self,other):
         note= other.widget.name
         self.btn.config(text=note)
-        print "about to try tp play",self.dict[note]
         self.dict[note].play()
         self.btn.config(bg='green')
         self.parentself.bass_load(note,4)
-        self.top.destroy()
+        if not self.hover:
+            self.top.destroy()
     ##########################################################
     # Description: init_user_interface is a method that      #
     # populates the window passed in all of the Labels,      #
@@ -127,26 +130,25 @@ class Piano:
         counter = 60
         for key in keys:
             self.dict[key[1]] =  pygame.mixer.Sound('notes/' + key[1] + '.wav')
-            print "we play ", self.dict[key[1]]
             self.mididict[key[1]] = counter
             counter = counter + 1
 
         print self.dict
         # This group of lines creates the record Label.
-        img = PhotoImage(file='pictures/red_button.gif')
-        record_button = Label(self.top, image=img, bd=0)
-        record_button.image = img
-        record_button.place(x=700, y=0)
-        record_button.name = 'red_button'
-        record_button.bind('<Button-1>', record_on_off)
+        # img = PhotoImage(file='pictures/red_button.gif')
+        # record_button = Label(self.top, image=img, bd=0)
+        # record_button.image = img
+        # record_button.place(x=700, y=0)
+        # record_button.name = 'red_button'
+        # #record_button.bind('<Button-1>', record_on_off)
 
         # This group of lines creates the play Label.
-        img = PhotoImage(file='pictures/green_button.gif')
-        play_button = Label(self.top, image=img, bd=0)
-        play_button.image = img
-        play_button.place(x=700, y=50)
-        play_button.name = 'green_button'
-        play_button.bind('<Button-1>', play_back)
+        # img = PhotoImage(file='pictures/green_button.gif')
+        # play_button = Label(self.top, image=img, bd=0)
+        # play_button.image = img
+        # play_button.place(x=700, y=50)
+        # play_button.name = 'green_button'
+        # play_button.bind('<Button-1>', play_back)
         #play_button.bind('<ButtonRelease-1>', label_released)
 
         # This titles the window.
@@ -172,8 +174,8 @@ class Piano:
         # to the playback method, which then hooks them up to their
         # respective files. This is mostly for demonstration and
         # experimentation purposes.
-        self.parent.bind('1', play_back)
-        self.parent.bind('2', play_back)
+        # self.parent.bind('1', play_back)
+        # self.parent.bind('2', play_back)
 
         # This line packs all elements bound to the window.
         #self.pack(fill=BOTH, expand=1)

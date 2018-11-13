@@ -97,13 +97,9 @@ class DrumMachine():
 
     def key_pressed(self, event):
         c = repr(event.char)
-        print "pressed ",c
 
 
     def key_released(self, event):
-
-        print "released ", event.char
-
         if event.char == "a":
             print "yes"
             self.hitDrum("_0")
@@ -355,10 +351,11 @@ class DrumMachine():
 
 
     def addToDrumWidget(self,drum_name,drum_no):
+        return
         #basically this is clearing and filling  a text box
-        self.widget_drum_name[drum_no].delete(0, END)
-        self.widget_drum_name[drum_no].insert(0, drum_name)
-        print "inserting this", self.widget_drum_name[drum_no]
+        # self.widget_drum_name[drum_no].delete(0, END)
+        # self.widget_drum_name[drum_no].insert(0, drum_name)
+        # print "inserting this", self.widget_drum_name[drum_no]
 
 
     def drum_load(self, drum_no):
@@ -413,20 +410,21 @@ class DrumMachine():
 
 
 
-    def bass_clicked(self, i, j, bpu):
-            def callback():
-                btn = self.buttonrowz[i][j]
-                color = 'lightpink'
-                if btn.cget('bg') != 'green':
-                    piano.Piano(self,btn)
-                    new_color='green'
-                    self.addToDrumWidget("piano",4)
-                else:
-                    new_color=color
-                    btn.config(text="")
-                print color,btn.cget('bg'),new_color
-                btn.config(bg=new_color)
-            return callback
+    def bass_clicked(self, event, i, j, bpu):
+        print event.state,i,j,bpu
+        print "Hello", event.state;
+        btn = self.buttonrowz[i][j]
+        color = 'lightpink'
+        if btn.cget('bg') != 'green':
+            piano.Piano(self,btn)
+            new_color='green'
+            self.addToDrumWidget("piano",4)
+        else:
+            new_color=color
+            btn.config(text="")
+        print color,btn.cget('bg'),new_color
+        btn.config(bg=new_color)
+
 
 
 
@@ -571,8 +569,10 @@ class DrumMachine():
                 # self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
                 self.buttonrowz[rowNum][j].bind('<Double-1>', self.percDblClicked)
             else:
-                self.buttonrowz[rowNum][j] = Button(frameBase, bg=basscolor, width=self.btnW, height=self.btnH,
-                                                    command=self.bass_clicked(rowNum, j, beatsPerUnit))
+                self.buttonrowz[rowNum][j] = Button(frameBase, bg=basscolor, width=self.btnW, height=self.btnH)
+                #                                   command=self.bass_clicked(rowNum, j, beatsPerUnit))
+                self.buttonrowz[rowNum][j].bind("<ButtonPress-1>", lambda event, rn=rowNum, jay=j, BPU=beatsPerUnit: self.bass_clicked(event, rn,jay,BPU))
+
 
             self.buttonrowz[rowNum][j].grid(row=rowNum + rowBase, column=j)
 
