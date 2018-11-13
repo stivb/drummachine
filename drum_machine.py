@@ -13,6 +13,7 @@ import tkMessageBox
 import math
 import os
 import time
+import datetime
 
 #modules for playing sounds
 import time
@@ -73,6 +74,7 @@ class DrumMachine():
         self.midi_out = pygame.midi.Output(self.port, 0)
         self._print_device_info()
         print "the port is", self.port
+        self.queuedPattern = 0
 
         self.currNote=-1
         self.noteNowOn=-1
@@ -124,6 +126,12 @@ class DrumMachine():
         pickle.dump( self.pattern_list, open( file_name, "wb" ) )
         self.root.title(os.path.basename(file_name) + " - DrumBeast")
 
+    def save_tmpfile(self):
+        self.record_pattern()
+        filename = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M.bt")
+        filename = os.path.dirname(os.path.abspath(__file__)) + "\\loops\\" + filename
+        pickle.dump(self.pattern_list, open(filename[2:], "wb"))
+
 
 
     def load_project(self):
@@ -144,6 +152,7 @@ class DrumMachine():
 
     def record_pattern(self):
         pattern_num, bpu, units = self.patt.get(),self.bpu.get(), self.units.get()
+        self.queuedPattern = self.patt.get()
         self.pat_name.config(state='normal')
         self.pat_name.delete(0, END)
         self.pat_name.insert(0, 'Pattern %s'%pattern_num)
@@ -163,16 +172,17 @@ class DrumMachine():
 
 
 
-    def printTimeElapsed(self,msg):
-        currTime = time.clock()
-        print msg, currTime-self.prevTime
-        self.prevTime=currTime
+    #def printTimeElapsed(self,msg):
+        #currTime = time.clock()
+        #print msg, currTime-self.prevTime
+        #self.prevTime=currTime
 
 
     def reconstruct_pattern(self,pattern_num, bpu, units):
+        print "Reconstructing"
         self.prevTime = time.clock()
         # your code here
-        self.printTimeElapsed("START RECONSTRUCT PATTERN")
+        #self.printTimeElapsed("START RECONSTRUCT PATTERN")
 
         # self.widget_drum_file_name = [0]*MAX_DRUM_NUM
         # try:
@@ -207,9 +217,9 @@ class DrumMachine():
         # c = bpu * units
         #self.createTimeLine()
         c = bpu * units
-        self.printTimeElapsed("BEFORE RINSE TIMELINE")
+        #self.printTimeElapsed("BEFORE RINSE TIMELINE")
         self.rinseTimeline(c,bpu)
-        self.printTimeElapsed("AFTER CREATE TIMELINE")
+        #self.printTimeElapsed("AFTER CREATE TIMELINE")
 
         try:
             for i in range(MAX_DRUM_NUM):
@@ -217,68 +227,68 @@ class DrumMachine():
                     #if self.pattern_list[pattern_num]['bl'][i][j] == '*':
                     toPlay = self.pattern_list[pattern_num]['bl'][i][j]
                     if len(toPlay)>0 and toPlay!=" ":
-                        self.buttonrowz[i][j].config(bg='green')
-                        self.buttonrowz[i][j].config(text=toPlay)
+                        self.buttonrowz[i][j].config(bg='green',text=toPlay)
         except:return
-        self.printTimeElapsed("AFTER LAST LOOP")
-
+        #self.printTimeElapsed("AFTER LAST LOOP")
+        return time.clock()-self.prevTime
 
 
 
     def play_in_thread(self):
         #print "About to play ",self.percPort, self.bassPort
+        self.save_tmpfile()
         self.thread = threading.Thread(None,self.play, None, (), {})
         self.thread.start()
 
     def play(self):
-                self.numMeasures = len(self.buttonrowz[0])
+                self.startAt = 0
+                self.stopAt = len(self.buttonrowz[0])
                 self.thetime = time.time()
                 self.keep_playing = True
+                endMeasure = self.units.get()*self.bpu.get()
+
                 while self.keep_playing:
                       #self.button is an an array of button rows
 
-                      for i in range(self.numMeasures):
-                             self.colbtnz[i].config(bg='green')
-                             if i>0:
-                                 self.colbtnz[i-1].config(bg='white')
-                             else:
-                                 self.colbtnz[self.numMeasures-1].config(bg='white')
+                      #going through all the measures one by one
 
+                      for i in range(self.stopAt):
+
+
+                             self.stopBtnz[i].config(bg='green')
+                             if i>0:
+                                 self.stopBtnz[i-1].config(bg='white')
+                             else:
+                                 self.stopBtnz[self.stopAt - 1].config(bg='white')
+
+                             #at each measure proceeding vertically down
                              for thisrow in self.buttonrowz:
+
                                 currentButton = thisrow[i]
                                 currentRowNumber = self.buttonrowz.index(thisrow)
                                 try:
-
-                                    # if currentRowNumber==4:
-                                    #     btnTxt = currentButton['text']
-                                    #     if btnTxt!="":
-                                    #         self.dict[btnTxt].play()
-                                    #     print btnTxt
-
                                     if currentButton.cget('bg') == 'green':
                                         if currentRowNumber!=4:
                                             self.play_drum(self.row_to_drum_num(currentRowNumber))
                                         else:
                                             note_to_play = currentButton['text']
                                             if note_to_play != "":
-                                                #print "looking to play", self.keyNumz[note_to_play]
                                                 self.play_bass(self.keyNumz[note_to_play])
 
-
-
-                                        #print "drum file name is: ", self.widget_drum_file_name[currentRowNumber]
-                                        #print i, sound_filename, self.buttonrowz.index(item)
-                                        #this line tests for no associated sound with the green ness
-
-
-                                        #this part used to work!  check!
-                                        #if not self.widget_drum_file_name[currentRowNumber]:continue
-                                        #sound_filename = self.widget_drum_file_name[currentRowNumber]
-                                        #self.dict[sound_filename].play()
                                 except Exception as e:
                                     print "exception at ",i,str(e)
                                     continue
-                             bpm_based_delay = (60.0/self.bpm)/4.0
+
+                             reconstruction_delay = 0
+                             if i==self.stopAt-1 and self.queuedPattern != self.patt.get():
+                                 self.patt.set(self.queuedPattern)
+                                 reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(), self.units.get())
+
+
+
+                             bpm_based_delay = max(((60.0/self.bpm)/4.0)-reconstruction_delay,0)
+                             print bpm_based_delay
+
                              #print bpm_based_delay
                              time.sleep(bpm_based_delay)
                              self.end_notes()
@@ -302,14 +312,14 @@ class DrumMachine():
 
     def play_bass(self,num):
         num = num + self.transpose
-        self.midi_out.set_instrument(65, channel=0)
+        self.midi_out.set_instrument(32, channel=1)
         self.midi_out.note_on(num, 127,0)
         self.notesOn.append((num,0))
 
     def end_notes(self):
         for note in self.notesOn:
             #print "Note off",note[0],note[1]
-            self.midi_out.note_off(note[0],None,note[1])
+            self.midi_out.note_off(note[0],0,note[1])
         self.notesOn=[]
 
     def stop_play(self):
@@ -487,6 +497,7 @@ class DrumMachine():
 
         self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
         self.colbtnz = [0 for x in range(c)]
+        self.startBtnz = [0 for x in range(c+1)]
         self.stopBtnz = [0 for x in range(c+1)] #needs extra one because going up to 32
         self.drumpads = [None]*MAX_DRUM_NUM
         self.clearpads = [None]*MAX_DRUM_NUM
@@ -494,25 +505,32 @@ class DrumMachine():
 
 
         #this creates the stop/start buttons
-        for q in range(c+1):
+        Label(right_frame,text="Trunc").grid(row=0,column=0)
+        for q in range(0,c):
+            btnStartName = "btnStart"+ str(q)
             btnName ="btnEnd"+ str(q)
-            self.stopBtnz[q] = Button(right_frame, name=btnName, bg='white', text=str(q), width=self.btnW, height=self.btnH,command=self.stop_clicked(q))
-            self.stopBtnz[q].grid(row=0, column=q)
+            f1 = Frame(right_frame)
+            self.startBtnz[q] = Button(f1, name=btnStartName, bg='white', text=str(q+1), width=self.btnW, height=self.btnH/2,command=self.start_clicked(q+1))
+            self.stopBtnz[q] =  Button(f1, name=btnName, bg='white', text=str(q+1), width=self.btnW, height=self.btnH/2,command=self.stop_clicked(q+1))
+            self.startBtnz[q].grid(row=0,column=0)
+            self.stopBtnz[q].grid(row=1, column=0)
+            f1.grid(row=1, column=q)
 
         right_frame.grid_rowconfigure(1, minsize=20)
 
+        Label(right_frame, text="Trans").grid(row=2, column=0)
         #these are the transpose buttons
         for q in range(c):
             btnName ="col"+ str(q)
             numToShow = str(q % 12)
             self.colbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=self.btnW, height=self.btnH, command=self.col_clicked(q))
-            self.colbtnz[q].grid(row=2, column=q)
+            self.colbtnz[q].grid(row=3, column=q)
 
 
 
         right_frame.grid_rowconfigure(3,minsize=20)
-        row_base = 4
-
+        row_base = 5
+        Label(right_frame, text="Music").grid(row=4, column=0)
         for i in range(MAX_DRUM_NUM):
             self.makeTrackButtons(right_frame,i,row_base,c,bpu)
             # for j in range(c):
@@ -572,10 +590,22 @@ class DrumMachine():
             print "self transpose is now ",self.transpose
         return callback
 
+    def start_clicked(self,num):
+        def callback():
+            self.startAt = num
+            print "self startAt is now ",self.stopAt
+        return callback
+
     def stop_clicked(self,num):
         def callback():
-            self.numMeasures = num
-            print "self numMeasures is now ",self.numMeasures
+            self.stopAt = num
+            print "self numMeasures is now ",self.stopAt
+        return callback
+
+    def patt_clicked(self,num):
+        def callback():
+            self.queuedPattern= int(num)
+            print "self pattQueued is now ",self.queuedPattern
         return callback
 
     def d_clicked(self,dname):
@@ -687,31 +717,45 @@ class DrumMachine():
     def create_top_bar(self):
         '''creating top buttons'''
         topbar_frame = Frame(self.root)
-        topbar_frame.config(height=25)
-        topbar_frame.grid(row=0, columnspan=12, rowspan=10, padx=5, pady=5)
+        topbar_frame.config(height=30)
+        topbar_frame.grid_columnconfigure(1, minsize=20)
+        topbar_frame.grid(row=0)
 
-        Label(topbar_frame, text='Pattern Number:').grid(row=0, column=1)
+        self.pattBtnz = [0 for x in range(16)]
+
+        for i in range(16):
+            pattStr = "patt" + str(i)
+            self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', text=str(i + 1), width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
+            self.pattBtnz[i].grid(row=0,column=i+1)
+
+        Label(topbar_frame, text='Sequence Text:').grid(row=0, column=17, sticky=W)
+        formula = StringVar()
+        txtformula = Entry(topbar_frame,textvariable=formula,width=60)
+        txtformula.grid(row=0,column=18,columnspan=1, sticky=W)
+
+
+        Label(topbar_frame, text='Pattern Number:').grid(row=0, column=20)
         self.patt = IntVar()
         self.patt.set(0)
         self.prevpatvalue = 0 # to trace last click
-        Spinbox(topbar_frame, from_=0, to=9, width=5, textvariable=self.patt, command=self.record_pattern).grid(row=0, column=2)
+        Spinbox(topbar_frame, from_=0, to=9, width=20, textvariable=self.patt, command=self.record_pattern).grid(row=0, column=21)
         self.pat_name = Entry(topbar_frame)
-        self.pat_name.grid(row=0, column=3, padx=7,pady=2)
+        self.pat_name.grid(row=0, column=22, padx=2,pady=2)
         self.pat_name.insert(0, 'Pattern %s'%self.patt.get())
         self.pat_name.config(state='readonly')
 
 
-        Label(topbar_frame, text='Units:').grid(row=0, column=4)
+        Label(topbar_frame, text='Units:').grid(row=0, column=23)
         self.units = IntVar()
         self.units.set(8)
         self.units_widget = Spinbox(topbar_frame, from_=1, to=8, width=5, textvariable=self.units, command=self.createTimeLine)
-        self.units_widget.grid(row=0, column=5)
+        self.units_widget.grid(row=0, column=24)
 
-        Label(topbar_frame, text='BPUs:').grid(row=0, column=6)
+        Label(topbar_frame, text='BPUs:').grid(row=0, column=25)
         self.bpu = IntVar()
         self.bpu.set(4)
         self.bpu_widget = Spinbox(topbar_frame, from_=1, to=10, width=5, textvariable=self.bpu, command= self.createTimeLine)
-        self.bpu_widget.grid(row=0, column=7)
+        self.bpu_widget.grid(row=0, column=26)
 
         self.createTimeLine()
 
