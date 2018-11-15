@@ -440,11 +440,20 @@ class DrumMachine():
         loopbutton = ttk.Checkbutton(playbar_frame, text='Loop', variable=loop, command=lambda: self.loop_play(loop.get()))
         loopbutton.grid(row=ln, column=16,padx=1)
 
-        Label(playbar_frame, text='BPM:').grid(row=ln, column=35, padx=30)
+        play_seq = BooleanVar()
+        btn_play_seq = ttk.Checkbutton(playbar_frame, text='Sequence', variable=loop,command=lambda: self.sequence_play(play_seq.get()))
+        btn_play_seq.grid(row=ln, column=18, padx=1)
+
+        Label(playbar_frame, text='BPM:').grid(row=ln, column=20, padx=30)
         self.bpmTxt = StringVar()
         self.bpmTxt.set(120)
         self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt, command= self.changeBpm)
-        self.bpu_widget.grid(row=ln, column=45)
+        self.bpu_widget.grid(row=ln, column=21)
+
+        Label(playbar_frame, text='Sequence Text:').grid(row=ln, column=22, sticky=W)
+        formula = StringVar()
+        txtformula = Entry(playbar_frame, textvariable=formula, width=60)
+        txtformula.grid(row=ln, column=24, columnspan=1, sticky=W)
 
         #playbar_frame.bind("<Key>", self.quay)
 
@@ -712,14 +721,18 @@ class DrumMachine():
         self.change_beat(r, c, self.bpu.get())
         return True
 
+    def newPattern(self):
+        print "Added new pattern"
 
 
     def create_top_bar(self):
         '''creating top buttons'''
         topbar_frame = Frame(self.root)
         topbar_frame.config(height=30)
+        topbar_frame.grid_rowconfigure(3, minsize=20)
         topbar_frame.grid_columnconfigure(1, minsize=20)
-        topbar_frame.grid(row=0)
+        topbar_frame.grid(row=0,column=0,padx=20, sticky=W)
+
 
         self.pattBtnz = [0 for x in range(16)]
 
@@ -728,21 +741,22 @@ class DrumMachine():
             self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', text=str(i + 1), width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
             self.pattBtnz[i].grid(row=0,column=i+1)
 
-        Label(topbar_frame, text='Sequence Text:').grid(row=0, column=17, sticky=W)
-        formula = StringVar()
-        txtformula = Entry(topbar_frame,textvariable=formula,width=60)
-        txtformula.grid(row=0,column=18,columnspan=1, sticky=W)
 
+        btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW, height=self.btnH / 2, command=self.newPattern())
+        btn_newPattern.grid(row=0, column=i + 3,padx=10h)
 
-        Label(topbar_frame, text='Pattern Number:').grid(row=0, column=20)
+        Label(topbar_frame, text='Pattern #:').grid(row=0, column=20)
         self.patt = IntVar()
         self.patt.set(0)
         self.prevpatvalue = 0 # to trace last click
-        Spinbox(topbar_frame, from_=0, to=9, width=20, textvariable=self.patt, command=self.record_pattern).grid(row=0, column=21)
+        Spinbox(topbar_frame, from_=0, to=16, width=10, textvariable=self.patt,command=self.record_pattern).grid(row=0, column=21)
+
+
         self.pat_name = Entry(topbar_frame)
-        self.pat_name.grid(row=0, column=22, padx=2,pady=2)
+
+        self.pat_name.grid(row=0, column=22, padx=1,pady=1)
         self.pat_name.insert(0, 'Pattern %s'%self.patt.get())
-        self.pat_name.config(state='readonly')
+        self.pat_name.config(state='readonly',width=10)
 
 
         Label(topbar_frame, text='Units:').grid(row=0, column=23)
