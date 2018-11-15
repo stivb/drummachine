@@ -743,7 +743,7 @@ class DrumMachine():
 
 
         btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW, height=self.btnH / 2, command=self.newPattern())
-        btn_newPattern.grid(row=0, column=i + 3,padx=10h)
+        btn_newPattern.grid(row=0, column=i + 3,padx=10)
 
         Label(topbar_frame, text='Pattern #:').grid(row=0, column=20)
         self.patt = IntVar()

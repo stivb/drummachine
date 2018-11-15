@@ -49,7 +49,7 @@ class Piano:
         self.dict = parentself.dict
         self.mididict = parentself.mididict
 
-        self.hover=false
+        self.hover=False
 
         # A call to the init_user_interface method.
         self.init_user_interface()
