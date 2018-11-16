@@ -503,7 +503,7 @@ class DrumMachine():
         right_frame.grid(row=10, column=0,sticky=W+E+N+S, padx=15, pady=2)
 
         self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
-        self.colbtnz = [0 for x in range(c)]
+        self.transbtnz = [0 for x in range(c)]
         self.startBtnz = [0 for x in range(c+1)]
         self.stopBtnz = [0 for x in range(c+1)] #needs extra one because going up to 32
         self.drumpads = [None]*MAX_DRUM_NUM
@@ -530,8 +530,8 @@ class DrumMachine():
         for q in range(c):
             btnName ="col"+ str(q)
             numToShow = str(q % 12)
-            self.colbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=self.btnW, height=self.btnH, command=self.col_clicked(q))
-            self.colbtnz[q].grid(row=3, column=q)
+            self.transbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=self.btnW, height=self.btnH, command=self.trans_clicked(q))
+            self.transbtnz[q].grid(row=3, column=q)
 
 
 
@@ -593,23 +593,43 @@ class DrumMachine():
 
 
 
-    def col_clicked(self,num):
+    def trans_clicked(self,num):
         def callback():
             self.transpose = num
             print "self transpose is now ",self.transpose
+            self.trans_rinse()
+            self.transbtnz[num].config(bg="sky blue")
+
         return callback
 
     def start_clicked(self,num):
         def callback():
             self.startAt = num
-            print "self startAt is now ",self.stopAt
+            print "self startAt is now ",self.startAt
+            self.start_rinse()
+            self.startBtnz[num-1].config(bg="sky blue")
         return callback
 
     def stop_clicked(self,num):
         def callback():
             self.stopAt = num
             print "self numMeasures is now ",self.stopAt
+            self.stop_rinse()
+            self.stopBtnz[num-1].config(bg="sky blue")
+
         return callback
+
+    def trans_rinse(self):
+        for j in range(32):
+            self.transbtnz[j].config(bg="White")
+
+    def start_rinse(self):
+        for j in range(32):
+            self.startBtnz[j].config(bg="White")
+
+    def stop_rinse(self):
+        for j in range(32):
+            self.stopBtnz[j].config(bg="White")
 
     def patt_clicked(self,num):
         def callback():
