@@ -78,7 +78,8 @@ class Song:
         pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
         repeatCount = pp.Combine("*" + number)
         patterns = pp.OneOrMore(pattern | repeatCount)
-        shorthand = inputString
+        shorthand = pattern.parseString(inputString)
+        print len(shorthand)
         # shorthand = patterns.parseString(
         #     "{0 +0 1-32}*4 {0 +5 1-32}*2 {0 +0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}")
         longhand = []
@@ -90,6 +91,7 @@ class Song:
                     longhand.append(shorthand[i - 1])
             else:
                 longhand.append(shorthand[i])
+        print len(longhand)
         return longhand
 
 

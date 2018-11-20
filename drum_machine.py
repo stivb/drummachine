@@ -27,7 +27,7 @@ import ttk
 import pygame
 import pygame.midi
 import piano
-
+import song
 
 #constants
 MAX_DRUM_NUM = 5
@@ -451,12 +451,23 @@ class DrumMachine():
         self.bpu_widget.grid(row=ln, column=21)
 
         Label(playbar_frame, text='Sequence Text:').grid(row=ln, column=22, sticky=W)
-        formula = StringVar()
-        txtformula = Entry(playbar_frame, textvariable=formula, width=60)
+        self.formula = StringVar()
+        txtformula = Entry(playbar_frame, textvariable=self.formula, width=60)
         txtformula.grid(row=ln, column=24, columnspan=1, sticky=W)
+
+        self.seqBtn = Button(playbar_frame, name="seqBtn", text="Run Sequence", command=self.run_sequence)
+        self.seqBtn.grid(row=ln,column=25)
 
         #playbar_frame.bind("<Key>", self.quay)
 
+    def run_sequence(self):
+
+        mysong = song.Song()
+        theseq = mysong.getSequenceArray(self.formula.get())
+        print theseq
+
+
+        print "run sequence"
 
     def quay(self,event):
         print "pressed"
