@@ -67,6 +67,9 @@ class Song:
 
 
     def getSequenceArray(self,inputString):
+        testPattern = "{0 +0 1-32}*4 {0 +5 1-32}*2 {0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}"
+        if inputString=="":
+            inputString = testPattern
         number = pp.Word(pp.nums, max=2)
         plusOrMinus = pp.Word("+-/", max=1)
         transposition = pp.Optional(pp.Combine(plusOrMinus + number))
@@ -78,22 +81,26 @@ class Song:
         pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
         repeatCount = pp.Combine("*" + number)
         patterns = pp.OneOrMore(pattern | repeatCount)
-        shorthand = pattern.parseString(inputString)
-        print len(shorthand)
-        # shorthand = patterns.parseString(
-        #     "{0 +0 1-32}*4 {0 +5 1-32}*2 {0 +0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}")
+
+        shorthand = patterns.parseString(inputString)
         longhand = []
         for i in range(len(shorthand)):
             s = shorthand[i]
+            print "S is :",s
             if s[0] == '*':
                 repeat = int(s[1:]) - 1
                 for j in range(repeat):
                     longhand.append(shorthand[i - 1])
             else:
                 longhand.append(shorthand[i])
-        print len(longhand)
-        return longhand
 
+        listOfBreaks = []
+        for i in range(len(longhand)):
+            b = Break()
+            b.setBreak(longhand[i])
+            listOfBreaks.append(b)
+
+        return listOfBreaks
 
 class Break:
     def __init__(self):
@@ -117,5 +124,8 @@ class Break:
         return self.pattern == other.pattern and self.transpose == other.transpose and self.startAt==other.startAt and self.endAt==other.endAt
 
     def toString(self):
-        return "{" + self.pattern + " " + self.transpose + " " + self.startAt + "-" + self.endAt + "}"
+        return "{" + str(self.pattern) + " " + str(self.transpose) + " " + str(self.startAt) + "-" + str(self.endAt) + "}"
+
+    def __repr__(self):
+        return self.toString()
 
