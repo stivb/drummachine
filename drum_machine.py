@@ -14,6 +14,7 @@ import math
 import os
 import time
 import datetime
+import copy
 
 #modules for playing sounds
 import time
@@ -57,7 +58,7 @@ class DrumMachine():
         self.current_drum_no = 0
         self.keep_playing = True
         self.loop = False
-        self.pattern_list = [None]*10
+        self.pattern_list = [None]*16
         self.file1 = ""
         self.file2= ""
         self.file3=""
@@ -276,14 +277,16 @@ class DrumMachine():
                                     continue
 
                              reconstruction_delay = 0
+
+                             #in the case of just jamming and not following a sequence
                              if i==self.stopAt-1 and self.queuedPattern != self.patt.get():
                                  self.patt.set(self.queuedPattern)
                                  reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(), self.units.get())
 
-
+                             #here needs an "if in sequence mode"
 
                              bpm_based_delay = max(((60.0/self.bpm)/4.0)-reconstruction_delay,0)
-                             print bpm_based_delay
+                             #print bpm_based_delay
 
                              #print bpm_based_delay
                              time.sleep(bpm_based_delay)
@@ -717,6 +720,17 @@ class DrumMachine():
         print cl
         self.popupmsg(str(rw) + ":" + str(cl))
 
+    def pattDblClicked(self, event):
+        a = str(event.widget).split(".")[-1]
+        a = a[4:]
+        thelen = len(self.pattern_list)
+        self.record_pattern()
+        currPattern = self.pattern_list[int(a)]
+        copiedPattern = copy.deepcopy(currPattern)
+        self.pattern_list.append(copiedPattern)
+
+
+
     def popupmsg(self, msg):
 
         popup = Toplevel(self.root)
@@ -771,6 +785,7 @@ class DrumMachine():
             pattStr = "patt" + str(i)
             self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', text=str(i + 1), width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
             self.pattBtnz[i].grid(row=0,column=i+1)
+            self.pattBtnz[i].bind('<Double-1>', self.pattDblClicked)
 
 
         btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW, height=self.btnH / 2, command=self.newPattern())
