@@ -146,10 +146,13 @@ class DrumMachine():
             self.reconstruct_pattern(0, self.pattern_list[0]['bpu'], self.pattern_list[0]['units'])# reconstruct the first pattern
         except:tkMessageBox.showerror("Error","An unexpected error occurred trying to reconstruct patterns")
 
-
+    #essentially just records whatever is in the timeline and saves it to self.pattern_list at
+    #the number it was before advancing to the current number (saved in self.prevpatvalue)
+    #therefore working under the assumption that the new pattern is always one more than the previous one
     def record_pattern(self):
         pattern_num, bpu, units = self.patt.get(),self.bpu.get(), self.units.get()
-        self.queuedPattern = self.patt.get()
+        print pattern_num
+        self.queuedPattern = self.patt.get()   #the current?  pattern number?
         self.pat_name.config(state='normal')
         self.pat_name.delete(0, END)
         self.pat_name.insert(0, 'Pattern %s'%pattern_num)
@@ -165,6 +168,9 @@ class DrumMachine():
                 else:
                     self.buttonpickleformat[i][j] = ' '
         self.pattern_list[prevpval] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu':bpu, 'units':units}
+        numPats = len(filter(None, self.pattern_list))
+        for i in range(numPats):
+            self.pattBtnz[i].config(bg="pink")
         self.reconstruct_pattern(pattern_num, bpu, units)
 
 
@@ -175,48 +181,15 @@ class DrumMachine():
         #self.prevTime=currTime
 
 
-    def reconstruct_pattern(self,pattern_num, bpu, units):
+    def reconstruct_pattern(self,pattern_num, bpu, units,rinse=True):
         print "Reconstructing"
         self.prevTime = time.clock()
-        # your code here
-        #self.printTimeElapsed("START RECONSTRUCT PATTERN")
 
-        # self.widget_drum_file_name = [0]*MAX_DRUM_NUM
-        # try:
-        #     self.df = self.pattern_list[pattern_num]['df']
-        #     for i in range(len(self.df)):
-        #             file_name = self.df[i]
-        #             if file_name == 0:
-        #                 self.widget_drum_name[i].delete(0, END)
-        #                 continue
-        #             self.widget_drum_file_name.insert(i, file_name)
-        #             drum_name = os.path.basename(file_name)
-        #             self.widget_drum_name[i].delete(0, END)
-        #             self.widget_drum_name[i].insert(0, drum_name)
-        # except:
-        #         for i in range(MAX_DRUM_NUM):
-        #             try: self.df
-        #             except:self.widget_drum_name[i].delete(0, END)
-
-        # self.printTimeElapsed("AFTER FIRST LOOP")
-        # try:
-        #     bpu = self.pattern_list[pattern_num]['bpu']
-        #     units = self.pattern_list[pattern_num]['units']
-        # except:
-        #     return
-        #
-        # self.printTimeElapsed("AFTER TRY CATCH")
-        # self.bpu_widget.delete(0, END)
-        # self.bpu_widget.insert(0, bpu)
-        # self.units_widget.delete(0, END)
-        # self.units_widget.insert(0, units)
-        # #self.createTimeLine()
-        # c = bpu * units
-        #self.createTimeLine()
         c = bpu * units
-        #self.printTimeElapsed("BEFORE RINSE TIMELINE")
-        self.rinseTimeline(c,bpu)
-        #self.printTimeElapsed("AFTER CREATE TIMELINE")
+
+        if rinse:
+            self.rinseTimeline(c,bpu)
+
 
         try:
             for i in range(MAX_DRUM_NUM):
@@ -226,7 +199,7 @@ class DrumMachine():
                     if len(toPlay)>0 and toPlay!=" ":
                         self.buttonrowz[i][j].config(bg='green',text=toPlay)
         except:return
-        #self.printTimeElapsed("AFTER LAST LOOP")
+
         return time.clock()-self.prevTime
 
 
@@ -547,37 +520,12 @@ class DrumMachine():
             self.transbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=self.btnW, height=self.btnH, command=self.trans_clicked(q))
             self.transbtnz[q].grid(row=3, column=q)
 
-
-
         right_frame.grid_rowconfigure(3,minsize=20)
         row_base = 5
         Label(right_frame, text="Music").grid(row=4, column=0)
         for i in range(MAX_DRUM_NUM):
             self.makeTrackButtons(right_frame,i,row_base,c,bpu)
-            # for j in range(c):
-            #     self.active = False
-            #     color = 'grey55' if (j/bpu)%2 else 'khaki'
-            #     basscolor =  'lightpink'
-            #     btnName = "btn" + str(i) + ":" + str(j)
-            #     if i<MAX_DRUM_NUM-1:
-            #
-            #         self.buttonrowz[i][j] = Button(right_frame, name=btnName, bg=color, width=self.btnW, height=self.btnH, command=self.button_clicked(i, j,bpu))
-            #         #self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
-            #         self.buttonrowz[i][j].bind('<Double-1>', self.percDblClicked)
-            #     else:
-            #         self.buttonrowz[i][j] = Button(right_frame,  bg=basscolor, width=self.btnW, height=self.btnH, command=self.bass_clicked(i, j, bpu))
-            #
-            #     self.buttonrowz[i][j].grid(row=i+row_base, column=j)
-            #     #print "now at",j
-            #
-            # drumPadName= "d_" + str(i)
-            # self.drumpads[i] = Button(right_frame, name=drumPadName, bg=color, width=self.btnW, height=self.btnH, command=self.d_clicked(drumPadName))
-            # right_frame.grid_columnconfigure(j+1, minsize=10)
-            # self.drumpads[i].grid(row=i+row_base, column=j+2)
 
-            #delPadName = "x" + str(i)
-            #self.clearpads[i] = Button(right_frame, name=delPadName, bg=color, width=2, command=self.del_clicked(delPadName))
-            #self.clearpads[i].grid(row=i, column=j + 4)
 
     def makeTrackButtons(self, frameBase, rowNum, rowBase, maxBeats, beatsPerUnit):
         for j in range(maxBeats):
@@ -647,8 +595,15 @@ class DrumMachine():
 
     def patt_clicked(self,num):
         def callback():
-            self.queuedPattern= int(num)
-            print "self pattQueued is now ",self.queuedPattern
+            if self.loop != False and self.keep_playing !=False:
+                self.queuedPattern= int(num)
+                print "self pattQueued is now ",self.queuedPattern
+            else:
+
+                self.prevpatvalue = self.patt.get()
+                self.patt.set(int(num))
+                self.record_pattern()
+                self.reconstruct_pattern(int(num), self.bpu.get(), self.units.get())
         return callback
 
     def d_clicked(self,dname):
