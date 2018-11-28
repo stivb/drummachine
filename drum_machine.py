@@ -77,6 +77,10 @@ class DrumMachine():
         print "the port is", self.port
         self.queuedPattern = 0
 
+        #self.patt.set(0)
+        #self.root = Tk()
+        #gself.patt =  IntVar()
+
         self.currNote=-1
         self.noteNowOn=-1
         self.bassNowOn=-1
@@ -181,16 +185,13 @@ class DrumMachine():
         #self.prevTime=currTime
 
 
-    def reconstruct_pattern(self,pattern_num, bpu, units,rinse=True):
+    def paste_pattern(self,pattern_num, bpu, units):
         print "Reconstructing"
         self.prevTime = time.clock()
 
         c = bpu * units
 
-        if rinse:
-            self.rinseTimeline(c,bpu)
-
-
+        #self.rinseTimeline(c,bpu)
         try:
             for i in range(MAX_DRUM_NUM):
                 for j in range(c):
@@ -199,6 +200,26 @@ class DrumMachine():
                     if len(toPlay)>0 and toPlay!=" ":
                         self.buttonrowz[i][j].config(bg='green',text=toPlay)
         except:return
+
+        return time.clock()-self.prevTime
+
+
+    def reconstruct_pattern(self,pattern_num, bpu, units,rinse=True):
+        print "Reconstructing"
+        self.prevTime = time.clock()
+
+        c = bpu * units
+
+        if rinse:
+            self.rinseTimeline(c,bpu)
+            try:
+                for i in range(MAX_DRUM_NUM):
+                    for j in range(c):
+                        #if self.pattern_list[pattern_num]['bl'][i][j] == '*':
+                        toPlay = self.pattern_list[pattern_num]['bl'][i][j]
+                        if len(toPlay)>0 and toPlay!=" ":
+                            self.buttonrowz[i][j].config(bg='green',text=toPlay)
+            except:return
 
         return time.clock()-self.prevTime
 
@@ -722,7 +743,12 @@ class DrumMachine():
         return True
 
     def newPattern(self):
-        print "Added new pattern"
+        def callback():
+            self.prevpatvalue=self.patt.get()
+            self.patt.set(len(filter(None, self.pattern_list)))
+            #self.paste_pattern(self.patt.get(),self.bpu.get(),self.units.get())
+        return callback
+
 
 
     def create_top_bar(self):
@@ -805,6 +831,7 @@ class DrumMachine():
         self.root.bind('<KeyRelease>', self.key_released)
         self.root.mainloop()
         self.popupmsg("hello")
+        #self.patt = self.root.IntVar()
 
 
     def key(event):
