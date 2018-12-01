@@ -92,6 +92,7 @@ class DrumMachine():
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
         self.deviceDict = self._midi_dev_dict()
         self.transpose = 0
+        self.hitList = []
 
         self.btnW = 6
         self.btnH = 4
@@ -169,6 +170,7 @@ class DrumMachine():
             for j in range(c):
                 if self.buttonrowz[i][j].config('bg')[-1] == 'green':
                     self.buttonpickleformat[i][j] = self.buttonrowz[i][j].cget('text')
+                    self.hitList.append[self.buttonrowz[i][j]]
                 else:
                     self.buttonpickleformat[i][j] = ' '
         self.pattern_list[prevpval] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu':bpu, 'units':units}
@@ -398,13 +400,19 @@ class DrumMachine():
         btn.config(bg=new_color)
         btn.config(text=new_text)
 
-    def rinseTimeline(self, numCols, bpu):
+    def rinseTimelineOld(self, numCols, bpu):
         for i in range(MAX_DRUM_NUM):
             for j in range(numCols):
                 color = 'grey55' if (j / bpu) % 2 else 'khaki'
                 self.buttonrowz[i][j].config(text=' ',bg=color)
                 #self.buttonrowz[i][j].config(bg=color)
 
+    def rinseTimeLine(self):
+        for i in range(len(self.hitList)):
+            btn = self.hitList[i]
+            if btn.cget('bg')!='pink':
+                color = 'grey55' if (j / bpu) % 2 else 'khaki'
+                self.buttonrowz[i][j].config(text=' ', bg=color)
 
 
     def bass_clicked(self, event, i, j, bpu):
