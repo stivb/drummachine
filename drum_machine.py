@@ -92,7 +92,7 @@ class DrumMachine():
         #self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
         self.deviceDict = self._midi_dev_dict()
         self.transpose = 0
-        self.hitList = []
+        self.hitList = {}
 
         self.btnW = 6
         self.btnH = 4
@@ -166,11 +166,12 @@ class DrumMachine():
         self.prevpatvalue = pattern_num
         c = bpu*units
         self.buttonpickleformat = [[0] * c for x in range(MAX_DRUM_NUM)]
+        self.hitList = {}
         for i in range(MAX_DRUM_NUM):
             for j in range(c):
                 if self.buttonrowz[i][j].config('bg')[-1] == 'green':
                     self.buttonpickleformat[i][j] = self.buttonrowz[i][j].cget('text')
-                    self.hitList.append[self.buttonrowz[i][j]]
+                    self.hitList[self.buttonrowz[i][j]]=1
                 else:
                     self.buttonpickleformat[i][j] = ' '
         self.pattern_list[prevpval] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu':bpu, 'units':units}
@@ -213,7 +214,8 @@ class DrumMachine():
         c = bpu * units
 
         if rinse:
-            self.rinseTimeline(c,bpu)
+            self.rinseTimeline()
+            self.hitList = {}
             try:
                 for i in range(MAX_DRUM_NUM):
                     for j in range(c):
@@ -221,6 +223,7 @@ class DrumMachine():
                         toPlay = self.pattern_list[pattern_num]['bl'][i][j]
                         if len(toPlay)>0 and toPlay!=" ":
                             self.buttonrowz[i][j].config(bg='green',text=toPlay)
+                            self.hitList[self.buttonrowz[i][j]]=1
             except:return
 
         return time.clock()-self.prevTime
@@ -407,12 +410,10 @@ class DrumMachine():
                 self.buttonrowz[i][j].config(text=' ',bg=color)
                 #self.buttonrowz[i][j].config(bg=color)
 
-    def rinseTimeLine(self):
-        for i in range(len(self.hitList)):
-            btn = self.hitList[i]
-            if btn.cget('bg')!='pink':
-                color = 'grey55' if (j / bpu) % 2 else 'khaki'
-                self.buttonrowz[i][j].config(text=' ', bg=color)
+    def rinseTimeline(self):
+        for btn in self.hitList:
+                color = btn.cget('activebackground')
+                btn.config(text=' ', bg=color)
 
 
     def bass_clicked(self, event, i, j, bpu):
@@ -564,12 +565,12 @@ class DrumMachine():
             basscolor = 'lightpink'
             btnName = "btn" + str(rowNum) + ":" + str(j)
             if rowNum < MAX_DRUM_NUM - 1:
-                self.buttonrowz[rowNum][j] = Button(frameBase, name=btnName, bg=color, width=self.btnW, height=self.btnH,
+                self.buttonrowz[rowNum][j] = Button(frameBase, name=btnName, bg=color, activebackground=color,width=self.btnW, height=self.btnH,
                                                     command=self.button_clicked(rowNum, j, beatsPerUnit))
                 # self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
                 self.buttonrowz[rowNum][j].bind('<Double-1>', self.percDblClicked)
             else:
-                self.buttonrowz[rowNum][j] = Button(frameBase, bg=basscolor, width=self.btnW, height=self.btnH)
+                self.buttonrowz[rowNum][j] = Button(frameBase, bg=basscolor, activebackground=basscolor,width=self.btnW, height=self.btnH)
                 #                                   command=self.bass_clicked(rowNum, j, beatsPerUnit))
                 self.buttonrowz[rowNum][j].bind("<ButtonPress-1>", lambda event, rn=rowNum, jay=j, BPU=beatsPerUnit: self.bass_clicked(event, rn,jay,BPU))
 
