@@ -660,6 +660,7 @@ class DrumMachine():
 
     def setChannelValues(self,dname):
         rowclicked = int(dname.split("_")[1])
+        self.channels[rowclicked].init_user_interface()
 
 
     def hitDrum(self,dname):
