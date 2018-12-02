@@ -29,6 +29,7 @@ import pygame
 import pygame.midi
 import piano
 import song
+import instrumentchannel
 
 #constants
 MAX_DRUM_NUM = 5
@@ -97,6 +98,11 @@ class DrumMachine():
         self.btnW = 6
         self.btnH = 4
         self.prevTime = time.clock()
+        self.channels = []
+        self.channels.append(instrumentchannel.InstrumentChannel(self,50,127,36))
+        self.channels.append(instrumentchannel.InstrumentChannel(self,50, 127, 38))
+        self.channels.append(instrumentchannel.InstrumentChannel(self,50, 127, 40))
+        self.channels.append(instrumentchannel.InstrumentChannel(self,50, 127, 42))
 
     def about(self):
         tkMessageBox.showinfo("About","Tkinter GUI Application\n Development Hotshot")
@@ -302,6 +308,13 @@ class DrumMachine():
         if rownum==1: return 38
         if rownum==2: return 40
         if rownum==3: return 42
+
+
+
+
+
+
+
 
     def play_drum(self,num):
         self.midi_out.set_instrument(50, channel=9)
@@ -638,8 +651,15 @@ class DrumMachine():
 
     def d_clicked(self,dname):
         def callback():
-            self.hitDrum(dname)
+            if self.loop != False and self.keep_playing != False:
+                self.hitDrum(dname)
+            else:
+                self.setChannelValues(dname)
         return callback
+
+
+    def setChannelValues(self,dname):
+        rowclicked = int(dname.split("_")[1])
 
 
     def hitDrum(self,dname):
