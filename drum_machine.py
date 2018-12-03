@@ -103,6 +103,7 @@ class DrumMachine():
         self.channels.append(instrumentchannel.InstrumentChannel(self,50, 127, 38))
         self.channels.append(instrumentchannel.InstrumentChannel(self,50, 127, 40))
         self.channels.append(instrumentchannel.InstrumentChannel(self,50, 127, 42))
+        self.currentPattern = 0
 
     def about(self):
         tkMessageBox.showinfo("About","Tkinter GUI Application\n Development Hotshot")
@@ -186,6 +187,19 @@ class DrumMachine():
             self.pattBtnz[i].config(bg="pink")
         self.reconstruct_pattern(pattern_num, bpu, units)
 
+    #logics
+    #DURING EDIT
+    #1) move from extant pattern to extant pattern: save, rinse, reconstruct, update
+    #2) move from extant to pasteable : save, update
+    #3) move from extant to new: save, rinse, update
+    #DURING PLAY
+    #4) move from extant pattern to extant pattern: rinse, reconstruct, update
+
+
+
+
+
+
     def rec_pattern(self, currentPattNum):
         bpu = self.bpu.get()
         units = self.units.get()
@@ -203,7 +217,20 @@ class DrumMachine():
                                        'units': units}
 
     def goto_pattern(self, fromPattNum, toPattNum):
-        k
+        if toPattNum>len(self.pattern_list): return
+        self.currentPattern = toPattNum
+
+
+
+    def show_currpattern(self):
+        for i in range(16):
+            if i<len(self.pattern_list):
+                self.pattBtnz[i].config(bg='pink')
+            else:
+                self.pattBtnz[i].config(bg='white')
+        self.pattBtnz[self.currentPattern]='blue'
+
+
 
     #def printTimeElapsed(self,msg):
         #currTime = time.clock()
@@ -231,7 +258,7 @@ class DrumMachine():
 
 
     def reconstruct_pattern(self,pattern_num, bpu, units,rinse=True):
-        print "Reconstructing"
+
         self.prevTime = time.clock()
 
         c = bpu * units
@@ -805,7 +832,7 @@ class DrumMachine():
 
         for i in range(16):
             pattStr = "patt" + str(i)
-            self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', text=str(i + 1), width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
+            self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', activebackground='white', text=str(i + 1), width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
             self.pattBtnz[i].grid(row=0,column=i+1)
             self.pattBtnz[i].bind('<Double-1>', self.pattDblClicked)
 
