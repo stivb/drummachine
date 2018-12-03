@@ -186,7 +186,24 @@ class DrumMachine():
             self.pattBtnz[i].config(bg="pink")
         self.reconstruct_pattern(pattern_num, bpu, units)
 
+    def rec_pattern(self, currentPattNum):
+        bpu = self.bpu.get()
+        units = self.units.get()
+        c = int(self.bpu.get()) * int(self.units.get())
+        self.buttonpickleformat = [[0] * c for x in range(MAX_DRUM_NUM)]
+        self.hitList = {}
+        for i in range(MAX_DRUM_NUM):
+            for j in range(c):
+                if self.buttonrowz[i][j].config('bg')[-1] == 'green':
+                    self.buttonpickleformat[i][j] = self.buttonrowz[i][j].cget('text')
+                    self.hitList[self.buttonrowz[i][j]] = 1
+                else:
+                    self.buttonpickleformat[i][j] = ' '
+        self.pattern_list[currentPattNum] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu': bpu,
+                                       'units': units}
 
+    def goto_pattern(self, fromPattNum, toPattNum):
+        k
 
     #def printTimeElapsed(self,msg):
         #currTime = time.clock()
@@ -304,10 +321,7 @@ class DrumMachine():
 
 
     def row_to_drum_num(self,rownum):
-        if rownum==0: return 36
-        if rownum==1: return 38
-        if rownum==2: return 40
-        if rownum==3: return 42
+        return self.channels[rownum].channel
 
 
 
@@ -430,8 +444,6 @@ class DrumMachine():
 
 
     def bass_clicked(self, event, i, j, bpu):
-        print event.state,i,j,bpu
-        print "Hello", event.state;
         btn = self.buttonrowz[i][j]
         color = 'lightpink'
         if btn.cget('bg') != 'green':
@@ -441,7 +453,6 @@ class DrumMachine():
         else:
             new_color=color
             btn.config(text="")
-        print color,btn.cget('bg'),new_color
         btn.config(bg=new_color)
 
 
