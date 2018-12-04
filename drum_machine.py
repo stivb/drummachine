@@ -29,6 +29,7 @@ import pygame.midi
 import piano
 import song
 import instrumentchannel
+import newsongdlg
 
 # constants
 MAX_DRUM_NUM = 5
@@ -845,9 +846,14 @@ class DrumMachine():
         self.aboutmenu = Menu(self.menubar, tearoff=0)
         self.aboutmenu.add_command(label="About", command=self.about)
         self.aboutmenu.add_command(label="Settings", command=self.popupSettings)
+        self.aboutmenu.add_command(label="New Song", command=self.newsong)
         self.menubar.add_cascade(label="About", menu=self.aboutmenu)
 
         self.root.config(menu=self.menubar)
+
+    def newsong(self):
+        nsd = newsongdlg.NewSongDialog(self)
+        nsd.init_user_interface()
 
     def app(self):
         self.root = Tk()
