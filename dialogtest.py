@@ -8,7 +8,7 @@ class MyDialog:
 
         Label(top, text="Value").pack()
 
-        self.e = Entry(top)
+        self.e = Entry(top,textvariable=txt)
         self.e.pack(padx=5)
 
         b = Button(top, text="OK", command=self.ok)
@@ -17,14 +17,25 @@ class MyDialog:
     def ok(self):
 
         print "value is", self.e.get()
+        print "value is", txt.get()
 
         self.top.destroy()
 
+    def showDlg(self):
+        q = MyDialog(root)
+
+
+def showDlg():
+    d = MyDialog(root)
 
 root = Tk()
-Button(root, text="Hello!").pack()
+txt = StringVar()
+txt.set("1")
+
+Button(root, text="Hello!", command=showDlg).pack()
 root.update()
 
-d = MyDialog(root)
 
-root.wait_window(d.top)
+
+root.mainloop()
+

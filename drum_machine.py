@@ -476,14 +476,31 @@ class DrumMachine():
         Label(playbar_frame, text='BPM:').grid(row=ln, column=20, padx=30)
         self.bpmTxt = StringVar()
         self.bpmTxt.set(120)
-        self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt,
-                                  command=self.changeBpm)
-        self.bpu_widget.grid(row=ln, column=21)
+        Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt).grid(row=ln,column=21)
 
-        Label(playbar_frame, text='Sequence Text:').grid(row=ln, column=22, sticky=W)
+        Label(playbar_frame, text='Pattern #:').grid(row=ln, column=22)
+        self.patt = IntVar()
+        self.patt.set(0)
+        self.prevpatvalue = 0  # to trace last click
+        Spinbox(playbar_frame, from_=0, to=32, width=10, textvariable=self.patt, command=self.record_pattern).grid(row=ln,
+                                                                                                                  column=23)
+
+        self.pat_name = Entry(playbar_frame)
+
+        self.pat_name.grid(row=ln, column=24, padx=1, pady=1)
+        self.pat_name.insert(0, 'Pattern %s' % self.patt.get())
+        self.pat_name.config(state='readonly', width=10)
+
+
+
+        #self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt,
+        #                          command=self.changeBpm)
+        #self.bpu_widget.grid(row=ln, column=21)
+
+        Label(playbar_frame, text='Sequence Text:').grid(row=ln, column=25, sticky=W)
         self.formula = StringVar()
         txtformula = Entry(playbar_frame, textvariable=self.formula, width=60)
-        txtformula.grid(row=ln, column=24, columnspan=1, sticky=W)
+        txtformula.grid(row=ln, column=26, columnspan=1, sticky=W)
 
         self.seqBtn = Button(playbar_frame, name="seqBtn", text="Run Sequence", command=self.run_sequence)
         self.seqBtn.grid(row=ln, column=25)
@@ -804,32 +821,20 @@ class DrumMachine():
                                 height=self.btnH / 2, command=self.newPattern())
         btn_newPattern.grid(row=0, column=i + 3, padx=10)
 
-        Label(topbar_frame, text='Pattern #:').grid(row=0, column=20)
-        self.patt = IntVar()
-        self.patt.set(0)
-        self.prevpatvalue = 0  # to trace last click
-        Spinbox(topbar_frame, from_=0, to=16, width=10, textvariable=self.patt, command=self.record_pattern).grid(row=0,
-                                                                                                                  column=21)
 
-        self.pat_name = Entry(topbar_frame)
 
-        self.pat_name.grid(row=0, column=22, padx=1, pady=1)
-        self.pat_name.insert(0, 'Pattern %s' % self.patt.get())
-        self.pat_name.config(state='readonly', width=10)
 
-        Label(topbar_frame, text='Units:').grid(row=0, column=23)
         self.units = IntVar()
         self.units.set(8)
-        self.units_widget = Spinbox(topbar_frame, from_=1, to=8, width=5, textvariable=self.units,
-                                    command=self.createTimeLine)
-        self.units_widget.grid(row=0, column=24)
+        # self.units_widget = Spinbox(topbar_frame, from_=1, to=8, width=5, textvariable=self.units,
+        #                             command=self.createTimeLine)
+        # self.units_widget.grid(row=0, column=24)
 
-        Label(topbar_frame, text='BPUs:').grid(row=0, column=25)
         self.bpu = IntVar()
         self.bpu.set(4)
-        self.bpu_widget = Spinbox(topbar_frame, from_=1, to=10, width=5, textvariable=self.bpu,
-                                  command=self.createTimeLine)
-        self.bpu_widget.grid(row=0, column=26)
+        # self.bpu_widget = Spinbox(topbar_frame, from_=1, to=10, width=5, textvariable=self.bpu,
+        #                           command=self.createTimeLine)
+        # self.bpu_widget.grid(row=0, column=26)
 
         self.createTimeLine()
 
