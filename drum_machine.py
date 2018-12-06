@@ -808,9 +808,9 @@ class DrumMachine():
         topbar_frame.grid_columnconfigure(1, minsize=20)
         topbar_frame.grid(row=0, column=0, padx=20, sticky=W)
 
-        self.pattBtnz = [0 for x in range(16)]
+        self.pattBtnz = [0 for x in range(32)]
 
-        for i in range(16):
+        for i in range(32):
             pattStr = "patt" + str(i)
             self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', activebackground='white', text=str(i + 1),
                                       width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
