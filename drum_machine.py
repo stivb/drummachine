@@ -52,6 +52,7 @@ class DrumMachine():
         self.current_drum_no = 0
         self.keep_playing = True
         self.loop = False
+        self.seq = False
         self.pattern_list = [None] * 16
         self.file1 = ""
         self.file2 = ""
@@ -264,6 +265,24 @@ class DrumMachine():
 
         return time.clock() - self.prevTime
 
+
+    def play_in_thread_once(self):
+        self.loop=False
+        self.seq=False
+        self.play_in_thread()
+
+
+    def play_in_thread_looped(self):
+        self.loop=True
+        self.seq=False
+        self.play_in_thread()
+
+    def play_in_thread_seq(self):
+        self.loop=False
+        self.seq=True
+        self.play_in_thread()
+
+
     def play_in_thread(self):
         # print "About to play ",self.percPort, self.bassPort
         self.save_tmpfile()
@@ -458,20 +477,30 @@ class DrumMachine():
     def create_play_bar(self):
         playbar_frame = Frame(self.root, height=15)
         ln = MAX_DRUM_NUM + 10
-        playbar_frame.grid(row=ln, columnspan=13, sticky=W + E, padx=15, pady=10)
+        playbar_frame.grid(row=ln, columnspan=20, sticky=W + E, padx=15, pady=10)
+
         button = ttk.Button(playbar_frame, text='Play', command=self.play_in_thread)
         button.grid(row=ln, column=1, padx=1)
-        button = ttk.Button(playbar_frame, text='Stop', command=self.stop_play)
-        button.grid(row=ln, column=3, padx=1)
-        loop = BooleanVar()
-        loopbutton = ttk.Checkbutton(playbar_frame, text='Loop', variable=loop,
-                                     command=lambda: self.loop_play(loop.get()))
-        loopbutton.grid(row=ln, column=16, padx=1)
 
-        play_seq = BooleanVar()
-        btn_play_seq = ttk.Checkbutton(playbar_frame, text='Sequence', variable=loop,
-                                       command=lambda: self.sequence_play(play_seq.get()))
-        btn_play_seq.grid(row=ln, column=18, padx=1)
+        btnPlayLooped = ttk.Button(playbar_frame, text='Play Looped', command=self.play_in_thread_looped)
+        btnPlayLooped.grid(row=ln, column=2, padx=1)
+
+        btnPlaySeq = ttk.Button(playbar_frame, text='Play Seq', command=self.play_in_thread_seq)
+        btnPlaySeq.grid(row=ln, column=3, padx=1)
+
+        button = ttk.Button(playbar_frame, text='Stop', command=self.stop_play)
+        button.grid(row=ln, column=4, padx=1)
+
+
+        # loop = BooleanVar()
+        # loopbutton = ttk.Checkbutton(playbar_frame, text='Loop', variable=loop,
+        #                              command=lambda: self.loop_play(loop.get()))
+        # loopbutton.grid(row=ln, column=16, padx=1)
+        #
+        # play_seq = BooleanVar()
+        # btn_play_seq = ttk.Checkbutton(playbar_frame, text='Sequence', variable=loop,
+        #                                command=lambda: self.sequence_play(play_seq.get()))
+        # btn_play_seq.grid(row=ln, column=18, padx=1)
 
         Label(playbar_frame, text='BPM:').grid(row=ln, column=20, padx=30)
         self.bpmTxt = StringVar()
