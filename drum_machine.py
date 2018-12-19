@@ -286,6 +286,7 @@ class DrumMachine():
     def play_in_thread(self):
         # print "About to play ",self.percPort, self.bassPort
         self.save_tmpfile()
+        self.pattBtnz[self.patt.get()].config(bg='turquoise')
         self.thread = threading.Thread(None, self.play, None, (), {})
         self.thread.start()
 
@@ -331,7 +332,10 @@ class DrumMachine():
 
                 # in the case of just jamming and not following a sequence
                 if i == self.stopAt - 1 and self.queuedPattern != self.patt.get():
+                    self.pattBtnz[self.patt.get()].config(bg='white')
                     self.patt.set(self.queuedPattern)
+                    self.pattBtnz[self.queuedPattern].config(bg='turquoise')
+
                     reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
                                                                     self.units.get())
 
@@ -692,7 +696,9 @@ class DrumMachine():
     def patt_clicked(self, num):
         def callback():
             if self.loop != False and self.keep_playing != False:
+
                 self.queuedPattern = int(num)
+                self.pattBtnz[self.queuedPattern].config(bg='yellow')
                 print "self pattQueued is now ", self.queuedPattern
             else:
 
