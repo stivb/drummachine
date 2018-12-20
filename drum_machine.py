@@ -101,6 +101,7 @@ class DrumMachine():
         self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 40))
         self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 42))
         self.currentPattern = 0
+        self.breaks=[]
 
     def about(self):
         tkMessageBox.showinfo("About", "Tkinter GUI Application\n Development Hotshot")
@@ -280,6 +281,8 @@ class DrumMachine():
     def play_in_thread_seq(self):
         self.loop=False
         self.seq=True
+        mysong = song.Song()
+        self.breaks = mysong.getSequenceArray(self.formula.get())
         self.play_in_thread()
 
 
@@ -291,18 +294,25 @@ class DrumMachine():
         self.thread.start()
 
     def play(self):
+        ct = 0
         self.startAt = 0
         self.stopAt = len(self.buttonrowz[0])
         self.thetime = time.time()
         self.keep_playing = True
         endMeasure = self.units.get() * self.bpu.get()
 
+        if self.seq==True:
+            self.startAt = int(self.breaks[0].startAt)
+            self.stopAt = int(self.breaks[0].stopAt)
+            self.transpose = int(self.breaks[0].transpose)
+            self.reconstruct_pattern(int(self.breaks[0].pattern), self.bpu.get(),self.units.get())
+
         while self.keep_playing:
             # self.button is an an array of button rows
 
             # going through all the measures one by one
 
-            for i in range(self.stopAt):
+            for i in range(self.startAt,self.stopAt):
 
                 self.stopBtnz[i].config(bg='green')
                 if i > 0:
@@ -330,14 +340,25 @@ class DrumMachine():
 
                 reconstruction_delay = 0
 
-                # in the case of just jamming and not following a sequence
-                if i == self.stopAt - 1 and self.queuedPattern != self.patt.get():
-                    self.pattBtnz[self.patt.get()].config(bg='white')
-                    self.patt.set(self.queuedPattern)
-                    self.pattBtnz[self.queuedPattern].config(bg='turquoise')
+                if self.seq==False:
 
-                    reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
-                                                                    self.units.get())
+                    if i == self.stopAt - 1 and self.queuedPattern != self.patt.get():
+                        self.pattBtnz[self.patt.get()].config(bg='white')
+                        self.patt.set(self.queuedPattern)
+                        self.pattBtnz[self.queuedPattern].config(bg='turquoise')
+
+                        reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
+                                                                        self.units.get())
+
+                else:
+                    upcoming = self.breaks[ct+1]
+                    if upcoming.pattern !=self.breaks[ct].pattern:
+                        reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
+                                                                        self.units.get())
+                        self.startAt = int(upcoming.startAt)
+                        self.stopAt = int(upcoming.endAt)
+                        self.transpose = int(upcoming.transpose)
+
 
                 # here needs an "if in sequence mode"
 
@@ -350,6 +371,7 @@ class DrumMachine():
                 self.currNote = i
                 self.thetime = time.time()
                 if self.loop == False: self.keep_playing = False
+                ct=ct+1
 
     def row_to_drum_num(self, rownum):
         return self.channels[rownum].channel
@@ -544,9 +566,7 @@ class DrumMachine():
 
         mysong = song.Song()
         theseq = mysong.getSequenceArray(self.formula.get())
-        print theseq
 
-        print "run sequence"
 
     def quay(self, event):
         print "pressed"
@@ -601,7 +621,7 @@ class DrumMachine():
             btnName = "btnEnd" + str(q)
             f1 = Frame(right_frame)
             self.startBtnz[q] = Button(f1, name=btnStartName, bg='white', text=str(q + 1), width=self.btnW,
-                                       height=self.btnH / 2, command=self.start_clicked(q + 1))
+                                       height=self.btnH / 2, command=self.start_clicked(q))
             self.stopBtnz[q] = Button(f1, name=btnName, bg='white', text=str(q + 1), width=self.btnW,
                                       height=self.btnH / 2, command=self.stop_clicked(q + 1))
             self.startBtnz[q].grid(row=0, column=0)

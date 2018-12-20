@@ -11,7 +11,7 @@ space = pp.Optional(pp.OneOrMore(" "))
 pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
 repeatCount = pp.Combine("*"+number)
 patterns = pp.OneOrMore(pattern|repeatCount)
-shorthand = patterns.parseString("{0 +0 1-32}*4 {0 +5 1-32}*2 {0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}")
+shorthand = patterns.parseString("{1 +0 1-32}*4 {1 +5 1-32}*2 {1}*2 {1 +7 1-32} {1 +5 1-32} {1 +0 1-32} {1 +0 1-16} {1 +7 17-32}")
 longhand = []
 for i in range(len(shorthand)):
     s = shorthand[i]

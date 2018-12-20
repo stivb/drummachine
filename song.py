@@ -107,7 +107,7 @@ class Break:
         self.pattern = 0
         self.transpose = 0
         self.startAt = 1
-        self.endAt = 32
+        self.stopAt = 32
 
     def setBreak(self,inputString):
         items = filter(None, inputString.split(' '))
@@ -117,14 +117,14 @@ class Break:
         if len(items)==3:
             startend = items[2]
             self.startAt = startend.split('-')[0]
-            self.endAt = startend.split('-')[1]
+            self.stopAt = startend.split('-')[1]
 
 
     def __eq__(self, other):
-        return self.pattern == other.pattern and self.transpose == other.transpose and self.startAt==other.startAt and self.endAt==other.endAt
+        return self.pattern == other.pattern and self.transpose == other.transpose and self.startAt == other.startAt and self.stopAt == other.endAt
 
     def toString(self):
-        return "{" + str(self.pattern) + " " + str(self.transpose) + " " + str(self.startAt) + "-" + str(self.endAt) + "}"
+        return "{" + str(self.pattern) + " " + str(self.transpose) + " " + str(self.startAt) + "-" + str(self.stopAt) + "}"
 
     def __repr__(self):
         return self.toString()
