@@ -14,6 +14,7 @@ import os
 import time
 import datetime
 import copy
+import ConfigParser
 
 # modules for playing sounds
 import time
@@ -103,6 +104,17 @@ class DrumMachine():
         self.currentPattern = 0
         self.breaks=[]
 
+        myfolder = os.getcwd()
+        configParser = ConfigParser.RawConfigParser()
+        fp =  myfolder + '/drummachine.config';
+        configParser.read(fp)
+        self.percPort = int(configParser.get('Settings', 'Port'))
+        self.lastFile = configParser.get('Settings', 'LastFile')
+        self.midi_out = pygame.midi.Output(self.percPort, 0)
+        print self.percPort,self.lastFile
+        self.read_file(self.lastFile)
+
+
     def about(self):
         tkMessageBox.showinfo("About", "Tkinter GUI Application\n Development Hotshot")
 
@@ -138,8 +150,13 @@ class DrumMachine():
 
     def load_project(self):
         file_name = tkFileDialog.askopenfilename(filetypes=[('Drum Beat File', '*.bt')], title='Load Project')
+        self.read_file(file_name)
+
+
+
+    def read_file(self,file_name):
         if file_name == '': return
-        self.root.title(os.path.basename(file_name) + " - DrumBeast")
+        #self.root.title(os.path.basename(file_name) + " - DrumBeast")
         fh = open(file_name, "rb")  # open the file in reading mode
         try:
             while True:  # load from the file until EOF is reached
@@ -152,6 +169,10 @@ class DrumMachine():
                                      self.pattern_list[0]['units'])  # reconstruct the first pattern
         except:
             tkMessageBox.showerror("Error", "An unexpected error occurred trying to reconstruct patterns")
+
+
+
+
 
     # essentially just records whatever is in the timeline and saves it to self.pattern_list at
     # the number it was before advancing to the current number (saved in self.prevpatvalue)
@@ -279,7 +300,7 @@ class DrumMachine():
         self.play_in_thread()
 
     def play_in_thread_seq(self):
-        self.loop=False
+        self.loop=True
         self.seq=True
         mysong = song.Song()
         self.breaks = mysong.getSequenceArray(self.formula.get())
@@ -314,6 +335,7 @@ class DrumMachine():
 
             for i in range(self.startAt,self.stopAt):
 
+                reconstruction_delay = 0
                 self.stopBtnz[i].config(bg='green')
                 if i > 0:
                     self.stopBtnz[i - 1].config(bg='white')
@@ -338,40 +360,38 @@ class DrumMachine():
                         print "exception at ", i, str(e)
                         continue
 
-                reconstruction_delay = 0
+                #this deals with what happens in the last beat (is new pattern added or not
+                if i == self.stopAt - 1:
 
-                if self.seq==False:
+                    reconstruction_delay = 0
+                    if self.seq==False:
+                        if self.queuedPattern != self.patt.get():
+                            self.pattBtnz[self.patt.get()].config(bg='white')
+                            self.patt.set(self.queuedPattern)
+                            self.pattBtnz[self.queuedPattern].config(bg='turquoise')
 
-                    if i == self.stopAt - 1 and self.queuedPattern != self.patt.get():
-                        self.pattBtnz[self.patt.get()].config(bg='white')
-                        self.patt.set(self.queuedPattern)
-                        self.pattBtnz[self.queuedPattern].config(bg='turquoise')
+                            reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
+                                                                            self.units.get())
 
-                        reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
-                                                                        self.units.get())
+                    else:
+                        upcoming = self.breaks[ct+1]
+                        if upcoming.pattern !=self.breaks[ct].pattern:
+                            reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
+                                                                            self.units.get())
+                        self.startAt = upcoming.startAt
+                        self.stopAt = upcoming.stopAt
+                        self.transpose = upcoming.transpose
 
-                else:
-                    upcoming = self.breaks[ct+1]
-                    if upcoming.pattern !=self.breaks[ct].pattern:
-                        reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
-                                                                        self.units.get())
-                        self.startAt = int(upcoming.startAt)
-                        self.stopAt = int(upcoming.endAt)
-                        self.transpose = int(upcoming.transpose)
-
-
-                # here needs an "if in sequence mode"
-
+                    ct = ct + 1
+                    #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
                 bpm_based_delay = max(((60.0 / self.bpm) / 4.0) - reconstruction_delay, 0)
-                # print bpm_based_delay
 
-                # print bpm_based_delay
                 time.sleep(bpm_based_delay)
                 self.end_notes()
                 self.currNote = i
                 self.thetime = time.time()
-                if self.loop == False: self.keep_playing = False
-                ct=ct+1
+                if self.loop==False: self.keep_playing = False
+
 
     def row_to_drum_num(self, rownum):
         return self.channels[rownum].channel

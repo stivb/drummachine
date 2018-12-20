@@ -99,7 +99,7 @@ class Song:
             b = Break()
             b.setBreak(longhand[i])
             listOfBreaks.append(b)
-
+        print listOfBreaks
         return listOfBreaks
 
 class Break:
@@ -116,8 +116,8 @@ class Break:
             self.transpose = int(items[1])
         if len(items)==3:
             startend = items[2]
-            self.startAt = startend.split('-')[0]
-            self.stopAt = startend.split('-')[1]
+            self.startAt = int(startend.split('-')[0])
+            self.stopAt = int(startend.split('-')[1])
 
 
     def __eq__(self, other):
