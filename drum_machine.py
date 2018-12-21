@@ -104,15 +104,18 @@ class DrumMachine():
         self.currentPattern = 0
         self.breaks=[]
 
-        myfolder = os.getcwd()
-        configParser = ConfigParser.RawConfigParser()
-        fp =  myfolder + '/drummachine.config';
-        configParser.read(fp)
-        self.percPort = int(configParser.get('Settings', 'Port'))
-        self.lastFile = configParser.get('Settings', 'LastFile')
-        self.midi_out = pygame.midi.Output(self.percPort, 0)
-        print self.percPort,self.lastFile
-        self.read_file(self.lastFile)
+        try:
+            myfolder = os.getcwd()
+            configParser = ConfigParser.RawConfigParser()
+            fp =  myfolder + '/drummachine.config';
+            configParser.read(fp)
+            self.percPort = int(configParser.get('Settings', 'portid'))
+            self.lastFile = configParser.get('Settings', 'lastfile')
+            self.midi_out = pygame.midi.Output(self.percPort, 0)
+            print self.percPort,self.lastFile
+            self.read_file(self.lastFile)
+        except:
+            print "an error occurred reading the config file"
 
 
     def about(self):
@@ -150,9 +153,29 @@ class DrumMachine():
 
     def load_project(self):
         file_name = tkFileDialog.askopenfilename(filetypes=[('Drum Beat File', '*.bt')], title='Load Project')
+        self.setConfigValue("Settings","LastFile",file_name)
+
         self.read_file(file_name)
 
 
+
+    def setConfigValue(self,section,key,value):
+        myfolder = os.getcwd()
+        configParser = ConfigParser.ConfigParser()
+        fp = os.getcwd() + '/drummachine.config';
+
+        configParser.read(fp)
+
+        try:
+            configParser.add_section(section)
+        except:
+            print "setting already exists"
+
+        configParser.set(section, key, value)
+
+        configfile = open(fp, 'w')
+        configParser.write(configfile)
+        configfile.close()
 
     def read_file(self,file_name):
         if file_name == '': return
@@ -595,6 +618,7 @@ class DrumMachine():
         portId = self.deviceDict[value]
         print "The port is ", portId
         self.percPort = portId
+        self.setConfigValue("Settings", "PortId", portId)
         self.midi_out = pygame.midi.Output(self.percPort, 0)
         self.settingsPopup.destroy()
 
