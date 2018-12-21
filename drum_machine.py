@@ -397,7 +397,7 @@ class DrumMachine():
                         self.transpose = upcoming.transpose
 
                     ct = ct + 1
-                    #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
+                    print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
                 bpm_based_delay = max(((60.0 / self.bpm) / 4.0) - reconstruction_delay, 0)
 
                 time.sleep(bpm_based_delay)
@@ -968,7 +968,8 @@ class DrumMachine():
         self.root.mainloop()
         self.root.after(2000, after_startup)
 
-
+    def after_startup(self):
+        print "hello"
 
     def key(event):
         print "pressed", repr(event.char)

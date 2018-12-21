@@ -106,7 +106,7 @@ class Break:
     def __init__(self):
         self.pattern = 0
         self.transpose = 0
-        self.startAt = 1
+        self.startAt = 0
         self.stopAt = 32
 
     def setBreak(self,inputString):
