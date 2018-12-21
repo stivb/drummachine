@@ -43,6 +43,9 @@ def play_back():
 def record_on_off():
     print "record_on_off"
 
+def after_startup():
+    print "whatever"
+
 
 class DrumMachine():
 
@@ -104,18 +107,6 @@ class DrumMachine():
         self.currentPattern = 0
         self.breaks=[]
 
-        try:
-            myfolder = os.getcwd()
-            configParser = ConfigParser.RawConfigParser()
-            fp =  myfolder + '/drummachine.config';
-            configParser.read(fp)
-            self.percPort = int(configParser.get('Settings', 'portid'))
-            self.lastFile = configParser.get('Settings', 'lastfile')
-            self.midi_out = pygame.midi.Output(self.percPort, 0)
-            print self.percPort,self.lastFile
-            self.read_file(self.lastFile)
-        except:
-            print "an error occurred reading the config file"
 
 
     def about(self):
@@ -618,6 +609,7 @@ class DrumMachine():
         portId = self.deviceDict[value]
         print "The port is ", portId
         self.percPort = portId
+        print value, portId
         self.setConfigValue("Settings", "PortId", portId)
         self.midi_out = pygame.midi.Output(self.percPort, 0)
         self.settingsPopup.destroy()
@@ -959,6 +951,9 @@ class DrumMachine():
         nsd = newsongdlg.NewSongDialog(self)
         nsd.init_user_interface()
 
+    def after_startup(self):
+        print "whatever"
+
     def app(self):
         self.root = Tk()
         self.root.title('Drum Beast')
@@ -971,8 +966,9 @@ class DrumMachine():
         self.root.bind('<KeyPress>', self.key_pressed)
         self.root.bind('<KeyRelease>', self.key_released)
         self.root.mainloop()
-        self.popupmsg("hello")
-        # self.patt = self.root.IntVar()
+        self.root.after(2000, after_startup)
+
+
 
     def key(event):
         print "pressed", repr(event.char)
@@ -1006,6 +1002,8 @@ class DrumMachine():
             s = "{}: interface :{}:, name :{}:, opened :{}:  {}".format(i, interf, name, opened, in_out)
             mydict[s] = i
         return mydict
+
+
 
 
 class soundThing():
