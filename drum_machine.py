@@ -397,13 +397,14 @@ class DrumMachine():
                         self.transpose = upcoming.transpose
 
                     ct = ct + 1
-                    print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
+                    #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
                 bpm_based_delay = max(((60.0 / self.bpm) / 4.0) - reconstruction_delay, 0)
 
                 time.sleep(bpm_based_delay)
                 self.end_notes()
                 self.currNote = i
                 self.thetime = time.time()
+
                 if self.loop==False: self.keep_playing = False
 
 
