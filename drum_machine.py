@@ -50,6 +50,8 @@ def after_startup():
 class DrumMachine():
 
     def __init__(self):
+
+        self.recordOnChange = True
         self.widget_drum_name = []
         self.widget_drum_file_name = [0] * MAX_DRUM_NUM
         self.widget_drum_file_sound = [0] * MAX_DRUM_NUM
@@ -192,8 +194,12 @@ class DrumMachine():
     # the number it was before advancing to the current number (saved in self.prevpatvalue)
     # therefore working under the assumption that the new pattern is always one more than the previous one
     def record_pattern(self):
+        if self.recordOnChange is False:
+            return
         pattern_num, bpu, units = self.patt.get(), self.bpu.get(), self.units.get()
         print pattern_num
+
+
         self.queuedPattern = self.patt.get()  # the current?  pattern number?
         self.pat_name.config(state='normal')
         self.pat_name.delete(0, END)
@@ -204,6 +210,13 @@ class DrumMachine():
         c = bpu * units
         self.buttonpickleformat = [[0] * c for x in range(MAX_DRUM_NUM)]
         self.hitList = {}
+
+        alertstr = "Pattern num ", pattern_num, " Prev Pat value", prevpval
+
+        tkMessageBox.showinfo("Saving", alertstr)
+
+
+
         for i in range(MAX_DRUM_NUM):
             for j in range(c):
                 if self.buttonrowz[i][j].config('bg')[-1] == 'green':
@@ -388,17 +401,16 @@ class DrumMachine():
                                                                             self.units.get())
 
                     else:
-                        if ct >= len(self.breaks):
-                            self.prevpatvalue = ct
-                            self.loop=False
-                        else:
-                            upcoming = self.breaks[ct+1]
-                            if upcoming.pattern !=self.breaks[ct].pattern:
-                                reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
-                                                                                self.units.get())
-                            self.startAt = upcoming.startAt
-                            self.stopAt = upcoming.stopAt
-                            self.transpose = upcoming.transpose
+
+                        if ct >= len(self.breaks)-1:
+                            ct=-1
+                        upcoming = self.breaks[ct+1]
+                        if upcoming.pattern !=self.breaks[ct].pattern:
+                            reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
+                                                                            self.units.get())
+                        self.startAt = upcoming.startAt
+                        self.stopAt = upcoming.stopAt
+                        self.transpose = upcoming.transpose
 
                     ct = ct + 1
                     #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
