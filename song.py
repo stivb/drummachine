@@ -111,7 +111,7 @@ class Break:
 
     def setBreak(self,inputString):
         items = filter(None, inputString.split(' '))
-        self.pattern = int(items[0])
+        self.pattern = int(items[0])-1
         if len(items)>=2:
             self.transpose = int(items[1])
         if len(items)==3:
