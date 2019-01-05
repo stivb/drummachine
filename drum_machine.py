@@ -388,13 +388,17 @@ class DrumMachine():
                                                                             self.units.get())
 
                     else:
-                        upcoming = self.breaks[ct+1]
-                        if upcoming.pattern !=self.breaks[ct].pattern:
-                            reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
-                                                                            self.units.get())
-                        self.startAt = upcoming.startAt
-                        self.stopAt = upcoming.stopAt
-                        self.transpose = upcoming.transpose
+                        if ct >= len(self.breaks):
+                            self.prevpatvalue = ct
+                            self.loop=False
+                        else:
+                            upcoming = self.breaks[ct+1]
+                            if upcoming.pattern !=self.breaks[ct].pattern:
+                                reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
+                                                                                self.units.get())
+                            self.startAt = upcoming.startAt
+                            self.stopAt = upcoming.stopAt
+                            self.transpose = upcoming.transpose
 
                     ct = ct + 1
                     #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
