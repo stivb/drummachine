@@ -202,10 +202,10 @@ class DrumMachine():
 
 
         self.queuedPattern = self.patt.get()  # the current?  pattern number?
-        self.pat_name.config(state='normal')
-        self.pat_name.delete(0, END)
-        self.pat_name.insert(0, 'Pattern %s' % pattern_num)
-        self.pat_name.config(state='readonly')
+        #self.pat_name.config(state='normal')
+        #self.pat_name.delete(0, END)
+        #self.pat_name.insert(0, 'Pattern %s' % pattern_num)
+        #self.pat_name.config(state='readonly')
         prevpval = self.prevpatvalue
         self.prevpatvalue = pattern_num
         c = bpu * units
@@ -213,8 +213,9 @@ class DrumMachine():
         self.hitList = {}
 
         alertstr = "Pattern num ", pattern_num, " Prev Pat value", prevpval
+        print alertstr
 
-        tkMessageBox.showinfo("Saving", alertstr)
+        #tkMessageBox.showinfo("Saving", alertstr)
 
 
 
@@ -422,7 +423,10 @@ class DrumMachine():
                 self.currNote = i
                 self.thetime = time.time()
 
-                if self.loop==False: self.keep_playing = False
+                if self.loop==False:
+                    self.keep_playing = False
+                    #trying to stop copying at this point
+                    self.patt.set(self.currentPattern)
 
 
     def row_to_drum_num(self, rownum):
@@ -776,6 +780,7 @@ class DrumMachine():
                 print "self pattQueued is now ", self.queuedPattern
             else:
 
+                #immediately after a stop = self.patt.set should be to the current pattern
                 self.prevpatvalue = self.patt.get()
                 self.patt.set(int(num))
                 self.record_pattern()
@@ -858,6 +863,7 @@ class DrumMachine():
     def pattDblClicked(self, event):
         a = str(event.widget).split(".")[-1]
         a = a[4:]
+        print a
         thelen = len(self.pattern_list)
         self.record_pattern()
         currPattern = self.pattern_list[int(a)]
