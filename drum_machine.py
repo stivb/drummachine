@@ -108,6 +108,7 @@ class DrumMachine():
         self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 42))
         self.currentPattern = 0
         self.breaks=[]
+        self.patternToCopy = -1
 
 
 
@@ -793,7 +794,7 @@ class DrumMachine():
 
     def setChannelValues(self, dname):
         rowclicked = int(dname.split("_")[1])
-        self.channels[rowclicked].init_user_interface()
+        self.channels[rowclicked].init_user_interface(rowclicked)
 
     def hitDrum(self, dname):
         print dname
@@ -900,6 +901,12 @@ class DrumMachine():
         self.change_beat(r, c, self.bpu.get())
         return True
 
+    def remove_beats(self, num):
+        for j in range(32):
+            origCol = self.buttonrowz[num][j].cget('activebackground')
+            self.buttonrowz[num][j].config(bg=origCol)
+            self.buttonrowz[num][j].config(text='')
+
     def newPattern(self):
         def callback():
             self.prevpatvalue = self.patt.get()
@@ -956,6 +963,12 @@ class DrumMachine():
         self.filemenu.add_command(label="Exit", command=self.exit_app)
         self.menubar.add_cascade(label="File", menu=self.filemenu)
 
+        self.editmenu = Menu(self.menubar, tearoff=0)
+        self.editmenu.add_command(label="Copy", command=self.copypattern)
+        self.editmenu.add_command(label="Paste", command=self.pastepattern)
+        self.menubar.add_cascade(label="Edit", menu=self.editmenu)
+
+
         self.aboutmenu = Menu(self.menubar, tearoff=0)
         self.aboutmenu.add_command(label="About", command=self.about)
         self.aboutmenu.add_command(label="Settings", command=self.popupSettings)
@@ -963,6 +976,20 @@ class DrumMachine():
         self.menubar.add_cascade(label="About", menu=self.aboutmenu)
 
         self.root.config(menu=self.menubar)
+
+    def copypattern(self):
+        self.patternToCopy = self.currentPattern
+
+    def pastepattern(self):
+        result = tkMessageBox.askquestion("Pasting Will Overwrite!", "Are You Sure?", icon='warning')
+        if result == 'yes':
+            if self.patternToCopy!=-1:
+                self.reconstruct_pattern(self.patternToCopy,self.bpu.get(), self.units.get())
+                self.patternToCopy=-1
+            else:
+                tkMessageBox("No pattern copied")
+
+
 
     def newsong(self):
         nsd = newsongdlg.NewSongDialog(self)

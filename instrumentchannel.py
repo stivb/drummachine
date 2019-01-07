@@ -30,11 +30,14 @@ class InstrumentChannel:
         self.velocity = v
         self.channel = c
         self.parent = parentself
+        self.currRow=0
 
 
-    def init_user_interface(self):
+    def init_user_interface(self,rowNum):
+        #rowNum is just a temporary value so the UI knows which row has been chosen
         self.top = Toplevel(self.parent.root)
         self.top.geometry('800x200')
+        self.currRow = rowNum
 
         Label(self.top, text="Instrument").pack()
         self.txtInstrument = Entry(self.top)
@@ -54,9 +57,24 @@ class InstrumentChannel:
         b = Button(self.top, text="OK", command=self.ok)
         b.pack(pady=5)
 
+        c = Button(self.top, text="Cancel", command=self.cancel)
+        c.pack(pady=5)
+
+        d = Button(self.top, text="Delete Notes", command=self.delNotes)
+        d.pack(pady=5)
+
+
+
+
     def ok(self):
         self.instrument = int(self.txtInstrument.get())
         self.channel = int(self.txtChannel.get())
         self.velocity = int(self.txtVelocity.get())
         self.top.destroy()
+
+    def cancel(self):
+        self.top.destroy()
+
+    def delNotes(self):
+        self.parent.remove_beats(self.currRow)
 
