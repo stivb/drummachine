@@ -110,7 +110,159 @@ class DrumMachine():
         self.breaks=[]
         self.patternToCopy = -1
 
+    def app(self):
+        self.root = Tk()
+        self.root.title('Drum Beast')
+        self.top_menu()
+        self.create_top_bar()
+        # self.create_left_pad()
+        self.create_play_bar()
+        self.root.protocol('WM_DELETE_WINDOW', self.exit_app)
+        if os.path.isfile('images/beast.ico'): self.root.wm_iconbitmap('images/beast.ico')
+        self.root.bind('<KeyPress>', self.key_pressed)
+        self.root.bind('<KeyRelease>', self.key_released)
+        self.root.mainloop()
+        self.root.after(2000, after_startup)
 
+        #########PATTERN BUTTONS#################
+
+    def create_top_bar(self):
+        '''creating top buttons'''
+        topbar_frame = Frame(self.root)
+        topbar_frame.config(height=30)
+        topbar_frame.grid_rowconfigure(3, minsize=20)
+        topbar_frame.grid_columnconfigure(1, minsize=20)
+        topbar_frame.grid(row=0, column=0, padx=20, sticky=W)
+
+        self.pattBtnz = [0 for x in range(32)]
+
+        for i in range(32):
+            pattStr = "patt" + str(i)
+            self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', activebackground='white',
+                                      text=str(i + 1),
+                                      width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
+            self.pattBtnz[i].grid(row=0, column=i + 1)
+            self.pattBtnz[i].bind('<Double-1>', self.pattDblClicked)
+
+        btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW,
+                                height=self.btnH / 2, command=self.newPattern())
+        btn_newPattern.grid(row=0, column=i + 3, padx=10)
+
+        self.units = IntVar()
+        self.units.set(8)
+        # self.units_widget = Spinbox(topbar_frame, from_=1, to=8, width=5, textvariable=self.units,
+        #                             command=self.createTimeLine)
+        # self.units_widget.grid(row=0, column=24)
+
+        self.bpu = IntVar()
+        self.bpu.set(4)
+        # self.bpu_widget = Spinbox(topbar_frame, from_=1, to=10, width=5, textvariable=self.bpu,
+        #                           command=self.createTimeLine)
+        # self.bpu_widget.grid(row=0, column=26)
+
+        self.createTimeLine()
+
+        ######################MENUS#######################################
+    def top_menu(self):
+        self.menubar = Menu(self.root)
+
+        self.filemenu = Menu(self.menubar, tearoff=0)
+        self.filemenu.add_command(label="Load Project", command=self.load_project)
+        self.filemenu.add_command(label="Save Project", command=self.save_project)
+        self.filemenu.add_separator()
+        self.filemenu.add_command(label="Exit", command=self.exit_app)
+        self.menubar.add_cascade(label="File", menu=self.filemenu)
+
+        self.editmenu = Menu(self.menubar, tearoff=0)
+        self.editmenu.add_command(label="Copy", command=self.copypattern)
+        self.editmenu.add_command(label="Paste", command=self.pastepattern)
+        self.menubar.add_cascade(label="Edit", menu=self.editmenu)
+
+        self.aboutmenu = Menu(self.menubar, tearoff=0)
+        self.aboutmenu.add_command(label="About", command=self.about)
+        self.aboutmenu.add_command(label="Settings", command=self.popupSettings)
+        self.aboutmenu.add_command(label="New Song", command=self.newsong)
+        self.menubar.add_cascade(label="About", menu=self.aboutmenu)
+
+        self.root.config(menu=self.menubar)
+
+    #########################TIMELINE#####################
+
+
+
+    def createTimeLine(self):
+        bpu = self.bpu.get()
+        units = self.units.get()
+        c = bpu * units
+        right_frame = Frame(self.root)
+        right_frame.grid(row=10, column=0, sticky=W + E + N + S, padx=15, pady=2)
+
+        self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
+        self.transbtnz = [0 for x in range(c)]
+        self.startBtnz = [0 for x in range(c + 1)]
+        self.stopBtnz = [0 for x in range(c + 1)]  # needs extra one because going up to 32
+        self.drumpads = [None] * MAX_DRUM_NUM
+        self.clearpads = [None] * MAX_DRUM_NUM
+
+        # this creates the stop/start buttons
+        Label(right_frame, text="Trunc").grid(row=0, column=0)
+        for q in range(0, c):
+            btnStartName = "btnStart" + str(q)
+            btnName = "btnEnd" + str(q)
+            f1 = Frame(right_frame)
+            self.startBtnz[q] = Button(f1, name=btnStartName, bg='white', text=str(q + 1), width=self.btnW,
+                                       height=self.btnH / 2, command=self.start_clicked(q))
+            self.stopBtnz[q] = Button(f1, name=btnName, bg='white', text=str(q + 1), width=self.btnW,
+                                      height=self.btnH / 2, command=self.stop_clicked(q + 1))
+            self.startBtnz[q].grid(row=0, column=0)
+            self.stopBtnz[q].grid(row=1, column=0)
+            f1.grid(row=1, column=q)
+
+        right_frame.grid_rowconfigure(1, minsize=20)
+
+        Label(right_frame, text="Trans").grid(row=2, column=0)
+        # these are the transpose buttons
+        for q in range(c):
+            btnName = "col" + str(q)
+            numToShow = str(q % 12)
+            self.transbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=self.btnW,
+                                       height=self.btnH, command=self.trans_clicked(q))
+            self.transbtnz[q].grid(row=3, column=q)
+
+        right_frame.grid_rowconfigure(3, minsize=20)
+        row_base = 5
+        Label(right_frame, text="Music").grid(row=4, column=0)
+        for i in range(MAX_DRUM_NUM):
+            self.makeTrackButtons(right_frame, i, row_base, c, bpu)
+
+    def makeTrackButtons(self, frameBase, rowNum, rowBase, maxBeats, beatsPerUnit):
+        for j in range(maxBeats):
+
+            self.active = False
+            color = 'grey55' if (j / beatsPerUnit) % 2 else 'khaki'
+            basscolor = 'lightpink'
+            btnName = "btn" + str(rowNum) + ":" + str(j)
+            if rowNum < MAX_DRUM_NUM - 1:
+                self.buttonrowz[rowNum][j] = Button(frameBase, name=btnName, bg=color, activebackground=color,
+                                                    width=self.btnW, height=self.btnH,
+                                                    command=self.button_clicked(rowNum, j, beatsPerUnit))
+                # self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
+                self.buttonrowz[rowNum][j].bind('<Double-1>', self.percDblClicked)
+            else:
+                self.buttonrowz[rowNum][j] = Button(frameBase, bg=basscolor, activebackground=basscolor,
+                                                    width=self.btnW, height=self.btnH)
+                #                                   command=self.bass_clicked(rowNum, j, beatsPerUnit))
+                self.buttonrowz[rowNum][j].bind("<ButtonPress-1>",
+                                                lambda event, rn=rowNum, jay=j, BPU=beatsPerUnit: self.bass_clicked(
+                                                    event, rn, jay, BPU))
+
+            self.buttonrowz[rowNum][j].grid(row=rowNum + rowBase, column=j)
+
+        drumPadName = "d_" + str(rowNum)
+        self.drumpads[rowNum] = Button(frameBase, name=drumPadName, bg=color, width=self.btnW, height=self.btnH,
+                                       command=self.d_clicked(drumPadName))
+        frameBase.grid_columnconfigure(j + 1, minsize=10)
+        self.drumpads[rowNum].grid(row=rowNum + rowBase, column=j + 2)
 
     def about(self):
         tkMessageBox.showinfo("About", "Tkinter GUI Application\n Development Hotshot")
@@ -661,79 +813,7 @@ class DrumMachine():
             self.drum_entry.grid(row=i, column=4, padx=7, pady=2)
             self.widget_drum_name.append(self.drum_entry)
 
-    def createTimeLine(self):
-        bpu = self.bpu.get()
-        units = self.units.get()
-        c = bpu * units
-        right_frame = Frame(self.root)
-        right_frame.grid(row=10, column=0, sticky=W + E + N + S, padx=15, pady=2)
 
-        self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
-        self.transbtnz = [0 for x in range(c)]
-        self.startBtnz = [0 for x in range(c + 1)]
-        self.stopBtnz = [0 for x in range(c + 1)]  # needs extra one because going up to 32
-        self.drumpads = [None] * MAX_DRUM_NUM
-        self.clearpads = [None] * MAX_DRUM_NUM
-
-        # this creates the stop/start buttons
-        Label(right_frame, text="Trunc").grid(row=0, column=0)
-        for q in range(0, c):
-            btnStartName = "btnStart" + str(q)
-            btnName = "btnEnd" + str(q)
-            f1 = Frame(right_frame)
-            self.startBtnz[q] = Button(f1, name=btnStartName, bg='white', text=str(q + 1), width=self.btnW,
-                                       height=self.btnH / 2, command=self.start_clicked(q))
-            self.stopBtnz[q] = Button(f1, name=btnName, bg='white', text=str(q + 1), width=self.btnW,
-                                      height=self.btnH / 2, command=self.stop_clicked(q + 1))
-            self.startBtnz[q].grid(row=0, column=0)
-            self.stopBtnz[q].grid(row=1, column=0)
-            f1.grid(row=1, column=q)
-
-        right_frame.grid_rowconfigure(1, minsize=20)
-
-        Label(right_frame, text="Trans").grid(row=2, column=0)
-        # these are the transpose buttons
-        for q in range(c):
-            btnName = "col" + str(q)
-            numToShow = str(q % 12)
-            self.transbtnz[q] = Button(right_frame, name=btnName, bg='white', text=numToShow, width=self.btnW,
-                                       height=self.btnH, command=self.trans_clicked(q))
-            self.transbtnz[q].grid(row=3, column=q)
-
-        right_frame.grid_rowconfigure(3, minsize=20)
-        row_base = 5
-        Label(right_frame, text="Music").grid(row=4, column=0)
-        for i in range(MAX_DRUM_NUM):
-            self.makeTrackButtons(right_frame, i, row_base, c, bpu)
-
-    def makeTrackButtons(self, frameBase, rowNum, rowBase, maxBeats, beatsPerUnit):
-        for j in range(maxBeats):
-
-            self.active = False
-            color = 'grey55' if (j / beatsPerUnit) % 2 else 'khaki'
-            basscolor = 'lightpink'
-            btnName = "btn" + str(rowNum) + ":" + str(j)
-            if rowNum < MAX_DRUM_NUM - 1:
-                self.buttonrowz[rowNum][j] = Button(frameBase, name=btnName, bg=color, activebackground=color,
-                                                    width=self.btnW, height=self.btnH,
-                                                    command=self.button_clicked(rowNum, j, beatsPerUnit))
-                # self.buttonrowz[i][j] = Button(right_frame, bg=color, width=1)
-                self.buttonrowz[rowNum][j].bind('<Double-1>', self.percDblClicked)
-            else:
-                self.buttonrowz[rowNum][j] = Button(frameBase, bg=basscolor, activebackground=basscolor,
-                                                    width=self.btnW, height=self.btnH)
-                #                                   command=self.bass_clicked(rowNum, j, beatsPerUnit))
-                self.buttonrowz[rowNum][j].bind("<ButtonPress-1>",
-                                                lambda event, rn=rowNum, jay=j, BPU=beatsPerUnit: self.bass_clicked(
-                                                    event, rn, jay, BPU))
-
-            self.buttonrowz[rowNum][j].grid(row=rowNum + rowBase, column=j)
-
-        drumPadName = "d_" + str(rowNum)
-        self.drumpads[rowNum] = Button(frameBase, name=drumPadName, bg=color, width=self.btnW, height=self.btnH,
-                                       command=self.d_clicked(drumPadName))
-        frameBase.grid_columnconfigure(j + 1, minsize=10)
-        self.drumpads[rowNum].grid(row=rowNum + rowBase, column=j + 2)
 
     def trans_clicked(self, num):
         def callback():
@@ -924,67 +1004,7 @@ class DrumMachine():
 
         return callback
 
-    def create_top_bar(self):
-        '''creating top buttons'''
-        topbar_frame = Frame(self.root)
-        topbar_frame.config(height=30)
-        topbar_frame.grid_rowconfigure(3, minsize=20)
-        topbar_frame.grid_columnconfigure(1, minsize=20)
-        topbar_frame.grid(row=0, column=0, padx=20, sticky=W)
 
-        self.pattBtnz = [0 for x in range(32)]
-
-        for i in range(32):
-            pattStr = "patt" + str(i)
-            self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', activebackground='white', text=str(i + 1),
-                                      width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
-            self.pattBtnz[i].grid(row=0, column=i + 1)
-            self.pattBtnz[i].bind('<Double-1>', self.pattDblClicked)
-
-        btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW,
-                                height=self.btnH / 2, command=self.newPattern())
-        btn_newPattern.grid(row=0, column=i + 3, padx=10)
-
-
-
-
-        self.units = IntVar()
-        self.units.set(8)
-        # self.units_widget = Spinbox(topbar_frame, from_=1, to=8, width=5, textvariable=self.units,
-        #                             command=self.createTimeLine)
-        # self.units_widget.grid(row=0, column=24)
-
-        self.bpu = IntVar()
-        self.bpu.set(4)
-        # self.bpu_widget = Spinbox(topbar_frame, from_=1, to=10, width=5, textvariable=self.bpu,
-        #                           command=self.createTimeLine)
-        # self.bpu_widget.grid(row=0, column=26)
-
-        self.createTimeLine()
-
-    def top_menu(self):
-        self.menubar = Menu(self.root)
-
-        self.filemenu = Menu(self.menubar, tearoff=0)
-        self.filemenu.add_command(label="Load Project", command=self.load_project)
-        self.filemenu.add_command(label="Save Project", command=self.save_project)
-        self.filemenu.add_separator()
-        self.filemenu.add_command(label="Exit", command=self.exit_app)
-        self.menubar.add_cascade(label="File", menu=self.filemenu)
-
-        self.editmenu = Menu(self.menubar, tearoff=0)
-        self.editmenu.add_command(label="Copy", command=self.copypattern)
-        self.editmenu.add_command(label="Paste", command=self.pastepattern)
-        self.menubar.add_cascade(label="Edit", menu=self.editmenu)
-
-
-        self.aboutmenu = Menu(self.menubar, tearoff=0)
-        self.aboutmenu.add_command(label="About", command=self.about)
-        self.aboutmenu.add_command(label="Settings", command=self.popupSettings)
-        self.aboutmenu.add_command(label="New Song", command=self.newsong)
-        self.menubar.add_cascade(label="About", menu=self.aboutmenu)
-
-        self.root.config(menu=self.menubar)
 
     def copypattern(self):
         self.patternToCopy = int(self.patt.get())
@@ -1007,19 +1027,7 @@ class DrumMachine():
     def after_startup(self):
         print "whatever"
 
-    def app(self):
-        self.root = Tk()
-        self.root.title('Drum Beast')
-        self.top_menu()
-        self.create_top_bar()
-        # self.create_left_pad()
-        self.create_play_bar()
-        self.root.protocol('WM_DELETE_WINDOW', self.exit_app)
-        if os.path.isfile('images/beast.ico'): self.root.wm_iconbitmap('images/beast.ico')
-        self.root.bind('<KeyPress>', self.key_pressed)
-        self.root.bind('<KeyRelease>', self.key_released)
-        self.root.mainloop()
-        self.root.after(2000, after_startup)
+
 
     def after_startup(self):
         print "hello"
