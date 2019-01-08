@@ -1,4 +1,5 @@
 import pyparsing as pp
+import re
 
 number = pp.Word( pp.nums,max=2 )
 plusOrMinus  = pp.Word( "+-/", max=1 )
@@ -11,6 +12,7 @@ space = pp.Optional(pp.OneOrMore(" "))
 pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
 repeatCount = pp.Combine("*"+number)
 patterns = pp.OneOrMore(pattern|repeatCount)
+
 shorthand = patterns.parseString("{1 +0 1-32}*4 {1 +5 1-32}*2 {1}*2 {1 +7 1-32} {1 +5 1-32} {1 +0 1-32} {1 +0 1-16} {1 +7 17-32}")
 longhand = []
 for i in range(len(shorthand)):
@@ -23,6 +25,27 @@ for i in range(len(shorthand)):
         longhand.append(shorthand[i])
 
 print longhand
+
+
+lsqbracket  = pp.Literal( '[' ).suppress()
+rsqbracket = pp.Literal( ']' ).suppress()
+grouppatterns = pp.Combine(lsqbracket + patterns + rsqbracket)
+mgrouppatterns = pp.OneOrMore(grouppatterns|repeatCount)
+
+
+
+biggerstring = "[{1 +0 1-32}*4 {1 +5 1-32}*2]*2 [{1}*2 {1 +7 1-32} {1 +5 1-32} {1 +0 1-32} {1 +0 1-16} {1 +7 17-32}]*3"
+
+sqbg = mgrouppatterns.parseString(biggerstring)
+
+for i in range(len(sqbg)):
+    print sqbg[i]
+
+
+
+
+
+
 
 
 
