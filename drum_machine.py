@@ -231,7 +231,7 @@ class DrumMachine():
         numPats = len(filter(None, self.pattern_list))
         for i in range(numPats):
             self.pattBtnz[i].config(bg="pink")
-        self.reconstruct_pattern(pattern_num, bpu, units)
+        #self.reconstruct_pattern(pattern_num, bpu, units)
 
     # logics
     # DURING EDIT
@@ -296,6 +296,8 @@ class DrumMachine():
 
     def reconstruct_pattern(self, pattern_num, bpu, units, rinse=True):
 
+        print "reconstructing",pattern_num
+
         self.prevTime = time.clock()
 
         c = bpu * units
@@ -311,7 +313,8 @@ class DrumMachine():
                         if len(toPlay) > 0 and toPlay != " ":
                             self.buttonrowz[i][j].config(bg='green', text=toPlay)
                             self.hitList[self.buttonrowz[i][j]] = 1
-            except:
+            except Exception as e:
+                print (e)
                 return
 
         return time.clock() - self.prevTime
@@ -984,7 +987,7 @@ class DrumMachine():
         self.root.config(menu=self.menubar)
 
     def copypattern(self):
-        self.patternToCopy = self.currentPattern
+        self.patternToCopy = int(self.patt.get())
 
     def pastepattern(self):
         result = tkMessageBox.askquestion("Pasting Will Overwrite!", "Are You Sure?", icon='warning')
