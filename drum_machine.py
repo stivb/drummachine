@@ -77,6 +77,7 @@ class DrumMachine():
         self._print_device_info()
         print "the port is", self.port
         self.queuedPattern = 0
+        self.clipboardTrack = []
 
         # self.patt.set(0)
         # self.root = Tk()
@@ -106,6 +107,7 @@ class DrumMachine():
         self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 38))
         self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 40))
         self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 42))
+        self.channels.append(instrumentchannel.InstrumentChannel(self, 32, 127, 42))
         self.currentPattern = 0
         self.breaks=[]
         self.patternToCopy = -1
@@ -534,11 +536,11 @@ class DrumMachine():
                     try:
                         if currentButton.cget('bg') == 'green':
                             if currentRowNumber != 4:
-                                self.play_drum(self.row_to_drum_num(currentRowNumber))
+                                self.play_drum(self.row_to_drum_num(currentRowNumber),9)
                             else:
                                 note_to_play = currentButton['text']
                                 if note_to_play != "":
-                                    self.play_bass(self.keyNumz[note_to_play])
+                                    self.play_bass(self.keyNumz[note_to_play],1)
 
                     except Exception as e:
                         print "exception at ", i, str(e)
@@ -587,12 +589,13 @@ class DrumMachine():
     def row_to_drum_num(self, rownum):
         return self.channels[rownum].channel
 
-    def play_drum(self, num):
-        self.midi_out.set_instrument(50, channel=9)
-        self.midi_out.note_on(num, 127, 9)
-        self.notesOn.append((num, 9))
+    def play_drum(self, num, ch):
+        #basically playing to channel 10, num meaning the note, instrument is irrelevant
+        self.midi_out.set_instrument(50, channel=ch)
+        self.midi_out.note_on(num, 127, ch)
+        self.notesOn.append((num, ch))
 
-    def play_bass(self, num):
+    def play_bass(self, num, ch):
         num = num + self.transpose
         self.midi_out.set_instrument(32, channel=1)
         self.midi_out.note_on(num, 127, 0)
@@ -873,6 +876,7 @@ class DrumMachine():
 
     def d_clicked(self, dname):
         def callback():
+            print dname
             if self.loop != False and self.keep_playing != False:
                 self.hitDrum(dname)
             else:
@@ -881,6 +885,7 @@ class DrumMachine():
         return callback
 
     def setChannelValues(self, dname):
+
         rowclicked = int(dname.split("_")[1])
         self.channels[rowclicked].init_user_interface(rowclicked)
 
@@ -990,11 +995,32 @@ class DrumMachine():
         self.change_beat(r, c, self.bpu.get())
         return True
 
-    def remove_beats(self, num):
-        for j in range(32):
+    def remove_beats(self, num, frm,to):
+        for j in range(frm-1,to):
             origCol = self.buttonrowz[num][j].cget('activebackground')
             self.buttonrowz[num][j].config(bg=origCol)
             self.buttonrowz[num][j].config(text='')
+
+    def CopyTrack(self, num, frm,to):
+        self.clipboardTrack = []
+        for j in range(frm-1,to):
+            self.clipboardTrack.append(self.buttonrowz[num][j].cget('text'))
+
+    def PasteTrack(self, num, frm, to):
+        toPaste = []
+        toPaste.extend(self.clipboardTrack)
+        while len(toPaste) <32: toPaste.extend(self.clipboardTrack)
+        for j in range(frm - 1, to):
+            origCol = self.buttonrowz[num][j].cget('activebackground')
+            toAddAtBeat = toPaste[j]
+            self.buttonrowz[num][j].config(text=toAddAtBeat)
+            if toAddAtBeat=='':self.buttonrowz[num][j].config(bg=origCol)
+            else:self.buttonrowz[num][j].config(bg='green')
+
+    def DuplicateTrackSection(self, num, frm, to):
+        self.CopyTrack(frm,to)
+        self.PasteTrack(to+1,32)
+
 
     def newPattern(self):
         def callback():

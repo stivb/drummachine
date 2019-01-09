@@ -100,16 +100,16 @@ class InstrumentChannel:
 
         Label(self.top, text="From").grid(row=2, column=self.clm())
 
-        defaultFrom = StringVar()
-        defaultFrom.set('1')  # set the default option
-        fromDropDown= OptionMenu(self.top, defaultFrom,1, 4, 9,13,17, 21,25,29)
+        self.defaultFrom = StringVar()
+        self.defaultFrom.set('1')  # set the default option
+        fromDropDown= OptionMenu(self.top, self.defaultFrom,1, 4, 9,13,17, 21,25,29)
         fromDropDown.grid(row=2, column=self.clm())
 
         Label(self.top, text="To").grid(row=2, column=self.clm())
 
-        defaultTo = StringVar()
-        defaultTo.set('32')  # set the default option
-        toDropDown = OptionMenu(self.top, defaultTo, 4, 8, 12, 16, 20, 24, 28,32)
+        self.defaultTo = StringVar()
+        self.defaultTo.set('32')  # set the default option
+        toDropDown = OptionMenu(self.top, self.defaultTo, 4, 8, 12, 16, 20, 24, 28,32)
         toDropDown.grid(row=2, column=self.clm())
 
         self.clm0()
@@ -138,17 +138,22 @@ class InstrumentChannel:
         self.top.destroy()
 
     def delNotes(self):
-        self.parent.remove_beats(self.currRow)
+
+        self.parent.remove_beats(self.currRow,int(self.defaultFrom.get()),int(self.defaultTo.get()))
+
 
     def btnMuteUnmute(self):
-        print ""
+        self.parent.MuteUnMute(self.currRow)
+
 
     def btnCopyTrack(self):
-        print ""
+        self.parent.CopyTrack(self.currRow,int(self.defaultFrom.get()),int(self.defaultTo.get()))
+
 
     def btnPasteTrack(self):
-        print ""
+        self.parent.PasteTrack(self.currRow,int(self.defaultFrom.get()),int(self.defaultTo.get()))
+
 
     def btnDuplicateTrackSection(self):
-        print ""
+        self.parent.DuplicateTrackSection(self.currRow, int(self.defaultFrom.get()), int(self.defaultTo.get()))
 
