@@ -13,7 +13,43 @@ pattern = pp.Combine(lpar + number + space + transposition + space + startend + 
 repeatCount = pp.Combine("*"+number)
 patterns = pp.OneOrMore(pattern|repeatCount)
 
-shorthand = patterns.parseString("{1 +0 1-32}*4 {1 +5 1-32}*2 {1}*2 {1 +7 1-32} {1 +5 1-32} {1 +0 1-32} {1 +0 1-16} {1 +7 17-32}")
+# shorthand = patterns.parseString("{1 +0 1-32}*4 {1 +5 1-32}*2 {1}*2 {1 +7 1-32} {1 +5 1-32} {1 +0 1-32} {1 +0 1-16} {1 +7 17-32}")
+# longhand = []
+# for i in range(len(shorthand)):
+#     s = shorthand[i]
+#     if s[0]=='*':
+#         repeat = int(s[1:])-1
+#         for j in range(repeat):
+#             longhand.append(shorthand[i-1])
+#     else:
+#         longhand.append(shorthand[i])
+#
+# print longhand
+
+
+# lsqbracket  = pp.Literal( '[' ).suppress()
+# rsqbracket = pp.Literal( ']' ).suppress()
+# grouppatterns = pp.Combine(lsqbracket + patterns + rsqbracket)
+# mgrouppatterns = pp.OneOrMore(grouppatterns|repeatCount)
+
+
+
+biggerstring = "{1 +0 1-32}*4 {1 +5 1-32}*2 {1}*2 {1 +7 1-32} {1 +5 1-32} {1 +0 1-32} {1 +0 1-16} {1 +7 17-32}"
+#biggerstring = "[{1 +0 1-32}*4 {1 +5 1-32}*2]*2 [{1}*2 {1 +7 1-32} {1 +5 1-32} {1 +0 1-32} {1 +0 1-16} {1 +7 17-32}]*3"
+
+sections = biggerstring.split('[')
+sections= filter(None, sections)
+for i in range(len(sections)):
+    #if len(sections[i])==0: continue
+
+    partplustimes = sections[i].split(']*')
+    if len(partplustimes)>1:
+        sections[i] = partplustimes[0]*int(partplustimes[1])
+
+combinedstring = "".join(sections)
+
+
+shorthand = patterns.parseString(combinedstring)
 longhand = []
 for i in range(len(shorthand)):
     s = shorthand[i]
@@ -25,21 +61,6 @@ for i in range(len(shorthand)):
         longhand.append(shorthand[i])
 
 print longhand
-
-
-lsqbracket  = pp.Literal( '[' ).suppress()
-rsqbracket = pp.Literal( ']' ).suppress()
-grouppatterns = pp.Combine(lsqbracket + patterns + rsqbracket)
-mgrouppatterns = pp.OneOrMore(grouppatterns|repeatCount)
-
-
-
-biggerstring = "[{1 +0 1-32}*4 {1 +5 1-32}*2]*2 [{1}*2 {1 +7 1-32} {1 +5 1-32} {1 +0 1-32} {1 +0 1-16} {1 +7 17-32}]*3"
-
-sqbg = mgrouppatterns.parseString(biggerstring)
-
-for i in range(len(sqbg)):
-    print sqbg[i]
 
 
 

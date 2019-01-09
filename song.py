@@ -70,6 +70,20 @@ class Song:
         testPattern = "{0 +0 1-32}*4 {0 +5 1-32}*2 {0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}"
         if inputString=="":
             inputString = testPattern
+
+        inputstring = inputstring.replace("\n","")
+        inputstring = inputstring.replace("\r", "")
+
+        sections = inputString.split('[')
+        sections = filter(None, sections)
+        for i in range(len(sections)):
+            # if len(sections[i])==0: continue
+
+            partplustimes = sections[i].split(']*')
+            if len(partplustimes) > 1:
+                sections[i] = partplustimes[0] * int(partplustimes[1])
+
+        inputstring = "".join(sections)
         number = pp.Word(pp.nums, max=2)
         plusOrMinus = pp.Word("+-/", max=1)
         transposition = pp.Optional(pp.Combine(plusOrMinus + number))
