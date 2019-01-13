@@ -486,6 +486,7 @@ class DrumMachine():
         self.play_in_thread()
 
     def play_in_thread_seq(self):
+
         self.loop=True
         self.seq=True
         mysong = song.Song()
