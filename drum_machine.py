@@ -59,7 +59,7 @@ class DrumMachine():
         self.keep_playing = True
         self.loop = False
         self.seq = False
-        self.pattern_list = [None] * 16
+        self.pattern_list = [None] * 32
         self.file1 = ""
         self.file2 = ""
         self.file3 = ""
@@ -417,7 +417,7 @@ class DrumMachine():
         self.currentPattern = toPattNum
 
     def show_currpattern(self):
-        for i in range(16):
+        for i in range(32):
             if i < len(self.pattern_list):
                 self.pattBtnz[i].config(bg='pink')
             else:
