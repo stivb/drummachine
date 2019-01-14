@@ -332,9 +332,12 @@ class DrumMachine():
         try:
             while True:  # load from the file until EOF is reached
                 self.pattern_list = pickle.load(fh)
+                #always crashes out dunno why
         except EOFError:
             pass
         fh.close()
+        while len(self.pattern_list) < 32:
+            self.pattern_list.append(None)
         try:
             self.reconstruct_pattern(0, self.pattern_list[0]['bpu'],
                                      self.pattern_list[0]['units'])  # reconstruct the first pattern

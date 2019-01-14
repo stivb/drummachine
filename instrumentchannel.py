@@ -95,8 +95,11 @@ class InstrumentChannel:
         duplicateButton = Button(self.top, text="Duplicate", command=self.btnDuplicateTrackSection)
         duplicateButton.grid(row=2, column=self.clm())
 
-        deleteButton = Button(self.top, text="Delete Notes", command=self.delNotes)
+        deleteButton = Button(self.top, text="Transpose", command=self.doPermanentTransposition)
         deleteButton.grid(row=2, column=self.clm())
+
+        transposeButton = Button(self.top, text="Delete Notes", command=self.delNotes)
+        transposeButton.grid(row=2, column=self.clm())
 
         Label(self.top, text="From").grid(row=2, column=self.clm())
 
