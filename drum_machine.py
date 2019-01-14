@@ -581,10 +581,14 @@ class DrumMachine():
                 self.currNote = i
                 self.thetime = time.time()
 
-                if self.loop==False:
-                    self.keep_playing = False
-                    #trying to stop copying at this point
-                    self.patt.set(self.currentPattern)
+                if self.loop==False:  self.keep_playing = False
+        #after loop finishes
+        if (self.seq==False):
+            self.patt.set(self.currentPattern)
+        else:
+            self.seq=False
+            self.patt.set(-1)
+
 
 
     def row_to_drum_num(self, rownum):
