@@ -95,11 +95,16 @@ class InstrumentChannel:
         duplicateButton = Button(self.top, text="Duplicate", command=self.btnDuplicateTrackSection)
         duplicateButton.grid(row=2, column=self.clm())
 
-        deleteButton = Button(self.top, text="Transpose", command=self.doPermanentTransposition)
-        deleteButton.grid(row=2, column=self.clm())
-
-        transposeButton = Button(self.top, text="Delete Notes", command=self.delNotes)
+        transposeButton = Button(self.top, text="Transpose", command=self.doPermanentTransposition)
         transposeButton.grid(row=2, column=self.clm())
+
+        self.transposeOffset = StringVar()
+        self.transposeOffset.set('0')  # set the default option
+        transposeOffsetDropDown = OptionMenu(self.top, self.transposeOffset, 0,1,2,3,4,5,6,7,8,9,10,11,12)
+        transposeOffsetDropDown.grid(row=2, column=self.clm())
+
+        deleteButton = Button(self.top, text="Delete Notes", command=self.delNotes)
+        deleteButton.grid(row=2, column=self.clm())
 
         Label(self.top, text="From").grid(row=2, column=self.clm())
 
@@ -160,3 +165,5 @@ class InstrumentChannel:
     def btnDuplicateTrackSection(self):
         self.parent.DuplicateTrackSection(self.currRow, int(self.defaultFrom.get()), int(self.defaultTo.get()))
 
+    def doPermanentTransposition(self):
+        self.parent.permTranspose(self.currRow, int(self.defaultFrom.get()), int(self.defaultTo.get()), int(self.transposeOffset.get()))

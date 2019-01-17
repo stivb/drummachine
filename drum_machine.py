@@ -93,6 +93,8 @@ class DrumMachine():
                         'A1': 33, 'A#1': 34, 'B1': 35, 'C2': 36, 'C#2': 37, 'D2': 38, 'D#2': 39, 'E2': 40, 'F2': 41,
                         'F#2': 42, 'G2': 43, 'G#2': 44, 'A2': 45, 'A#2': 46, 'B2': 47, 'C3': 48, 'C#3': 49, 'D3': 50,
                         'D#3': 51}
+
+        self.notes = ['C1', 'C#1', 'D1', 'D#1', 'E1', 'F1', 'F#1', 'G1', 'G#1',  'A1', 'A#1', 'B1', 'C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'A#2', 'B2', 'C3', 'C#3', 'D3','D#3']
         # self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/bassdrum1.wav",0)
         # self.addFileToDrumset("C:/Users/Stiv/OneDrive - University of Hertfordshire/2017-18/2017-18/b/7COM1071/drum_machine/loops/snare.high.wav",1)
         self.deviceDict = self._midi_dev_dict()
@@ -386,8 +388,7 @@ class DrumMachine():
         self.pattern_list[prevpval] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu': bpu,
                                        'units': units}
         numPats = len(filter(None, self.pattern_list))
-        for i in range(numPats):
-            self.pattBtnz[i].config(bg="pink")
+
         #self.reconstruct_pattern(pattern_num, bpu, units)
 
     # logics
@@ -419,13 +420,7 @@ class DrumMachine():
         if toPattNum > len(self.pattern_list): return
         self.currentPattern = toPattNum
 
-    def show_currpattern(self):
-        for i in range(32):
-            if i < len(self.pattern_list):
-                self.pattBtnz[i].config(bg='pink')
-            else:
-                self.pattBtnz[i].config(bg='white')
-        self.pattBtnz[self.currentPattern] = 'blue'
+
 
     # def printTimeElapsed(self,msg):
     # currTime = time.clock()
@@ -617,6 +612,8 @@ class DrumMachine():
 
     def stop_play(self):
         self.keep_playing = False
+        self.loop=False
+        self.seq=False
         return
 
     def loop_play(self, xval):
@@ -865,10 +862,21 @@ class DrumMachine():
         for j in range(32):
             self.stopBtnz[j].config(bg="White")
 
+    def pattShow(self):
+        for j in range(32):
+            if int(self.patt.get())==j:
+                self.pattBtnz[j].config(bg="turquoise")
+            elif self.pattern_list[j]==None:
+                self.pattBtnz[j].config(bg="White")
+            else:
+                self.pattBtnz[j].config(bg="Pink")
+
+
+
     def patt_clicked(self, num):
         def callback():
             if self.loop != False and self.keep_playing != False:
-
+                #we are running
                 self.queuedPattern = int(num)
                 self.pattBtnz[self.queuedPattern].config(bg='yellow')
                 print "self pattQueued is now ", self.queuedPattern
@@ -879,6 +887,7 @@ class DrumMachine():
                 self.patt.set(int(num))
                 self.record_pattern()
                 self.reconstruct_pattern(int(num), self.bpu.get(), self.units.get())
+                self.pattShow()
 
         return callback
 
@@ -1028,6 +1037,16 @@ class DrumMachine():
     def DuplicateTrackSection(self, num, frm, to):
         self.CopyTrack(frm,to)
         self.PasteTrack(to+1,32)
+
+    def permTranspose (self, num, frm, to, offset):
+        for j in range(frm - 1, to):
+            origNote = self.buttonrowz[num][j].cget('text')
+            if len(origNote)>0:
+                print origNote
+                pos = self.notes.index(origNote)
+                newKey = self.notes[pos+offset]
+                self.buttonrowz[num][j].config(text=newKey)
+
 
 
     def newPattern(self):
