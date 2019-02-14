@@ -27,7 +27,7 @@ class InstrumentChannel:
 
 
     def __init__(self,parentself,i,v,c):
-        self.instrument = i
+        self.inst_or_note = i
         self.velocity = v
         self.channel = c
         self.parent = parentself
@@ -52,14 +52,9 @@ class InstrumentChannel:
 
         Label(self.top, text="Settings").grid(row=0, column=self.clm())
 
-        Label(self.top, text="Instrument").grid(row=0, column=self.clm())
+        Label(self.top, text="Inst/Note").grid(row=0,column=self.clm())
         self.txtInstrument = Entry(self.top)
-        self.txtInstrument.insert(END, str(self.instrument))
-        self.txtInstrument.grid(row=0, column=self.clm())
-
-        Label(self.top, text="Instrument").grid(row=0,column=self.clm())
-        self.txtInstrument = Entry(self.top)
-        self.txtInstrument.insert(END,str(self.instrument))
+        self.txtInstrument.insert(END, str(self.inst_or_note))
         self.txtInstrument.grid(row=0, column=self.clm())
 
         Label(self.top, text="Channel").grid(row=0,column=self.clm())
@@ -137,7 +132,7 @@ class InstrumentChannel:
 
 
     def ok(self):
-        self.instrument = int(self.txtInstrument.get())
+        self.inst_or_note = int(self.txtInstrument.get())
         self.channel = int(self.txtChannel.get())
         self.velocity = int(self.txtVelocity.get())
         self.top.destroy()

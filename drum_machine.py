@@ -33,7 +33,7 @@ import instrumentchannel
 import newsongdlg
 
 # constants
-MAX_DRUM_NUM = 5
+MAX_TRACK_NUM = 6
 
 
 def play_back():
@@ -53,8 +53,8 @@ class DrumMachine():
 
         self.recordOnChange = True
         self.widget_drum_name = []
-        self.widget_drum_file_name = [0] * MAX_DRUM_NUM
-        self.widget_drum_file_sound = [0] * MAX_DRUM_NUM
+        self.widget_drum_file_name = [0] * MAX_TRACK_NUM
+        self.widget_drum_file_sound = [0] * MAX_TRACK_NUM
         self.current_drum_no = 0
         self.keep_playing = True
         self.loop = False
@@ -105,11 +105,12 @@ class DrumMachine():
         self.btnH = 4
         self.prevTime = time.clock()
         self.channels = []
-        self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 36))
-        self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 38))
-        self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 40))
-        self.channels.append(instrumentchannel.InstrumentChannel(self, 50, 127, 42))
-        self.channels.append(instrumentchannel.InstrumentChannel(self, 32, 127, 42))
+        self.channels.append(instrumentchannel.InstrumentChannel(self, 36 , 127, 9))
+        self.channels.append(instrumentchannel.InstrumentChannel(self, 38, 127, 9))
+        self.channels.append(instrumentchannel.InstrumentChannel(self, 40, 127, 9))
+        self.channels.append(instrumentchannel.InstrumentChannel(self, 42, 127, 9))
+        self.channels.append(instrumentchannel.InstrumentChannel(self, 32, 127, 0))
+        self.channels.append(instrumentchannel.InstrumentChannel(self, 33, 127, 1))
         self.currentPattern = 0
         self.breaks=[]
         self.patternToCopy = -1
@@ -201,12 +202,12 @@ class DrumMachine():
         right_frame = Frame(self.root)
         right_frame.grid(row=10, column=0, sticky=W + E + N + S, padx=15, pady=2)
 
-        self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_DRUM_NUM)]
+        self.buttonrowz = [[0 for x in range(c)] for x in range(MAX_TRACK_NUM)]
         self.transbtnz = [0 for x in range(c)]
         self.startBtnz = [0 for x in range(c + 1)]
         self.stopBtnz = [0 for x in range(c + 1)]  # needs extra one because going up to 32
-        self.drumpads = [None] * MAX_DRUM_NUM
-        self.clearpads = [None] * MAX_DRUM_NUM
+        self.drumpads = [None] * MAX_TRACK_NUM
+        self.clearpads = [None] * MAX_TRACK_NUM
 
         # this creates the stop/start buttons
         Label(right_frame, text="Trunc").grid(row=0, column=0)
@@ -236,7 +237,7 @@ class DrumMachine():
         right_frame.grid_rowconfigure(3, minsize=20)
         row_base = 5
         Label(right_frame, text="Music").grid(row=4, column=0)
-        for i in range(MAX_DRUM_NUM):
+        for i in range(MAX_TRACK_NUM):
             self.makeTrackButtons(right_frame, i, row_base, c, bpu)
 
     def makeTrackButtons(self, frameBase, rowNum, rowBase, maxBeats, beatsPerUnit):
@@ -244,9 +245,9 @@ class DrumMachine():
 
             self.active = False
             color = 'grey55' if (j / beatsPerUnit) % 2 else 'khaki'
-            basscolor = 'lightpink'
+            basscolor =  'grey55' if (j / beatsPerUnit) % 2 else 'lightpink'
             btnName = "btn" + str(rowNum) + ":" + str(j)
-            if rowNum < MAX_DRUM_NUM - 1:
+            if rowNum < 4:
                 self.buttonrowz[rowNum][j] = Button(frameBase, name=btnName, bg=color, activebackground=color,
                                                     width=self.btnW, height=self.btnH,
                                                     command=self.button_clicked(rowNum, j, beatsPerUnit))
@@ -368,7 +369,7 @@ class DrumMachine():
         prevpval = self.prevpatvalue
         self.prevpatvalue = pattern_num
         c = bpu * units
-        self.buttonpickleformat = [[0] * c for x in range(MAX_DRUM_NUM)]
+        self.buttonpickleformat = [[0] * c for x in range(MAX_TRACK_NUM)]
         self.hitList = {}
 
         alertstr = "Pattern num ", pattern_num, " Prev Pat value", prevpval
@@ -378,7 +379,7 @@ class DrumMachine():
 
 
 
-        for i in range(MAX_DRUM_NUM):
+        for i in range(MAX_TRACK_NUM):
             for j in range(c):
                 if self.buttonrowz[i][j].config('bg')[-1] == 'green':
                     self.buttonpickleformat[i][j] = self.buttonrowz[i][j].cget('text')
@@ -403,9 +404,9 @@ class DrumMachine():
         bpu = self.bpu.get()
         units = self.units.get()
         c = int(self.bpu.get()) * int(self.units.get())
-        self.buttonpickleformat = [[0] * c for x in range(MAX_DRUM_NUM)]
+        self.buttonpickleformat = [[0] * c for x in range(MAX_TRACK_NUM)]
         self.hitList = {}
-        for i in range(MAX_DRUM_NUM):
+        for i in range(MAX_TRACK_NUM):
             for j in range(c):
                 if self.buttonrowz[i][j].config('bg')[-1] == 'green':
                     self.buttonpickleformat[i][j] = self.buttonrowz[i][j].cget('text')
@@ -435,7 +436,7 @@ class DrumMachine():
 
         # self.rinseTimeline(c,bpu)
         try:
-            for i in range(MAX_DRUM_NUM):
+            for i in range(MAX_TRACK_NUM):
                 for j in range(c):
                     # if self.pattern_list[pattern_num]['bl'][i][j] == '*':
                     toPlay = self.pattern_list[pattern_num]['bl'][i][j]
@@ -458,7 +459,7 @@ class DrumMachine():
             self.rinseTimeline()
             self.hitList = {}
             try:
-                for i in range(MAX_DRUM_NUM):
+                for i in range(MAX_TRACK_NUM):
                     for j in range(c):
                         # if self.pattern_list[pattern_num]['bl'][i][j] == '*':
                         toPlay = self.pattern_list[pattern_num]['bl'][i][j]
@@ -528,22 +529,25 @@ class DrumMachine():
                     self.stopBtnz[self.stopAt - 1].config(bg='white')
 
                 # at each measure proceeding vertically down
+
                 for thisrow in self.buttonrowz:
 
                     currentButton = thisrow[i]
                     currentRowNumber = self.buttonrowz.index(thisrow)
                     try:
                         if currentButton.cget('bg') == 'green':
-                            if currentRowNumber != 4:
-                                self.play_drum(self.row_to_drum_num(currentRowNumber),9)
+                            if currentRowNumber < 4:
+                                self.play_drum(self.channels[currentRowNumber].inst_or_note,self.channels[currentRowNumber].channel)
                             else:
                                 note_to_play = currentButton['text']
                                 if note_to_play != "":
-                                    self.play_bass(self.keyNumz[note_to_play],1)
+                                    self.play_note(self.channels[currentRowNumber].inst_or_note,self.keyNumz[note_to_play], self.channels[currentRowNumber].channel)
 
                     except Exception as e:
                         print "exception at ", i, str(e)
                         continue
+
+
 
                 #this deals with what happens in the last beat (is new pattern added or not
                 if i == self.stopAt - 1:
@@ -593,20 +597,18 @@ class DrumMachine():
         return self.channels[rownum].channel
 
     def play_drum(self, num, ch):
-        #basically playing to channel 10, num meaning the note, instrument is irrelevant
         self.midi_out.set_instrument(50, channel=ch)
         self.midi_out.note_on(num, 127, ch)
         self.notesOn.append((num, ch))
 
-    def play_bass(self, num, ch):
-        num = num + self.transpose
-        self.midi_out.set_instrument(32, channel=1)
-        self.midi_out.note_on(num, 127, 0)
-        self.notesOn.append((num, 0))
+    def play_note(self, inst, note, ch):
+        note = note + self.transpose
+        self.midi_out.set_instrument(inst, channel=ch)
+        self.midi_out.note_on(note, 127, ch)
+        self.notesOn.append((note, ch))
 
     def end_notes(self):
         for note in self.notesOn:
-            # print "Note off",note[0],note[1]
             self.midi_out.note_off(note[0], 0, note[1])
         self.notesOn = []
 
@@ -696,7 +698,7 @@ class DrumMachine():
         btn.config(text=new_text)
 
     def rinseTimelineOld(self, numCols, bpu):
-        for i in range(MAX_DRUM_NUM):
+        for i in range(MAX_TRACK_NUM):
             for j in range(numCols):
                 color = 'grey55' if (j / bpu) % 2 else 'khaki'
                 self.buttonrowz[i][j].config(text=' ', bg=color)
@@ -721,7 +723,7 @@ class DrumMachine():
 
     def create_play_bar(self):
         playbar_frame = Frame(self.root, height=15)
-        ln = MAX_DRUM_NUM + 10
+        ln = MAX_TRACK_NUM + 10
         playbar_frame.grid(row=ln, columnspan=20, sticky=W + E, padx=15, pady=10)
 
         button = ttk.Button(playbar_frame, text='Play', command=self.play_in_thread)
@@ -813,7 +815,7 @@ class DrumMachine():
         left_frame = Frame(self.root)
         left_frame.grid(row=10, column=0, columnspan=6, sticky=W + E + N + S)
         tbicon = PhotoImage(file='images/openfile.gif')
-        for i in range(0, MAX_DRUM_NUM):
+        for i in range(0, MAX_TRACK_NUM):
             button = Button(left_frame, image=tbicon, command=self.drum_load(i))
             button.image = tbicon
             button.grid(row=i, column=0, padx=5, pady=2)
