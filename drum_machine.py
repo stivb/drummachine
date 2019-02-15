@@ -30,6 +30,7 @@ import pygame.midi
 import piano
 import song
 import instrumentchannel
+import editor
 import newsongdlg
 
 # constants
@@ -114,6 +115,7 @@ class DrumMachine():
         self.currentPattern = 0
         self.breaks=[]
         self.patternToCopy = -1
+        self.ed = editor.Editor(self,"")
 
     def app(self):
         self.root = Tk()
@@ -187,6 +189,7 @@ class DrumMachine():
         self.aboutmenu.add_command(label="About", command=self.about)
         self.aboutmenu.add_command(label="Settings", command=self.popupSettings)
         self.aboutmenu.add_command(label="New Song", command=self.newsong)
+        self.aboutmenu.add_command(label="Edit Sequence", command=self.editSequence)
         self.menubar.add_cascade(label="About", menu=self.aboutmenu)
 
         self.root.config(menu=self.menubar)
@@ -245,7 +248,7 @@ class DrumMachine():
 
             self.active = False
             color = 'grey55' if (j / beatsPerUnit) % 2 else 'khaki'
-            basscolor =  'grey55' if (j / beatsPerUnit) % 2 else 'lightpink'
+            basscolor =  'grey88' if (j / beatsPerUnit) % 2 else 'lightpink'
             btnName = "btn" + str(rowNum) + ":" + str(j)
             if rowNum < 4:
                 self.buttonrowz[rowNum][j] = Button(frameBase, name=btnName, bg=color, activebackground=color,
@@ -460,7 +463,6 @@ class DrumMachine():
             self.hitList = {}
             try:
                 for i in range(MAX_TRACK_NUM-1):
-                    print i,MAX_TRACK_NUM
                     for j in range(c):
                         # if self.pattern_list[pattern_num]['bl'][i][j] == '*':
                         toPlay = self.pattern_list[pattern_num]['bl'][i][j]
@@ -468,7 +470,6 @@ class DrumMachine():
                             self.buttonrowz[i][j].config(bg='green', text=toPlay)
                             self.hitList[self.buttonrowz[i][j]] = 1
             except Exception as e:
-                print "EXCEPTION"
                 print (e)
                 return 0
 
@@ -1082,6 +1083,9 @@ class DrumMachine():
     def newsong(self):
         nsd = newsongdlg.NewSongDialog(self)
         nsd.init_user_interface()
+
+    def editSequence(self):
+        self.ed.init_ui()
 
     def after_startup(self):
         print "whatever"
