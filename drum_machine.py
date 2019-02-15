@@ -459,7 +459,8 @@ class DrumMachine():
             self.rinseTimeline()
             self.hitList = {}
             try:
-                for i in range(MAX_TRACK_NUM):
+                for i in range(MAX_TRACK_NUM-1):
+                    print i,MAX_TRACK_NUM
                     for j in range(c):
                         # if self.pattern_list[pattern_num]['bl'][i][j] == '*':
                         toPlay = self.pattern_list[pattern_num]['bl'][i][j]
@@ -467,8 +468,9 @@ class DrumMachine():
                             self.buttonrowz[i][j].config(bg='green', text=toPlay)
                             self.hitList[self.buttonrowz[i][j]] = 1
             except Exception as e:
+                print "EXCEPTION"
                 print (e)
-                return
+                return 0
 
         return time.clock() - self.prevTime
 
@@ -548,11 +550,11 @@ class DrumMachine():
                         continue
 
 
-
+                reconstruction_delay = 0
                 #this deals with what happens in the last beat (is new pattern added or not
                 if i == self.stopAt - 1:
 
-                    reconstruction_delay = 0
+
                     if self.seq==False:
                         if self.queuedPattern != self.patt.get():
                             self.pattBtnz[self.patt.get()].config(bg='white')
@@ -567,6 +569,7 @@ class DrumMachine():
                         if ct >= len(self.breaks)-1:
                             ct=-1
                         upcoming = self.breaks[ct+1]
+
                         if upcoming.pattern !=self.breaks[ct].pattern:
                             reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
                                                                             self.units.get())
@@ -576,6 +579,7 @@ class DrumMachine():
 
                     ct = ct + 1
                     #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
+                print self.bpm,reconstruction_delay
                 bpm_based_delay = max(((60.0 / self.bpm) / 4.0) - reconstruction_delay, 0)
 
                 time.sleep(bpm_based_delay)
