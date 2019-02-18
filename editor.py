@@ -49,9 +49,12 @@ class Editor:
         self.top = Toplevel(self.parent.root)
         self.top.geometry('800x600')
         label_font = tkFont.Font(family='Courer', size=25)
-        textPad = ScrolledText(self.top, width=100, height=80,font=label_font)
-
-
+        textPad = ScrolledText(self.top, width=120, height=15,font=label_font)
+        textPad.grid(row=0, column=0, columnspan=4, sticky=N)
+        okbtn = Button(self.top, text="Ok")
+        okbtn.grid(row=1, column=0)
+        cancelbtn = Button(self.top, text="Cancel")
+        cancelbtn.grid(row=2,  column=0)
         menu = Menu(self.top)
         self.top.config(menu=menu)
         filemenu = Menu(menu)
@@ -64,4 +67,4 @@ class Editor:
         helpmenu = Menu(menu)
         menu.add_cascade(label="Help", menu=helpmenu)
         helpmenu.add_command(label="About...", command=self.about_command)
-        textPad.pack()
+
