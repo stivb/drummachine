@@ -12,8 +12,11 @@ import tkFont
 class Editor:
 
     def __init__(self,parentself,txt):
+
         self.txt = txt
         self.parent = parentself
+        self.clmct = 0
+
 
     def open_command(self):
         file = tkFileDialog.askopenfile(parent=root, mode='rb', title='Select a file')
@@ -44,17 +47,63 @@ class Editor:
     def dummy(self):
         print "I am a Dummy Command, I will be removed in the next step"
 
+    def clm(self):
+        self.clmct+=1
+        return self.clmct
+
+    def clm0(self):
+        self.clmct=0
 
     def init_ui(self):
+
         self.top = Toplevel(self.parent.root)
         self.top.geometry('800x600')
+        self.editorPttn = StringVar()
+        self.editorFrom = StringVar()
+        self.editorTo = StringVar()
+        self.transposeOffset = StringVar()
+        self.Repetitions = StringVar()
+
         label_font = tkFont.Font(family='Courer', size=25)
-        textPad = ScrolledText(self.top, width=120, height=15,font=label_font)
-        textPad.grid(row=0, column=0, columnspan=4, sticky=N)
+
+        Label(self.top, text="Pattern").grid(row=0, column=0)
+        self.editorPttn.set("1")
+        self.editorPtnDropDown = OptionMenu(self.top, self.editorPttn, 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32)
+        self.editorPtnDropDown.grid(row=0, column=self.clm(), sticky=W)
+
+        Label(self.top, text="From").grid(row=0, column=self.clm())
+        self.editorFrom.set('1')  # set the default option
+        editorFromDropDown = OptionMenu(self.top, self.editorFrom, 1,2,3,4,5,6,7,8)
+        editorFromDropDown.grid(row=0, column=self.clm(), sticky=W)
+
+        Label(self.top, text="To").grid(row=0, column=self.clm())
+        self.editorTo.set('32')  # set the default option
+        editorToDropDown = OptionMenu(self.top, self.editorTo, 4, 8, 12, 16, 20, 24, 28, 32)
+        editorToDropDown.grid(row=0, column=self.clm(),sticky=W)
+
+        Label(self.top, text="Transpose").grid(row=0, column=self.clm())
+        self.transposeOffset.set('0')  # set the default option
+        transposeOffsetDropDown = OptionMenu(self.top, self.transposeOffset, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+        transposeOffsetDropDown.grid(row=0, column=self.clm(), sticky=W)
+
+        Label(self.top, text="Repetitions").grid(row=0, column=self.clm())
+        self.Repetitions.set('1')  # set the default option
+        RepetitionsDropDown = OptionMenu(self.top, self.Repetitions, 1,2,3,4,5,6,7,8)
+        RepetitionsDropDown.grid(row=0, column=self.clm(), sticky=W)
+
+        patternHelperButton = Button(self.top, text="Add")
+        patternHelperButton.grid(row=0, column=self.clm(), sticky=W)
+
+        textPad = ScrolledText(self.top, width=120, height=10,font=label_font)
+        textPad.grid(row=1, column=0, columnspan=self.clmct+1, sticky=W)
+        for i in range(self.clmct+1):
+            self.top.grid_columnconfigure(i, weight=1, uniform="foo")
+
+
         okbtn = Button(self.top, text="Ok")
-        okbtn.grid(row=1, column=0)
+        okbtn.grid(row=2, column=0)
         cancelbtn = Button(self.top, text="Cancel")
-        cancelbtn.grid(row=2,  column=0)
+        cancelbtn.grid(row=2,  column=1)
         menu = Menu(self.top)
         self.top.config(menu=menu)
         filemenu = Menu(menu)
