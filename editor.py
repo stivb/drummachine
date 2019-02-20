@@ -47,6 +47,13 @@ class Editor:
     def dummy(self):
         print "I am a Dummy Command, I will be removed in the next step"
 
+    def addPattern(self):
+        stringtoinsert = ""
+        stringtoinsert = "[" + self.editorPttn.get() + " " + \
+                         self.editorFrom.get() + "-" + self.editorTo.get() + " " + \
+                         self.transposeOffset.get() +"]*" + self.Repetitions.get()
+        self.textPad.insert(INSERT, stringtoinsert)
+
     def clm(self):
         self.clmct+=1
         return self.clmct
@@ -91,11 +98,11 @@ class Editor:
         RepetitionsDropDown = OptionMenu(self.top, self.Repetitions, 1,2,3,4,5,6,7,8)
         RepetitionsDropDown.grid(row=0, column=self.clm(), sticky=W)
 
-        patternHelperButton = Button(self.top, text="Add")
+        patternHelperButton = Button(self.top, text="Add", command=self.addPattern)
         patternHelperButton.grid(row=0, column=self.clm(), sticky=W)
 
-        textPad = ScrolledText(self.top, width=120, height=10,font=label_font)
-        textPad.grid(row=1, column=0, columnspan=self.clmct+1, sticky=W)
+        self.textPad = ScrolledText(self.top, width=120, height=10,font=label_font)
+        self.textPad.grid(row=1, column=0, columnspan=self.clmct+1, sticky=W)
         for i in range(self.clmct+1):
             self.top.grid_columnconfigure(i, weight=1, uniform="foo")
 
