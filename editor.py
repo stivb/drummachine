@@ -54,6 +54,9 @@ class Editor:
                          self.transposeOffset.get() +"]*" + self.Repetitions.get()
         self.textPad.insert(INSERT, stringtoinsert)
 
+    def addDrop(self):
+        print self.dropPattern.get()
+
     def clm(self):
         self.clmct+=1
         return self.clmct
@@ -70,6 +73,7 @@ class Editor:
         self.editorTo = StringVar()
         self.transposeOffset = StringVar()
         self.Repetitions = StringVar()
+        self.dropPattern = StringVar()
 
         label_font = tkFont.Font(family='Courer', size=25)
 
@@ -101,16 +105,27 @@ class Editor:
         patternHelperButton = Button(self.top, text="Add", command=self.addPattern)
         patternHelperButton.grid(row=0, column=self.clm(), sticky=W)
 
+        columnTotal = self.clm()
+
+        Label(self.top, text="Drop Pattern").grid(row=1, column=self.clm0())
+        self.dropPattern.set("1")
+        self.dropPatternDropDown = OptionMenu(self.top, self.dropPattern, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)
+        self.dropPatternDropDown.grid(row=1, column=self.clm(), sticky=W)
+
+        patternHelperButton = Button(self.top, text="Add Drop", command=self.addDrop)
+        patternHelperButton.grid(row=1, column=self.clm(), sticky=W)
+
         self.textPad = ScrolledText(self.top, width=120, height=10,font=label_font)
-        self.textPad.grid(row=1, column=0, columnspan=self.clmct+1, sticky=W)
+        self.textPad.grid(row=2, column=0, columnspan=columnTotal, sticky=W)
         for i in range(self.clmct+1):
             self.top.grid_columnconfigure(i, weight=1, uniform="foo")
 
 
         okbtn = Button(self.top, text="Ok")
-        okbtn.grid(row=2, column=0)
+        okbtn.grid(row=3, column=0)
         cancelbtn = Button(self.top, text="Cancel")
-        cancelbtn.grid(row=2,  column=1)
+        cancelbtn.grid(row=3,  column=1)
         menu = Menu(self.top)
         self.top.config(menu=menu)
         filemenu = Menu(menu)
