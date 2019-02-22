@@ -300,7 +300,11 @@ class DrumMachine():
     def save_project(self):
         self.record_pattern()  # make sure the last pattern is recorded before save
         file_name = tkFileDialog.asksaveasfilename(filetypes=[('Drum Beat File', '*.bt')], title="Save project as...")
-        pickle.dump(self.pattern_list, open(file_name, "wb"))
+        with open(file_name, "wb") as f:
+
+            pickle.dump(self.pattern_list, f)
+            pickle.dump(self.trackText.get(),f)
+
         self.root.title(os.path.basename(file_name) + " - DrumBeast")
 
     def save_tmpfile(self):
