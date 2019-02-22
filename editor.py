@@ -11,9 +11,9 @@ import tkFont
 
 class Editor:
 
-    def __init__(self,parentself,txt):
+    def __init__(self,parentself):
 
-        self.txt = txt
+
         self.parent = parentself
         self.clmct = 0
 
@@ -53,6 +53,10 @@ class Editor:
                          self.editorFrom.get() + "-" + self.editorTo.get() + " " + \
                          self.transposeOffset.get() +"]*" + self.Repetitions.get()
         self.textPad.insert(INSERT, stringtoinsert)
+
+    def saveText(self):
+        self.parent.trackText.set(self.textPad.get(1.0,END))
+        self.top.destroy()
 
     def addDrop(self):
         print self.dropPattern.get()
@@ -116,13 +120,14 @@ class Editor:
         patternHelperButton = Button(self.top, text="Add Drop", command=self.addDrop)
         patternHelperButton.grid(row=1, column=self.clm(), sticky=W)
 
-        self.textPad = ScrolledText(self.top, width=120, height=10,font=label_font)
+        self.textPad = ScrolledText(self.top,width=120, height=10,font=label_font)
         self.textPad.grid(row=2, column=0, columnspan=columnTotal, sticky=W)
+        self.textPad.insert(END, self.parent.trackText.get())
         for i in range(self.clmct+1):
             self.top.grid_columnconfigure(i, weight=1, uniform="foo")
 
 
-        okbtn = Button(self.top, text="Ok")
+        okbtn = Button(self.top, text="Ok",command=self.saveText)
         okbtn.grid(row=3, column=0)
         cancelbtn = Button(self.top, text="Cancel")
         cancelbtn.grid(row=3,  column=1)

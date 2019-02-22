@@ -115,7 +115,10 @@ class DrumMachine():
         self.currentPattern = 0
         self.breaks=[]
         self.patternToCopy = -1
-        self.ed = editor.Editor(self,"")
+
+        self.ed = editor.Editor(self)
+        self.trackText = None
+
 
     def app(self):
         self.root = Tk()
@@ -130,6 +133,7 @@ class DrumMachine():
         self.root.bind('<KeyRelease>', self.key_released)
         self.root.mainloop()
         self.root.after(2000, after_startup)
+        self.trackText = StringVar()
 
         #########PATTERN BUTTONS#################
 
@@ -333,12 +337,12 @@ class DrumMachine():
 
     def read_file(self,file_name):
         if file_name == '': return
-        #self.root.title(os.path.basename(file_name) + " - DrumBeast")
         fh = open(file_name, "rb")  # open the file in reading mode
         try:
-            while True:  # load from the file until EOF is reached
-                self.pattern_list = pickle.load(fh)
-                #always crashes out dunno why
+            self.pattern_list = pickle.load(fh)
+            if self.trackText is None:
+                self.trackText = StringVar()
+            self.trackText.set(pickle.load(fh))
         except EOFError:
             pass
         fh.close()
@@ -1085,6 +1089,8 @@ class DrumMachine():
         nsd.init_user_interface()
 
     def editSequence(self):
+        if self.trackText is None:
+            self.trackText = StringVar()
         self.ed.init_ui()
 
     def after_startup(self):
