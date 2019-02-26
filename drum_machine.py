@@ -52,6 +52,7 @@ class DrumMachine():
 
     def __init__(self):
 
+        print "init"
         self.recordOnChange = True
         self.widget_drum_name = []
         self.widget_drum_file_name = [0] * MAX_TRACK_NUM
@@ -67,10 +68,19 @@ class DrumMachine():
         self.file4 = ""
         self.file5 = ""
         self.bpm = 120
+        print "before pygame mixer preinit"
         pygame.mixer.pre_init(44100, -16, 2, 1024)
+        print "before pygame mixier init"
+        time.sleep(1)
         pygame.mixer.init()
+        print "before pygame init"
+        time.sleep(1)
         pygame.init()
+        time.sleep(1)
+        print "before pygame midi init"
         pygame.midi.init()
+        time.sleep(1)
+        print "midi init"
         self.input_id = pygame.midi.get_default_input_id()
         self.port = pygame.midi.get_default_output_id()
         # self.port = 8
@@ -121,10 +131,12 @@ class DrumMachine():
 
 
     def app(self):
+        print "Trying to start"
         self.root = Tk()
         self.root.title('Drum Beast')
         self.top_menu()
         self.create_top_bar()
+        print "still trying"
         # self.create_left_pad()
         self.create_play_bar()
         self.root.protocol('WM_DELETE_WINDOW', self.exit_app)
@@ -1154,6 +1166,8 @@ class soundThing():
 
 # ======================================================================
 if __name__ == '__main__':
+    print "hello"
     dm = DrumMachine()
+    print "hello 2"
     dm.app()
 

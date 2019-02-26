@@ -130,7 +130,7 @@ class Break:
             self.transpose = int(items[1])
         if len(items)==3:
             startend = items[2]
-            self.startAt = int(startend.split('-')[0])
+            self.startAt = int(startend.split('-')[0])-1
             self.stopAt = int(startend.split('-')[1])
 
 
