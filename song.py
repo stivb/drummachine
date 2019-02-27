@@ -95,8 +95,18 @@ class Song:
         pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
         repeatCount = pp.Combine("*" + number)
         patterns = pp.OneOrMore(pattern | repeatCount)
+        print "~~~~~~" + inputstring
+        #there is s problem here I dont know what it is
+        #if inputstring is pasted into the textbox it works
+        #but if its done directly from parsing the square bracketed text
+        #it fails
+        try:
+            shorthand = patterns.parseString(inputString)
+        except pp.ParseException as pe:
+            print(pe)
+            print("column: {}".format(pe.col))
+            return
 
-        shorthand = patterns.parseString(inputString)
         longhand = []
         for i in range(len(shorthand)):
             s = shorthand[i]
