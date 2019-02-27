@@ -83,7 +83,8 @@ class Song:
             if len(partplustimes) > 1:
                 sections[i] = partplustimes[0] * int(partplustimes[1])
 
-        inputstring = "".join(sections)
+        inputString = str()
+        inputString = inputString.join(sections)
         number = pp.Word(pp.nums, max=2)
         plusOrMinus = pp.Word("+-/", max=1)
         transposition = pp.Optional(pp.Combine(plusOrMinus + number))
@@ -95,7 +96,7 @@ class Song:
         pattern = pp.Combine(lpar + number + space + transposition + space + startend + rpar)
         repeatCount = pp.Combine("*" + number)
         patterns = pp.OneOrMore(pattern | repeatCount)
-        print "~~~~~~" + inputstring
+        print "~~~~~~" + inputString
         #there is s problem here I dont know what it is
         #if inputstring is pasted into the textbox it works
         #but if its done directly from parsing the square bracketed text
@@ -103,6 +104,7 @@ class Song:
         try:
             shorthand = patterns.parseString(inputString)
         except pp.ParseException as pe:
+            print ("Exception Here")
             print(pe)
             print("column: {}".format(pe.col))
             return
