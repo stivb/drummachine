@@ -577,6 +577,7 @@ class DrumMachine():
 
 
                     if self.seq==False:
+                        #not playing a programmed sequence
                         if self.queuedPattern != self.patt.get():
                             self.pattBtnz[self.patt.get()].config(bg='white')
                             self.patt.set(self.queuedPattern)
@@ -584,6 +585,7 @@ class DrumMachine():
 
                             reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
                                                                             self.units.get())
+                            self.patt.set(self.queuedPattern)
 
                     else:
 
@@ -594,9 +596,10 @@ class DrumMachine():
                         if upcoming.pattern !=self.breaks[ct].pattern:
                             reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
                                                                             self.units.get())
-                        self.startAt = upcoming.startAt
-                        self.stopAt = upcoming.stopAt
-                        self.transpose = upcoming.transpose
+                            self.startAt = upcoming.startAt
+                            self.stopAt = upcoming.stopAt
+                            self.transpose = upcoming.transpose
+                            self.patt.set(self.queuedPattern)
 
                     ct = ct + 1
                     #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
