@@ -89,6 +89,7 @@ class DrumMachine():
         print "the port is", self.port
         self.queuedPattern = 0
         self.clipboardTrack = []
+        self.saveWhileLooping= False
 
         # self.patt.set(0)
         # self.root = Tk()
@@ -165,7 +166,8 @@ class DrumMachine():
                                       text=str(i + 1),
                                       width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
             self.pattBtnz[i].grid(row=0, column=i + 1)
-            self.pattBtnz[i].bind('<Double-1>', self.pattDblClicked)
+            self.pattBtnz[i].bind('<Double-1>', self.pattDblClicked(i))
+            self.pattBtnz[i].bind('<Control-Button-1>', self.pattCtrlClicked(i))
 
         btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW,
                                 height=self.btnH / 2, command=self.newPattern())
@@ -498,19 +500,20 @@ class DrumMachine():
 
     def play_in_thread_once(self):
         self.loop=False
-        self.seq=False
+        self.setSeq(False)
+
         self.play_in_thread()
 
 
     def play_in_thread_looped(self):
         self.loop=True
-        self.seq=False
+        self.setSeq(False)
         self.play_in_thread()
 
     def play_in_thread_seq(self):
 
         self.loop=True
-        self.seq=True
+        self.setSeq(True)
         mysong = song.Song()
         self.breaks = mysong.getSequenceArray(self.formula.get())
         self.play_in_thread()
@@ -576,16 +579,11 @@ class DrumMachine():
                 if i == self.stopAt - 1:
 
 
-                    if self.seq==False:
-                        #not playing a programmed sequence
+                    if self.seq==False and self.loop==True:
                         if self.queuedPattern != self.patt.get():
-                            self.pattBtnz[self.patt.get()].config(bg='white')
                             self.patt.set(self.queuedPattern)
-                            self.pattBtnz[self.queuedPattern].config(bg='turquoise')
-
                             reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
                                                                             self.units.get())
-                            self.patt.set(self.queuedPattern)
 
                     else:
 
@@ -596,10 +594,9 @@ class DrumMachine():
                         if upcoming.pattern !=self.breaks[ct].pattern:
                             reconstruction_delay = self.reconstruct_pattern(int(upcoming.pattern), self.bpu.get(),
                                                                             self.units.get())
-                            self.startAt = upcoming.startAt
-                            self.stopAt = upcoming.stopAt
-                            self.transpose = upcoming.transpose
-                            self.patt.set(self.queuedPattern)
+                        self.startAt = upcoming.startAt
+                        self.stopAt = upcoming.stopAt
+                        self.transpose = upcoming.transpose
 
                     ct = ct + 1
                     #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
@@ -644,7 +641,18 @@ class DrumMachine():
         self.keep_playing = False
         self.loop=False
         self.seq=False
+
         return
+
+    def setSeq(self,val):
+        self.seq=val
+        if val==False:
+            for i in range(self.pattBtnz.count):
+                self.pattBtnz[i].config(state='disabled')
+        else:
+            for i in range(self.pattBtnz.count):
+                self.pattBtnz[i].config(state='normal')
+
 
     def loop_play(self, xval):
         self.loop = xval
@@ -901,10 +909,25 @@ class DrumMachine():
             else:
                 self.pattBtnz[j].config(bg="Pink")
 
+    def pattCtrlClicked(self, num):
+        if self.loop != False and self.keep_playing != False:
+            self.saveWhileLooping=True
+            self.queuedPattern = int(num)
 
 
     def patt_clicked(self, num):
+        #here is the button for changing patterns
+        #for simplicity's sake here -
+        #during looping: changes saved if control button clicked
+        #during no looping, saves done automatically
+        #during sequence playing no saving allowed
+        #however this merely queues the next pattern
+        #the actually
         def callback():
+
+            if self.seq:
+                return
+
             if self.loop != False and self.keep_playing != False:
                 #we are running
                 self.queuedPattern = int(num)
@@ -914,8 +937,8 @@ class DrumMachine():
 
                 #immediately after a stop = self.patt.set should be to the current pattern
                 self.prevpatvalue = self.patt.get()
-                self.patt.set(int(num))
                 self.record_pattern()
+                self.patt.set(int(num))
                 self.reconstruct_pattern(int(num), self.bpu.get(), self.units.get())
                 self.pattShow()
 
@@ -995,15 +1018,16 @@ class DrumMachine():
         print cl
         self.popupmsg(str(rw) + ":" + str(cl))
 
-    def pattDblClicked(self, event):
-        a = str(event.widget).split(".")[-1]
-        a = a[4:]
-        print a
-        thelen = len(self.pattern_list)
-        self.record_pattern()
-        currPattern = self.pattern_list[int(a)]
-        copiedPattern = copy.deepcopy(currPattern)
-        self.pattern_list.append(copiedPattern)
+    def pattDblClicked(self, num):
+        print num
+        # a = str(event.widget).split(".")[-1]
+        # a = a[4:]
+        # print a
+        # thelen = len(self.pattern_list)
+        # self.record_pattern()
+        # currPattern = self.pattern_list[int(a)]
+        # copiedPattern = copy.deepcopy(currPattern)
+        # self.pattern_list.append(copiedPattern)
 
     def popupmsg(self, msg):
 
