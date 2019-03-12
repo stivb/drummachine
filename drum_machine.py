@@ -383,26 +383,12 @@ class DrumMachine():
         if self.recordOnChange is False:
             return
         pattern_num, bpu, units = self.patt.get(), self.bpu.get(), self.units.get()
-        print pattern_num
 
+        print "recording", pattern_num
 
-        self.queuedPattern = self.patt.get()  # the current?  pattern number?
-        #self.pat_name.config(state='normal')
-        #self.pat_name.delete(0, END)
-        #self.pat_name.insert(0, 'Pattern %s' % pattern_num)
-        #self.pat_name.config(state='readonly')
-        prevpval = self.prevpatvalue
-        self.prevpatvalue = pattern_num
         c = bpu * units
         self.buttonpickleformat = [[0] * c for x in range(MAX_TRACK_NUM)]
         self.hitList = {}
-
-        alertstr = "Pattern num ", pattern_num, " Prev Pat value", prevpval
-        print alertstr
-
-        #tkMessageBox.showinfo("Saving", alertstr)
-
-
 
         for i in range(MAX_TRACK_NUM):
             for j in range(c):
@@ -411,9 +397,9 @@ class DrumMachine():
                     self.hitList[self.buttonrowz[i][j]] = 1
                 else:
                     self.buttonpickleformat[i][j] = ' '
-        self.pattern_list[prevpval] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu': bpu,
+        self.pattern_list[pattern_num] = {'df': self.widget_drum_file_name, 'bl': self.buttonpickleformat, 'bpu': bpu,
                                        'units': units}
-        numPats = len(filter(None, self.pattern_list))
+
 
         #self.reconstruct_pattern(pattern_num, bpu, units)
 
@@ -522,7 +508,7 @@ class DrumMachine():
     def play_in_thread(self):
         # print "About to play ",self.percPort, self.bassPort
         self.save_tmpfile()
-        self.pattBtnz[self.patt.get()].config(bg='turquoise')
+        #self.pattBtnz[self.patt.get()].config(bg='turquoise')
         self.thread = threading.Thread(None, self.play, None, (), {})
         self.thread.start()
 
@@ -928,9 +914,11 @@ class DrumMachine():
             if self.seq:
                 return
 
+            self.queuedPattern = int(num)
+
             if self.loop != False and self.keep_playing != False:
                 #we are running
-                self.queuedPattern = int(num)
+
                 self.pattBtnz[self.queuedPattern].config(bg='yellow')
                 print "self pattQueued is now ", self.queuedPattern
             else:
