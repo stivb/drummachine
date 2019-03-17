@@ -5,6 +5,7 @@ import tkMessageBox
 import math
 import os
 import time
+import piano
 
 #modules for playing sounds
 import time
@@ -126,9 +127,15 @@ class InstrumentChannel:
         c = Button(self.top, text="Cancel", command=self.cancel)
         c.grid(row=3, column=self.clm())
 
+        r= Button(self.top, text="Record", command=self.recordPopup)
+        r.grid(row=4, column=self.clm())
 
 
 
+    def recordPopup(self):
+        self.top.destroy()
+        piano.Piano(self.parent, None,self.currRow)
+        self.parent.play_in_thread_looped()
 
 
     def ok(self):

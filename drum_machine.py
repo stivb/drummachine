@@ -632,11 +632,12 @@ class DrumMachine():
 
     def setSeq(self,val):
         self.seq=val
+        print "in setSeq",len(self.pattBtnz)
         if val==False:
-            for i in range(self.pattBtnz.count):
+            for i in range(len(self.pattBtnz)):
                 self.pattBtnz[i].config(state='disabled')
         else:
-            for i in range(self.pattBtnz.count):
+            for i in range(len(self.pattBtnz)):
                 self.pattBtnz[i].config(state='normal')
 
 
@@ -970,6 +971,24 @@ class DrumMachine():
             if notepos < 0: notepos = 31
             self.buttonrowz[rowclicked][notepos].config(bg='green')
             self.buttonrowz[rowclicked][notepos].config(text='*')
+
+    def hitKey(self, note, rowclicked):
+
+        delay = (60.0 / self.bpm) / 4.0
+        timesincenotechange = time.time() - self.thetime
+        rowclicked = int(rowclicked)
+
+        notepos = self.currNote
+        if (timesincenotechange / delay > 0.5):
+            self.buttonrowz[rowclicked][notepos].config(bg='green')
+            self.buttonrowz[rowclicked][notepos].config(text=note)
+        else:
+            notepos = notepos - 1
+            if notepos < 0: notepos = 31
+            self.buttonrowz[rowclicked][notepos].config(bg='green')
+            self.buttonrowz[rowclicked][notepos].config(text=note)
+
+
 
     def popupSettings(self):
 

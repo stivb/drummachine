@@ -31,16 +31,20 @@ class Piano:
     # Accepts: self, which contains the window; parent,      #
     # which is a reference to the window.                    #
     ##########################################################
-    def __init__(self, parentself,srcBtn):
+    def __init__(self, parentself,srcBtn,rowNum):
 
         # This is the initialization of the window along with the
         # coloring of the background.
         #Frame.__init__(self, parent, background='SkyBlue3')
 
         self.top = Toplevel(parentself.root)
+        self.hover = False
         self.top.geometry('800x200')
 
         self.parentself = parentself
+        self.rowNum = rowNum
+        if self.rowNum!=None:
+            self.hover=True
 
         # So that the parent reference does not go out of scope.
         self.parent = parentself.root
@@ -49,7 +53,7 @@ class Piano:
         self.dict = parentself.dict
         self.mididict = parentself.mididict
 
-        self.hover=False
+
 
         # A call to the init_user_interface method.
         self.init_user_interface()
@@ -59,17 +63,22 @@ class Piano:
 
     def label_released(self,other):
         print other.widget.name
-        self.btn.config(text=other.widget.name)
-        self.btn.config(bg='green')
+        #self.btn.config(text=other.widget.name)
+        #self.btn.config(bg='green')
 
     def button_pressed(self,other):
         note= other.widget.name
-        self.btn.config(text=note)
-        self.dict[note].play()
-        self.btn.config(bg='green')
-        self.parentself.bass_load(note,4)
-        if not self.hover:
-            self.top.destroy()
+        if self.btn!=None:
+            self.btn.config(text=note)
+            self.dict[note].play()
+            self.btn.config(bg='green')
+            self.parentself.bass_load(note, 4)
+            if not self.hover:
+                self.top.destroy()
+        else:
+            self.parentself.hitKey(note,self.rowNum)
+
+
     ##########################################################
     # Description: init_user_interface is a method that      #
     # populates the window passed in all of the Labels,      #
