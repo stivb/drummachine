@@ -53,6 +53,8 @@ class DrumMachine():
     def __init__(self):
 
         print "init"
+        self.kbd = "awsdrftghujikol;[']#"
+        self.kbdmappings = {'a':'A1','w':'A#1','s':'B1','d':'C2','r':'C#2','f':'D2','t':'D#2','g':'E2','h':'F2','u':'F#2','j':'G2','i':'G#2','k':'A2','o':'A#2','l':'B2',';':'C3','[':'C#3','\'':'D3',']':'D#3','#':'E3'}
         self.recordOnChange = True
         self.widget_drum_name = []
         self.widget_drum_file_name = [0] * MAX_TRACK_NUM
@@ -297,14 +299,18 @@ class DrumMachine():
         c = repr(event.char)
 
     def key_released(self, event):
-        if event.char == "a":
-            print "yes"
+
+        if event.char in self.kbd:
+            self.hitKey(self.kbdmappings[event.char],4)
+            #print self.kbdmappings[event.char]
+
+        if event.char == "z":
             self.hitDrum("_0")
-        if event.char == 's':
+        if event.char == 'x':
             self.hitDrum("_1")
-        if event.char == 'd':
+        if event.char == 'c':
             self.hitDrum("_2")
-        if event.char == 'f':
+        if event.char == 'v':
             self.hitDrum("_3")
 
     def exit_app(self):
