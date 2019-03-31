@@ -63,7 +63,7 @@ class DrumMachine():
         self.keep_playing = True
         self.loop = False
         self.seq = False
-        self.pattern_list = [None] * 32
+        self.pattern_list = [None] * 128
         self.file1 = ""
         self.file2 = ""
         self.file3 = ""
