@@ -5,38 +5,7 @@ May 2017
 
 from Tkinter import *
 import ttk
-from ScrolledText import *
 
-
-class ButtonFactory():
-    def createButton(self, type_):
-        return buttonTypes[type_]()
-
-
-class ButtonBase():
-    relief = 'flat'
-    foreground = 'white'
-
-    def getButtonConfig(self):
-        return self.relief, self.foreground
-
-
-class ButtonRidge(ButtonBase):
-    relief = 'ridge'
-    foreground = 'red'
-
-
-class ButtonSunken(ButtonBase):
-    relief = 'sunken'
-    foreground = 'blue'
-
-
-class ButtonGroove(ButtonBase):
-    relief = 'groove'
-    foreground = 'green'
-
-
-buttonTypes = [ButtonRidge, ButtonSunken, ButtonGroove]
 
 
 class OOP():
@@ -63,28 +32,6 @@ class OOP():
                 btn = Button(self.monty, text=str(j+1),width=3)
                 btn.grid(column=j, row=1)
 
-    def createButtons(self):
-        factory = ButtonFactory()
-
-        # Button 1
-        rel = factory.createButton(0).getButtonConfig()[0]
-        fg = factory.createButton(0).getButtonConfig()[1]
-        action = Button(self.monty, text="Button " + str(0 + 1), relief=rel, foreground=fg)
-        action.grid(column=0, row=1)
-
-        # Button 2
-        rel = factory.createButton(1).getButtonConfig()[0]
-        fg = factory.createButton(1).getButtonConfig()[1]
-        action = Button(self.monty, text="Button " + str(1 + 1), relief=rel, foreground=fg)
-        action.grid(column=1, row=1)
-
-        # Button 3
-        rel = factory.createButton(2).getButtonConfig()[0]
-        fg = factory.createButton(2).getButtonConfig()[1]
-        action = Button(self.monty, text="Button " + str(2 + 1), relief=rel, foreground=fg)
-        action.grid(column=2, row=1)
-
-    #         # using a loop to do the above
 
 
 #         for idx in range(len(buttonTypes)):
