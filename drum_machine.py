@@ -158,22 +158,35 @@ class DrumMachine():
         topbar_frame.config(height=30)
         topbar_frame.grid_rowconfigure(3, minsize=20)
         topbar_frame.grid_columnconfigure(1, minsize=20)
-        topbar_frame.grid(row=0, column=0, padx=20, sticky=W)
+        topbar_frame.grid(row=0, column=0, padx=0, sticky=W)
 
-        self.pattBtnz = [0 for x in range(32)]
+        self.pattBtnz = [0 for x in range(256)]
 
-        for i in range(32):
-            pattStr = "patt" + str(i)
-            self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', activebackground='white',
-                                      text=str(i + 1),
-                                      width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
-            self.pattBtnz[i].grid(row=0, column=i + 1)
-            self.pattBtnz[i].bind('<Double-1>', self.pattDblClicked(i))
-            self.pattBtnz[i].bind('<Control-Button-1>', self.pattCtrlClicked(i))
+        tabControls = []
+        note = ttk.Notebook(self.root)
 
-        btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW,
-                                height=self.btnH / 2, command=self.newPattern())
-        btn_newPattern.grid(row=0, column=i + 3, padx=10)
+        for i in range(0, 8):
+            mystr = str(i * 32) + '-' + str((i * 32) + 32)
+
+            thistab = ttk.Frame(note)
+            tabControls.append(thistab)
+            note.add(thistab, text=mystr)
+            note.pack(expand=1, fill="both")
+            self.monty = ttk.LabelFrame(thistab, text=mystr + "x")
+            self.monty.grid(column=0, row=0, padx=8, pady=4)
+            for j in range(i * 32, (i * 32) + 32):
+                pattStr = "patt" + str(j)
+                self.pattBtnz[j] = Button(self.monty, name=pattStr, bg='white', activebackground='white',
+                                          text=str(j + 1),
+                                          width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(j))
+                self.pattBtnz[j].grid(column=j%32, row=1)
+                self.pattBtnz[j].bind('<Double-1>', self.pattDblClicked(i))
+                self.pattBtnz[j].bind('<Control-Button-1>', self.pattCtrlClicked(i))
+
+        note.grid(row=0,column=0, sticky=W,padx=4)
+        #btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW,
+        #                        height=self.btnH / 2, command=self.newPattern())
+        #btn_newPattern.grid(row=0, column=i + 3, padx=10)
 
         self.units = IntVar()
         self.units.set(8)
@@ -641,10 +654,10 @@ class DrumMachine():
         print "in setSeq",len(self.pattBtnz)
         if val==False:
             for i in range(len(self.pattBtnz)):
-                self.pattBtnz[i].config(state='disabled')
+                self.pattBtnz[i].config(state='normal')
         else:
             for i in range(len(self.pattBtnz)):
-                self.pattBtnz[i].config(state='normal')
+                self.pattBtnz[i].config(state='disabled')
 
 
     def loop_play(self, xval):
