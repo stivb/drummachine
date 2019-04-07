@@ -180,8 +180,8 @@ class DrumMachine():
                                           text=str(j + 1),
                                           width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(j))
                 self.pattBtnz[j].grid(column=j%32, row=1)
-                self.pattBtnz[j].bind('<Double-1>', self.pattDblClicked(i))
-                self.pattBtnz[j].bind('<Control-Button-1>', self.pattCtrlClicked(i))
+                self.pattBtnz[j].bind('<Double-1>', self.pattDblClicked(j))
+                self.pattBtnz[j].bind('<Control-Button-1>', self.pattCtrlClicked(j))
 
         note.grid(row=0,column=0, sticky=W,padx=4)
         #btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW,
@@ -347,6 +347,7 @@ class DrumMachine():
         pickle.dump(self.pattern_list, open(filename[2:], "wb"))
 
     def load_project(self):
+
         file_name = tkFileDialog.askopenfilename(filetypes=[('Drum Beat File', '*.bt')], title='Load Project')
         self.setConfigValue("Settings","LastFile",file_name)
 
@@ -376,6 +377,8 @@ class DrumMachine():
         if file_name == '': return
         fh = open(file_name, "rb")  # open the file in reading mode
         try:
+            self.rinseTimeline()
+            self.pattern_list = []
             self.pattern_list = pickle.load(fh)
             if self.trackText is None:
                 self.trackText = StringVar()
@@ -383,9 +386,10 @@ class DrumMachine():
         except EOFError:
             pass
         fh.close()
-        while len(self.pattern_list) < 32:
+        while len(self.pattern_list) < 256:
             self.pattern_list.append(None)
         try:
+            self.patt.set(0)
             self.reconstruct_pattern(0, self.pattern_list[0]['bpu'],
                                      self.pattern_list[0]['units'])  # reconstruct the first pattern
         except:
