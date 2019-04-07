@@ -588,11 +588,20 @@ class DrumMachine():
                 if i == self.stopAt - 1:
 
 
-                    if self.seq==False and self.loop==True:
+                    if self.seq==False and self.loop==True:#we are looping#needs a has changed flag - and saving if has changed
                         if self.queuedPattern != self.patt.get():
+                            print "The pattern queued is ", self.queuedPattern
                             self.patt.set(self.queuedPattern)
-                            reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
+                            #user clicks on an empty pattern
+                            if self.pattern_list[self.queuedPattern] is None:
+                                print "just rinsing timeline"
+                                self.rinseTimeline()
+                            #a previously populated pattern is reconstructed
+                            else:
+                                print "reconstructing"
+                                reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
                                                                             self.units.get())
+
 
                     else:
 
@@ -609,7 +618,7 @@ class DrumMachine():
 
                     ct = ct + 1
                     #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
-                print self.bpm,reconstruction_delay
+                #print self.bpm,reconstruction_delay
                 bpm_based_delay = max(((60.0 / self.bpm) / 4.0) - reconstruction_delay, 0)
 
                 time.sleep(bpm_based_delay)
