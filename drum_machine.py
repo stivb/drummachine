@@ -768,7 +768,7 @@ class DrumMachine():
         btn = self.buttonrowz[i][j]
         color = 'lightpink'
         if btn.cget('bg') != 'green':
-            piano.Piano(self, btn)
+            piano.Piano(self, btn, i)
             new_color = 'green'
             self.addToDrumWidget("piano", 4)
         else:
