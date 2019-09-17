@@ -8,6 +8,7 @@ adding comment
 
 from Tkinter import *
 import tkFileDialog
+import listfiles
 import tkMessageBox
 import math
 import os
@@ -212,6 +213,7 @@ class DrumMachine():
         self.aboutmenu.add_command(label="Settings", command=self.popupSettings)
         self.aboutmenu.add_command(label="New Song", command=self.newsong)
         self.aboutmenu.add_command(label="Edit Sequence", command=self.editSequence)
+        self.aboutmenu.add_command(label="Delete Temporary Files", command=self.deleteTemporaryFiles)
         self.menubar.add_cascade(label="About", menu=self.aboutmenu)
 
         self.root.config(menu=self.menubar)
@@ -219,6 +221,8 @@ class DrumMachine():
     #########################TIMELINE#####################
 
 
+    def deleteTemporaryFiles(self):
+        d = listfiles.FileListViewer(self.root)
 
     def createTimeLine(self):
         bpu = self.bpu.get()

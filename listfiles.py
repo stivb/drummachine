@@ -2,7 +2,7 @@ from Tkinter import *
 from os import listdir,remove
 from os.path import isfile, join,dirname,realpath
 
-
+#next integrate this into menus
 class FileListViewer:
 
     def __init__(self, parent):
