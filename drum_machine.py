@@ -69,6 +69,7 @@ class DrumMachine():
         self.file3 = ""
         self.file4 = ""
         self.file5 = ""
+
         self.bpm = 120
         print "before pygame mixer preinit"
         pygame.mixer.pre_init(44100, -16, 2, 1024)
@@ -636,15 +637,22 @@ class DrumMachine():
 
         return
 
+    def enablePatterns(self):
+        for i in range(len(self.pattBtnz)):
+            self.pattBtnz[i].config(state='normal')
+
+    def disablePatterns(self):
+        for i in range(len(self.pattBtnz)):
+            self.pattBtnz[i].config(state='disabled')
+
+
     def setSeq(self,val):
         self.seq=val
         print "in setSeq",len(self.pattBtnz)
         if val==False:
-            for i in range(len(self.pattBtnz)):
-                self.pattBtnz[i].config(state='disabled')
+            self.enablePatterns()
         else:
-            for i in range(len(self.pattBtnz)):
-                self.pattBtnz[i].config(state='normal')
+            self.disablePatterns()
 
 
     def loop_play(self, xval):
@@ -810,6 +818,8 @@ class DrumMachine():
         self.seqBtn = Button(playbar_frame, name="seqBtn", text="Run Sequence", command=self.run_sequence)
         self.seqBtn.grid(row=ln, column=25)
 
+        self.diagnosticsLabel = Label(playbar_frame, text='diagnostics').grid(row=ln, column=30, sticky=W)
+
         # playbar_frame.bind("<Key>", self.quay)
 
     def run_sequence(self):
@@ -909,6 +919,7 @@ class DrumMachine():
 
 
     def patt_clicked(self, num):
+
         #here is the button for changing patterns
         #for simplicity's sake here -
         #during looping: changes saved if control button clicked
@@ -918,7 +929,10 @@ class DrumMachine():
         #the actually
         def callback():
 
+            #self.diagnosticsLabel.text="self.loop=" + str(self.loop) + " self.keep_playing=" + str(self.keep_playing) + " self.seq=" + str(self.seq)
+
             if self.seq:
+                print "in seq"
                 return
 
             self.queuedPattern = int(num)
