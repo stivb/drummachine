@@ -69,6 +69,7 @@ class DrumMachine():
         self.file3 = ""
         self.file4 = ""
         self.file5 = ""
+        self.patternHasChanged = False
 
         self.bpm = 120
         print "before pygame mixer preinit"
@@ -572,8 +573,9 @@ class DrumMachine():
                 if i == self.stopAt - 1:
 
 
-                    if self.seq==False and self.loop==True:
-                        if self.queuedPattern != self.patt.get():
+                    if self.seq==False and self.loop==True:#i.e we are in play looped mode
+                        if self.queuedPattern != self.patt.get(): #and the next pattern is not the same as the current one
+                            self.record_pattern()                                      #save current pattern if need to
                             self.patt.set(self.queuedPattern)
                             reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
                                                                             self.units.get())
@@ -734,6 +736,16 @@ class DrumMachine():
         btn.config(bg=new_color)
         btn.config(text=new_text)
 
+    def insert_beat(self, i, j, bpu):
+        btn = self.buttonrowz[i][j]
+        color = 'grey55' if (j / bpu) % 2 else 'khaki'
+        txt = ' '
+        new_color = 'green'
+        new_text = '*'
+        btn.config(bg=new_color)
+        btn.config(text=new_text)
+
+
     def rinseTimelineOld(self, numCols, bpu):
         for i in range(MAX_TRACK_NUM):
             for j in range(numCols):
@@ -809,6 +821,9 @@ class DrumMachine():
         #self.bpu_widget = Spinbox(playbar_frame, from_=80, to=160, width=5, textvariable=self.bpmTxt,
         #                          command=self.changeBpm)
         #self.bpu_widget.grid(row=ln, column=21)
+
+        self.recordWhileLooping = IntVar()
+        Checkbutton(playbar_frame, text="Record While Looping", variable=self.recordWhileLooping).grid(row=ln,column=24)
 
         Label(playbar_frame, text='Sequence Text:').grid(row=ln, column=25, sticky=W)
         self.formula = StringVar()
@@ -922,7 +937,7 @@ class DrumMachine():
 
         #here is the button for changing patterns
         #for simplicity's sake here -
-        #during looping: changes saved if control button clicked
+        #during looping: changes saved if control button clicked in the source pattern, and the pattern reloaded in the destination pattern
         #during no looping, saves done automatically
         #during sequence playing no saving allowed
         #however this merely queues the next pattern
@@ -941,7 +956,7 @@ class DrumMachine():
                 #we are running
 
                 self.pattBtnz[self.queuedPattern].config(bg='yellow')
-                print "self pattQueued is now ", self.queuedPattern
+                print "self pattQueued is now ", self.queuedPattern #saving storing and reanimating done by the play function
             else:
 
                 #immediately after a stop = self.patt.set should be to the current pattern
@@ -1090,7 +1105,7 @@ class DrumMachine():
             # self.buttonrowz[row][col].config(bg='green')
             self.change_beat(row, col, self.bpu.get())
             col = col + int(num)
-        self.change_beat(r, c, self.bpu.get())
+        self.insert_beat(r, c, self.bpu.get())
         return True
 
     def remove_beats(self, num, frm,to):
