@@ -50,11 +50,3 @@ class FileListViewer:
 def showFileList():
     d = FileListViewer(root)
 
-root = Tk()
-
-Button(root, text="Hello!", command=showFileList).pack()
-root.update()
-
-
-
-root.mainloop()

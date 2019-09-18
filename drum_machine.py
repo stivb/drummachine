@@ -513,7 +513,9 @@ class DrumMachine():
         self.loop=True
         self.setSeq(True)
         mysong = song.Song()
-        self.breaks = mysong.getSequenceArray(self.formula.get())
+        self.breaks = mysong.getSequenceArray(self.trackText.get())
+        print mysong
+        print self.breaks
         self.play_in_thread()
 
 
@@ -532,7 +534,10 @@ class DrumMachine():
         self.keep_playing = True
         endMeasure = self.units.get() * self.bpu.get()
 
+
+
         if self.seq==True:
+            print "breaks is " + str(self.breaks[0].pattern)
             self.startAt = int(self.breaks[0].startAt)
             self.stopAt = int(self.breaks[0].stopAt)
             self.transpose = int(self.breaks[0].transpose)

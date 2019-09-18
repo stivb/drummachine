@@ -70,7 +70,7 @@ class Song:
         testPattern = "{0 +0 1-32}*4 {0 +5 1-32}*2 {0}*2 {0 +7 1-32} {0 +5 1-32} {0 +0 1-32} {0 +0 1-16} {0 +7 17-32}"
         if inputString=="":
             inputString = testPattern
-        print inputString
+        print "INPUT STRING IS " + inputString
         inputString = inputString.replace("\n","")
         inputString = inputString.replace("\r", "")
 
