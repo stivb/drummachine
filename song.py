@@ -134,6 +134,10 @@ class Break:
         self.transpose = 0
         self.startAt = 0
         self.stopAt = 32
+        self.breakDescriptor = ""
+        self.breakDescriptorPos = -1
+        self.breakDescriptorCurrRep = 1
+        self.breakDescriptorTotalReps = 1
 
     def setBreak(self,inputString):
         items = filter(None, inputString.split(' '))

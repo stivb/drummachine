@@ -16,6 +16,8 @@ import time
 import datetime
 import copy
 import ConfigParser
+import copy
+import copybars
 
 # modules for playing sounds
 import time
@@ -64,7 +66,7 @@ class DrumMachine():
         self.keep_playing = True
         self.loop = False
         self.seq = False
-        self.pattern_list = [None] * 128
+        self.pattern_list = [None] * 256
         self.file1 = ""
         self.file2 = ""
         self.file3 = ""
@@ -206,6 +208,7 @@ class DrumMachine():
         self.editmenu = Menu(self.menubar, tearoff=0)
         self.editmenu.add_command(label="Copy", command=self.copypattern)
         self.editmenu.add_command(label="Paste", command=self.pastepattern)
+        self.editmenu.add_command(label="Add Bar Sequence", command=self.pastebarsequence)
         self.menubar.add_cascade(label="Edit", menu=self.editmenu)
 
         self.aboutmenu = Menu(self.menubar, tearoff=0)
@@ -268,6 +271,16 @@ class DrumMachine():
         Label(right_frame, text="Music").grid(row=4, column=0)
         for i in range(MAX_TRACK_NUM):
             self.makeTrackButtons(right_frame, i, row_base, c, bpu)
+
+    def duplicateSequentialBars(self,fromBar,toBar,insertBar):
+        ct=0
+        if insertBar<toBar:
+            return
+        for i in range(fromBar,toBar+1):
+            print "copying from " + str(fromBar+ct) + " to " + str(insertBar+ct)
+            self.pattern_list[insertBar+ct-1] = copy.deepcopy(self.pattern_list[fromBar+ct-1])
+            ct = ct+1
+
 
     def makeTrackButtons(self, frameBase, rowNum, rowBase, maxBeats, beatsPerUnit):
         for j in range(maxBeats):
@@ -1162,7 +1175,8 @@ class DrumMachine():
 
         return callback
 
-
+    def pastebarsequence(self):
+        d = copybars.BarCopier(self.root,self)
 
     def copypattern(self):
         self.patternToCopy = int(self.patt.get())
