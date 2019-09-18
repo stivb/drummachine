@@ -274,12 +274,19 @@ class DrumMachine():
 
     def duplicateSequentialBars(self,fromBar,toBar,insertBar):
         ct=0
+        currPatt = int(self.patt.get())
         if insertBar<toBar:
             return
         for i in range(fromBar,toBar+1):
             print "copying from " + str(fromBar+ct) + " to " + str(insertBar+ct)
             self.pattern_list[insertBar+ct-1] = copy.deepcopy(self.pattern_list[fromBar+ct-1])
+            if i == currPatt:
+                self.reconstruct_pattern(insertBar+ct-1, self.bpu.get(), self.units.get())
             ct = ct+1
+        #check if any pattern is current - if so it needs to be reconstructed
+
+
+
 
 
     def makeTrackButtons(self, frameBase, rowNum, rowBase, maxBeats, beatsPerUnit):
