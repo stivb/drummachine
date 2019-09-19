@@ -64,10 +64,3 @@ class BarCopier:
 def showBarCopier():
     d = BarCopier(root)
 
-root = Tk()
-Button(root, text="Hello!", command=showBarCopier).pack()
-root.update()
-
-
-
-root.mainloop()

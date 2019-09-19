@@ -158,6 +158,46 @@ class DrumMachine():
         #########PATTERN BUTTONS#################
 
     def create_top_bar(self):
+
+        tabControls = []
+
+
+        topbar_frame = Frame(self.root)
+        topbar_frame.config(height=30)
+        topbar_frame.grid_rowconfigure(3, minsize=20)
+        topbar_frame.grid_columnconfigure(1, minsize=20)
+        topbar_frame.grid(row=0, column=0, padx=20, sticky=W)
+
+        note = ttk.Notebook(topbar_frame)
+
+        self.pattBtnz = [0 for x in range(256)]
+
+        for i in range(0, 8):
+            mystr = str(i*32) + '-' + str((i*32)+32)
+
+            thistab = ttk.Frame(note)
+            tabControls.append(thistab)
+            note.add(thistab, text=mystr)
+            note.pack(expand=1, fill="both")
+            self.monty = ttk.LabelFrame(thistab, text=mystr + "x")
+            self.monty.grid(column=0, row=0, padx=8, pady=4)
+            for j in range(i*32, (i*32)+32):
+                pattStr = "patt" + str(j)
+                self.pattBtnz[j] = Button(self.monty, name=pattStr, bg='white', activebackground='white',
+                                          text=str(j + 1),
+                                          width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(j))
+                self.pattBtnz[j].grid(column=j%32, row=1)
+                self.pattBtnz[j].bind('<Double-1>', self.pattDblClicked(j))
+                self.pattBtnz[j].bind('<Control-Button-1>', self.pattCtrlClicked(j))
+
+        self.units = IntVar()
+        self.units.set(8)
+        self.bpu = IntVar()
+        self.bpu.set(4)
+        print "outside loop now"
+        self.createTimeLine()
+
+    def create_top_barx(self):
         '''creating top buttons'''
         topbar_frame = Frame(self.root)
         topbar_frame.config(height=30)
