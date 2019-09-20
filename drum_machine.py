@@ -530,6 +530,8 @@ class DrumMachine():
 
         return time.clock() - self.prevTime
 
+
+
     def reconstruct_pattern(self, pattern_num, bpu, units, rinse=True):
 
         print "reconstructing",pattern_num
