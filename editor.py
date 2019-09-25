@@ -158,4 +158,4 @@ class Editor:
         menu.add_cascade(label="Help", menu=helpmenu)
         helpmenu.add_command(label="About...", command=self.about_command)
 
-        self.top.pack(side="top", fill="both", expand=True)
+        #self.top.pack(side="top", fill="both", expand=True)

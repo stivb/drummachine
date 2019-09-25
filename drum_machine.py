@@ -8,6 +8,7 @@ adding comment
 
 from Tkinter import *
 import tkFileDialog
+import listfiles
 import tkMessageBox
 import math
 import os
@@ -15,6 +16,8 @@ import time
 import datetime
 import copy
 import ConfigParser
+import copy
+import copybars
 
 # modules for playing sounds
 import time
@@ -63,12 +66,14 @@ class DrumMachine():
         self.keep_playing = True
         self.loop = False
         self.seq = False
-        self.pattern_list = [None] * 128
+        self.pattern_list = [None] * 256
         self.file1 = ""
         self.file2 = ""
         self.file3 = ""
         self.file4 = ""
         self.file5 = ""
+        self.patternHasChanged = False
+
         self.bpm = 120
         print "before pygame mixer preinit"
         pygame.mixer.pre_init(44100, -16, 2, 1024)
@@ -153,20 +158,22 @@ class DrumMachine():
         #########PATTERN BUTTONS#################
 
     def create_top_bar(self):
-        '''creating top buttons'''
+
+        tabControls = []
+
+
         topbar_frame = Frame(self.root)
         topbar_frame.config(height=30)
         topbar_frame.grid_rowconfigure(3, minsize=20)
         topbar_frame.grid_columnconfigure(1, minsize=20)
-        topbar_frame.grid(row=0, column=0, padx=0, sticky=W)
+        topbar_frame.grid(row=0, column=0, padx=20, sticky=W)
+
+        note = ttk.Notebook(topbar_frame)
 
         self.pattBtnz = [0 for x in range(256)]
 
-        tabControls = []
-        note = ttk.Notebook(self.root)
-
         for i in range(0, 8):
-            mystr = str(i * 32) + '-' + str((i * 32) + 32)
+            mystr = str(i*32) + '-' + str((i*32)+32)
 
             thistab = ttk.Frame(note)
             tabControls.append(thistab)
@@ -174,7 +181,7 @@ class DrumMachine():
             note.pack(expand=1, fill="both")
             self.monty = ttk.LabelFrame(thistab, text=mystr + "x")
             self.monty.grid(column=0, row=0, padx=8, pady=4)
-            for j in range(i * 32, (i * 32) + 32):
+            for j in range(i*32, (i*32)+32):
                 pattStr = "patt" + str(j)
                 self.pattBtnz[j] = Button(self.monty, name=pattStr, bg='white', activebackground='white',
                                           text=str(j + 1),
@@ -183,10 +190,35 @@ class DrumMachine():
                 self.pattBtnz[j].bind('<Double-1>', self.pattDblClicked(j))
                 self.pattBtnz[j].bind('<Control-Button-1>', self.pattCtrlClicked(j))
 
-        note.grid(row=0,column=0, sticky=W,padx=4)
-        #btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW,
-        #                        height=self.btnH / 2, command=self.newPattern())
-        #btn_newPattern.grid(row=0, column=i + 3, padx=10)
+        self.units = IntVar()
+        self.units.set(8)
+        self.bpu = IntVar()
+        self.bpu.set(4)
+        print "outside loop now"
+        self.createTimeLine()
+
+    def create_top_barx(self):
+        '''creating top buttons'''
+        topbar_frame = Frame(self.root)
+        topbar_frame.config(height=30)
+        topbar_frame.grid_rowconfigure(3, minsize=20)
+        topbar_frame.grid_columnconfigure(1, minsize=20)
+        topbar_frame.grid(row=0, column=0, padx=20, sticky=W)
+
+        self.pattBtnz = [0 for x in range(32)]
+
+        for i in range(32):
+            pattStr = "patt" + str(i)
+            self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', activebackground='white',
+                                      text=str(i + 1),
+                                      width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
+            self.pattBtnz[i].grid(row=0, column=i + 1)
+            self.pattBtnz[i].bind('<Double-1>', self.pattDblClicked(i))
+            self.pattBtnz[i].bind('<Control-Button-1>', self.pattCtrlClicked(i))
+
+        btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW,
+                                height=self.btnH / 2, command=self.newPattern())
+        btn_newPattern.grid(row=0, column=i + 3, padx=10)
 
         self.units = IntVar()
         self.units.set(8)
@@ -216,6 +248,7 @@ class DrumMachine():
         self.editmenu = Menu(self.menubar, tearoff=0)
         self.editmenu.add_command(label="Copy", command=self.copypattern)
         self.editmenu.add_command(label="Paste", command=self.pastepattern)
+        self.editmenu.add_command(label="Add Bar Sequence", command=self.pastebarsequence)
         self.menubar.add_cascade(label="Edit", menu=self.editmenu)
 
         self.aboutmenu = Menu(self.menubar, tearoff=0)
@@ -223,6 +256,7 @@ class DrumMachine():
         self.aboutmenu.add_command(label="Settings", command=self.popupSettings)
         self.aboutmenu.add_command(label="New Song", command=self.newsong)
         self.aboutmenu.add_command(label="Edit Sequence", command=self.editSequence)
+        self.aboutmenu.add_command(label="Delete Temporary Files", command=self.deleteTemporaryFiles)
         self.menubar.add_cascade(label="About", menu=self.aboutmenu)
 
         self.root.config(menu=self.menubar)
@@ -230,6 +264,8 @@ class DrumMachine():
     #########################TIMELINE#####################
 
 
+    def deleteTemporaryFiles(self):
+        d = listfiles.FileListViewer(self.root)
 
     def createTimeLine(self):
         bpu = self.bpu.get()
@@ -275,6 +311,23 @@ class DrumMachine():
         Label(right_frame, text="Music").grid(row=4, column=0)
         for i in range(MAX_TRACK_NUM):
             self.makeTrackButtons(right_frame, i, row_base, c, bpu)
+
+    def duplicateSequentialBars(self,fromBar,toBar,insertBar):
+        ct=0
+        currPatt = int(self.patt.get())
+        if insertBar<toBar:
+            return
+        for i in range(fromBar,toBar+1):
+            print "copying from " + str(fromBar+ct) + " to " + str(insertBar+ct)
+            self.pattern_list[insertBar+ct-1] = copy.deepcopy(self.pattern_list[fromBar+ct-1])
+            if i == currPatt:
+                self.reconstruct_pattern(insertBar+ct-1, self.bpu.get(), self.units.get())
+            ct = ct+1
+        #check if any pattern is current - if so it needs to be reconstructed
+
+
+
+
 
     def makeTrackButtons(self, frameBase, rowNum, rowBase, maxBeats, beatsPerUnit):
         for j in range(maxBeats):
@@ -347,7 +400,6 @@ class DrumMachine():
         pickle.dump(self.pattern_list, open(filename[2:], "wb"))
 
     def load_project(self):
-
         file_name = tkFileDialog.askopenfilename(filetypes=[('Drum Beat File', '*.bt')], title='Load Project')
         self.setConfigValue("Settings","LastFile",file_name)
 
@@ -377,8 +429,6 @@ class DrumMachine():
         if file_name == '': return
         fh = open(file_name, "rb")  # open the file in reading mode
         try:
-            self.rinseTimeline()
-            self.pattern_list = []
             self.pattern_list = pickle.load(fh)
             if self.trackText is None:
                 self.trackText = StringVar()
@@ -386,10 +436,9 @@ class DrumMachine():
         except EOFError:
             pass
         fh.close()
-        while len(self.pattern_list) < 256:
+        while len(self.pattern_list) < 32:
             self.pattern_list.append(None)
         try:
-            self.patt.set(0)
             self.reconstruct_pattern(0, self.pattern_list[0]['bpu'],
                                      self.pattern_list[0]['units'])  # reconstruct the first pattern
         except:
@@ -481,6 +530,8 @@ class DrumMachine():
 
         return time.clock() - self.prevTime
 
+
+
     def reconstruct_pattern(self, pattern_num, bpu, units, rinse=True):
 
         print "reconstructing",pattern_num
@@ -524,7 +575,9 @@ class DrumMachine():
         self.loop=True
         self.setSeq(True)
         mysong = song.Song()
-        self.breaks = mysong.getSequenceArray(self.formula.get())
+        self.breaks = mysong.getSequenceArray(self.trackText.get())
+        print mysong
+        print self.breaks
         self.play_in_thread()
 
 
@@ -543,7 +596,10 @@ class DrumMachine():
         self.keep_playing = True
         endMeasure = self.units.get() * self.bpu.get()
 
+
+
         if self.seq==True:
+            print "breaks is " + str(self.breaks[0].pattern)
             self.startAt = int(self.breaks[0].startAt)
             self.stopAt = int(self.breaks[0].stopAt)
             self.transpose = int(self.breaks[0].transpose)
@@ -588,20 +644,12 @@ class DrumMachine():
                 if i == self.stopAt - 1:
 
 
-                    if self.seq==False and self.loop==True:#we are looping#needs a has changed flag - and saving if has changed
-                        if self.queuedPattern != self.patt.get():
-                            print "The pattern queued is ", self.queuedPattern
+                    if self.seq==False and self.loop==True:#i.e we are in play looped mode
+                        if self.queuedPattern != self.patt.get(): #and the next pattern is not the same as the current one
+                            self.record_pattern()                                      #save current pattern if need to
                             self.patt.set(self.queuedPattern)
-                            #user clicks on an empty pattern
-                            if self.pattern_list[self.queuedPattern] is None:
-                                print "just rinsing timeline"
-                                self.rinseTimeline()
-                            #a previously populated pattern is reconstructed
-                            else:
-                                print "reconstructing"
-                                reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
+                            reconstruction_delay = self.reconstruct_pattern(self.queuedPattern, self.bpu.get(),
                                                                             self.units.get())
-
 
                     else:
 
@@ -618,7 +666,7 @@ class DrumMachine():
 
                     ct = ct + 1
                     #print "ct now is", ct, " of ", len(self.breaks), self.breaks[ct].pattern
-                #print self.bpm,reconstruction_delay
+                print self.bpm,reconstruction_delay
                 bpm_based_delay = max(((60.0 / self.bpm) / 4.0) - reconstruction_delay, 0)
 
                 time.sleep(bpm_based_delay)
@@ -662,15 +710,22 @@ class DrumMachine():
 
         return
 
+    def enablePatterns(self):
+        for i in range(len(self.pattBtnz)):
+            self.pattBtnz[i].config(state='normal')
+
+    def disablePatterns(self):
+        for i in range(len(self.pattBtnz)):
+            self.pattBtnz[i].config(state='disabled')
+
+
     def setSeq(self,val):
         self.seq=val
         print "in setSeq",len(self.pattBtnz)
         if val==False:
-            for i in range(len(self.pattBtnz)):
-                self.pattBtnz[i].config(state='normal')
+            self.enablePatterns()
         else:
-            for i in range(len(self.pattBtnz)):
-                self.pattBtnz[i].config(state='disabled')
+            self.disablePatterns()
 
 
     def loop_play(self, xval):
@@ -752,6 +807,16 @@ class DrumMachine():
         btn.config(bg=new_color)
         btn.config(text=new_text)
 
+    def insert_beat(self, i, j, bpu):
+        btn = self.buttonrowz[i][j]
+        color = 'grey55' if (j / bpu) % 2 else 'khaki'
+        txt = ' '
+        new_color = 'green'
+        new_text = '*'
+        btn.config(bg=new_color)
+        btn.config(text=new_text)
+
+
     def rinseTimelineOld(self, numCols, bpu):
         for i in range(MAX_TRACK_NUM):
             for j in range(numCols):
@@ -768,7 +833,7 @@ class DrumMachine():
         btn = self.buttonrowz[i][j]
         color = 'lightpink'
         if btn.cget('bg') != 'green':
-            piano.Piano(self, btn, i)
+            piano.Piano(self, btn)
             new_color = 'green'
             self.addToDrumWidget("piano", 4)
         else:
@@ -828,6 +893,9 @@ class DrumMachine():
         #                          command=self.changeBpm)
         #self.bpu_widget.grid(row=ln, column=21)
 
+        self.recordWhileLooping = IntVar()
+        Checkbutton(playbar_frame, text="Record While Looping", variable=self.recordWhileLooping).grid(row=ln,column=24)
+
         Label(playbar_frame, text='Sequence Text:').grid(row=ln, column=25, sticky=W)
         self.formula = StringVar()
         txtformula = Entry(playbar_frame, textvariable=self.formula, width=60)
@@ -835,6 +903,8 @@ class DrumMachine():
 
         self.seqBtn = Button(playbar_frame, name="seqBtn", text="Run Sequence", command=self.run_sequence)
         self.seqBtn.grid(row=ln, column=25)
+
+        self.diagnosticsLabel = Label(playbar_frame, text='diagnostics').grid(row=ln, column=30, sticky=W)
 
         # playbar_frame.bind("<Key>", self.quay)
 
@@ -935,16 +1005,20 @@ class DrumMachine():
 
 
     def patt_clicked(self, num):
+
         #here is the button for changing patterns
         #for simplicity's sake here -
-        #during looping: changes saved if control button clicked
+        #during looping: changes saved if control button clicked in the source pattern, and the pattern reloaded in the destination pattern
         #during no looping, saves done automatically
         #during sequence playing no saving allowed
         #however this merely queues the next pattern
         #the actually
         def callback():
 
+            #self.diagnosticsLabel.text="self.loop=" + str(self.loop) + " self.keep_playing=" + str(self.keep_playing) + " self.seq=" + str(self.seq)
+
             if self.seq:
+                print "in seq"
                 return
 
             self.queuedPattern = int(num)
@@ -953,7 +1027,7 @@ class DrumMachine():
                 #we are running
 
                 self.pattBtnz[self.queuedPattern].config(bg='yellow')
-                print "self pattQueued is now ", self.queuedPattern
+                print "self pattQueued is now ", self.queuedPattern #saving storing and reanimating done by the play function
             else:
 
                 #immediately after a stop = self.patt.set should be to the current pattern
@@ -1102,7 +1176,7 @@ class DrumMachine():
             # self.buttonrowz[row][col].config(bg='green')
             self.change_beat(row, col, self.bpu.get())
             col = col + int(num)
-        self.change_beat(r, c, self.bpu.get())
+        self.insert_beat(r, c, self.bpu.get())
         return True
 
     def remove_beats(self, num, frm,to):
@@ -1150,7 +1224,8 @@ class DrumMachine():
 
         return callback
 
-
+    def pastebarsequence(self):
+        d = copybars.BarCopier(self.root,self)
 
     def copypattern(self):
         self.patternToCopy = int(self.patt.get())
