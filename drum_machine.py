@@ -257,6 +257,7 @@ class DrumMachine():
         self.aboutmenu.add_command(label="New Song", command=self.newsong)
         self.aboutmenu.add_command(label="Edit Sequence", command=self.editSequence)
         self.aboutmenu.add_command(label="Delete Temporary Files", command=self.deleteTemporaryFiles)
+        self.aboutmenu.add_command(label="Export Sequence",command=self.breaks_to_ascii)
         self.menubar.add_cascade(label="About", menu=self.aboutmenu)
 
         self.root.config(menu=self.menubar)
@@ -531,6 +532,37 @@ class DrumMachine():
         return time.clock() - self.prevTime
 
 
+    def pattern_to_ascii(self,pattern_num,startAt=0,stopAt=32,transpose=0):
+        retval=""
+        for i in range(MAX_TRACK_NUM - 1):
+            for j in range(startAt,stopAt):
+                note = self.pattern_list[pattern_num]['bl'][i][j]
+                if len(note) > 0 and note != " ":
+                    retval=retval+self.resolveMidiNum(note,transpose,i)+","
+                else:
+                    retval = retval+","
+            retval=retval+"\n"
+        return retval
+
+    def resolveMidiNum(self,note,transpose,track):
+        if note=="*":
+            return str(track+36)
+        else:
+            return str(self.keyNumz[note])
+
+    def breaks_to_ascii(self):
+        retval = ""
+        ct=0
+        mysong = song.Song()
+        self.breaks = mysong.getSequenceArray(self.trackText.get())
+        for breaky in self.breaks:
+            retval=retval+self.pattern_to_ascii(breaky.pattern,breaky.startAt,breaky.stopAt,breaky.transpose)+"\n"
+            ct=ct+1
+        print retval
+        return retval;
+
+
+
 
     def reconstruct_pattern(self, pattern_num, bpu, units, rinse=True):
 
@@ -587,6 +619,14 @@ class DrumMachine():
         #self.pattBtnz[self.patt.get()].config(bg='turquoise')
         self.thread = threading.Thread(None, self.play, None, (), {})
         self.thread.start()
+
+
+    def write(self):
+        self.startAt = int(self.breaks[0].startAt)
+        self.stopAt = int(self.breaks[0].stopAt)
+        self.transpose = int(self.breaks[0].transpose)
+        self.reconstruct_pattern(int(self.breaks[0].pattern), self.bpu.get(), self.units.get())
+
 
     def play(self):
         ct = 0

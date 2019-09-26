@@ -34,5 +34,5 @@ class midWriter:
         self.tempo    = 120   # In BPM
         self.volume   = 100  # 0-127, as per the MIDI standard
 
-    def writeBar(self,channel):
+    def writeBar(self,channel,patternNum,):
         print "hello"
