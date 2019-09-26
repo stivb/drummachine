@@ -257,7 +257,7 @@ class DrumMachine():
         self.aboutmenu.add_command(label="New Song", command=self.newsong)
         self.aboutmenu.add_command(label="Edit Sequence", command=self.editSequence)
         self.aboutmenu.add_command(label="Delete Temporary Files", command=self.deleteTemporaryFiles)
-        self.aboutmenu.add_command(label="Export Sequence",command=self.breaks_to_ascii)
+        self.aboutmenu.add_command(label="Export Sequence",command=self.export_song)
         self.menubar.add_cascade(label="About", menu=self.aboutmenu)
 
         self.root.config(menu=self.menubar)
@@ -550,6 +550,11 @@ class DrumMachine():
         else:
             return str(self.keyNumz[note])
 
+    def export_song(self):
+        allbars = self.breaks_to_ascii_barlist()
+        fullsong = self.merge_ascii_bars(allbars)
+        print fullsong
+
     def breaks_to_ascii(self):
         retval = ""
         ct=0
@@ -561,7 +566,14 @@ class DrumMachine():
         print retval
         return retval;
 
-
+    def breaks_to_ascii_barlist(self):
+        retval = []
+        ct = 0
+        mysong = song.Song()
+        self.breaks = mysong.getSequenceArray(self.trackText.get())
+        for breaky in self.breaks:
+            retval.append(self.pattern_to_ascii(breaky.pattern,breaky.startAt,breaky.stopAt,breaky.transpose))
+        return retval
 
 
     def append_string_line_by_line(self, stringa, stringb):
