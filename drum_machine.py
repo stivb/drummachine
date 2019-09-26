@@ -564,6 +564,28 @@ class DrumMachine():
 
 
 
+    def append_string_line_by_line(self, stringa, stringb):
+        retval = ""
+        lista = stringa.split("\n")
+        listb = stringa.split("\n")
+        ct=0
+        for ln in lista:
+            retval=retval+ln+listb[ct] + "\n"
+            ct=ct+1
+        return retval
+
+    def merge_ascii_bars(self,barlist):
+        retval = ""
+        barstrings = []
+        for barstring in barlist:
+            barlines = barstring.split("\n")
+            barstrings.append(barlines)
+        for i in range(6):
+            for barlinearray in barstrings:
+                retval=retval+barlinearray[i]
+            retval = retval+"\n"
+        return retval
+
     def reconstruct_pattern(self, pattern_num, bpu, units, rinse=True):
 
         print "reconstructing",pattern_num
