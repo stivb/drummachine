@@ -35,6 +35,7 @@ import song
 import instrumentchannel
 import editor
 import newsongdlg
+import MidiWriter
 
 # constants
 MAX_TRACK_NUM = 6
@@ -532,6 +533,8 @@ class DrumMachine():
         return time.clock() - self.prevTime
 
 
+
+
     def pattern_to_ascii(self,pattern_num,startAt=0,stopAt=32,transpose=0):
         retval=""
         for i in range(MAX_TRACK_NUM - 1):
@@ -544,6 +547,31 @@ class DrumMachine():
             retval=retval+"\n"
         return retval
 
+    def pattern_to_ascii_beat_by_beat(self,pattern_num,startAt=0,stopAt=32,transpose=0):
+        retval=""
+        for j in range(startAt, stopAt):
+            for i in range(MAX_TRACK_NUM - 1):
+                note = self.pattern_list[pattern_num]['bl'][i][j]
+                if len(note) > 0 and note != " ":
+                    retval=retval+self.resolveMidiNum(note,transpose,i)+","
+                else:
+                    retval = retval+","
+            retval=retval+"\n"
+        return retval
+
+    def pattern_to_ascii_beat_by_beat_arr(self,pattern_num,startAt=0,stopAt=32,transpose=0):
+        retval=[]
+        for j in range(startAt, stopAt):
+            for i in range(MAX_TRACK_NUM - 1):
+                notes_at_beat_arr = []
+                note = self.pattern_list[pattern_num]['bl'][i][j]
+                if len(note) > 0 and note != " ":
+                    notes_at_beat_arr.append(self.resolveMidiNum(note,transpose,i))
+                else:
+                    notes_at_beat_arr.append('')
+            retval.append(notes_at_beat_arr)
+        return retval
+
     def resolveMidiNum(self,note,transpose,track):
         if note=="*":
             return str(track+36)
@@ -552,8 +580,11 @@ class DrumMachine():
 
     def export_song(self):
         allbars = self.breaks_to_ascii_barlist()
-        fullsong = self.merge_ascii_bars(allbars)
-        print fullsong
+        print allbars
+        m = MidiWriter.midWriter()
+        m.writeSong(allbars)
+
+
 
     def breaks_to_ascii(self):
         retval = ""
@@ -567,12 +598,12 @@ class DrumMachine():
         return retval;
 
     def breaks_to_ascii_barlist(self):
-        retval = []
+        retval = ""
         ct = 0
         mysong = song.Song()
         self.breaks = mysong.getSequenceArray(self.trackText.get())
         for breaky in self.breaks:
-            retval.append(self.pattern_to_ascii(breaky.pattern,breaky.startAt,breaky.stopAt,breaky.transpose))
+            retval = retval + (self.pattern_to_ascii_beat_by_beat(breaky.pattern,breaky.startAt,breaky.stopAt,breaky.transpose)) + "\n"
         return retval
 
 
@@ -597,6 +628,16 @@ class DrumMachine():
                 retval=retval+barlinearray[i]
             retval = retval+"\n"
         return retval
+
+    def makeNotesAtTimePointArray(self,ascii_string):
+        lis = [x.replace('\n', '').split(',') for x in ascii_string]
+        for x in zip(*lis):
+            for y in x:
+                print(y + ', ')
+            print('')
+
+
+
 
     def reconstruct_pattern(self, pattern_num, bpu, units, rinse=True):
 

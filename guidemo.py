@@ -25,7 +25,7 @@ class Demo1:
         self.master = master
         self.frame = Frame(self.master)
         self.buttonz = Buttons(self.frame)
-        self.labelz = 
+
 
 
 class Demo2:
