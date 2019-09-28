@@ -583,6 +583,7 @@ class DrumMachine():
         print allbars
         m = MidiWriter.midWriter()
         m.writeSong(allbars)
+        #m.writeScale()
 
 
 
