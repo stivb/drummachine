@@ -2,6 +2,7 @@
 
 from midiutil import MIDIFile
 import drum_machine
+import re
 
 
 
@@ -20,13 +21,23 @@ class midWriter:
         self.volume   = 100  # 0-127, as per the MIDI standard
 
     def writeSong(self,ascii_text):
+        while "\n\n" in ascii_text:
+            ascii_text = ascii_text.replace("\n\n","\n")
+        print "the number of strings is"
+        print len(ascii_text.split('\n'))
+        print ascii_text
+
         MyMIDI = MIDIFile(1)
-        MyMIDI.addTempo(self.tempo, self.time , self.tempo)
+        MyMIDI.addTempo(0, 0, 120)
+        MyMIDI.numTracks = self.numtracks
+        #for i in range(6):
+            #MyMIDI.addTempo(i,0,120)
         beatCt=0
         trackCt=0
         for lines in ascii_text.split("\n"):
             trackCt=0
-            print str(len(lines.split(",")))
+
+            print str(len(lines.split(","))) + ":" + lines + ":Track=" + str(trackCt) + ":Time=" + str(self.time)
             for note in lines.split(","):
                 if note=="":
                     continue
@@ -39,7 +50,10 @@ class midWriter:
                 #print "adding " + str(self.track) + " " + str(channel) + " " + str(note) + " " + str(self.time) + " 1  127"
                 MyMIDI.addNote(trackCt, channel, int(note)-1, self.time, 0.5, 127)
                 trackCt=trackCt+1
-            self.time=self.time+0.25
+
+            if len(lines.split(","))==6:
+                self.time=self.time+0.25
+
         with open("myfilename.mid", "wb") as output_file:
             MyMIDI.writeFile(output_file)
 

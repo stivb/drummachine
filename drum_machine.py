@@ -605,7 +605,9 @@ class DrumMachine():
         self.breaks = mysong.getSequenceArray(self.trackText.get())
         for breaky in self.breaks:
             retval = retval + (self.pattern_to_ascii_beat_by_beat(breaky.pattern,breaky.startAt,breaky.stopAt,breaky.transpose)) + "\n"
-        return retval
+        while "\n\n" in retval:
+            retval = retval.replace("\n\n","\n")
+        return retval.strip()
 
 
     def append_string_line_by_line(self, stringa, stringb):
