@@ -12,44 +12,44 @@ import re
 class midWriter:
 
     def __init__(self):
-        self.numtracks=6
-        self.track    = 0
-        self.channel  = 0
-        self.time     = 0    # In beats
-        self.duration = 1    # In beats
-        self.tempo    = 120   # In BPM
-        self.volume   = 100  # 0-127, as per the MIDI standard
+        self.numtracks = 7
+        self.track = 0
+        self.channel = 0
+        self.time = 0  # In beats
+        self.duration = 1  # In beats
+        self.tempo = 120  # In BPM
+        self.volume = 100
+
+
+    def reset(self):
+        self.numtracks = 7
+        self.track = 0
+        self.channel = 0
+        self.time = 0  # In beats
+        self.duration = 1  # In beats
+        self.tempo = 120  # In BPM
+        self.volume = 100
 
     def writeSong(self,ascii_text):
-        while "\n\n" in ascii_text:
-            ascii_text = ascii_text.replace("\n\n","\n")
-        print "the number of strings is"
-        print len(ascii_text.split('\n'))
-        print ascii_text
-
+        self.reset()
         MyMIDI = MIDIFile(1)
         MyMIDI.addTempo(0, 0, 120)
-        MyMIDI.numTracks = self.numtracks
-        #for i in range(6):
-            #MyMIDI.addTempo(i,0,120)
-        beatCt=0
+        MyMIDI.numTracks = 16
+
         trackCt=0
         for lines in ascii_text.split("\n"):
             trackCt=0
 
             print str(len(lines.split(","))) + ":" + lines + ":Track=" + str(trackCt) + ":Time=" + str(self.time)
             for note in lines.split(","):
-                if note=="":
-                    continue
-                if len(lines.split(","))!=6:
-                    continue
-                if (trackCt<4):
-                    channel=9
-                else:
-                    channel=33
-                #print "adding " + str(self.track) + " " + str(channel) + " " + str(note) + " " + str(self.time) + " 1  127"
-                MyMIDI.addNote(trackCt, channel, int(note)-1, self.time, 0.5, 127)
-                trackCt=trackCt+1
+                if note!="":
+                    if (trackCt<4):
+                        channel=9
+                    else:
+                        channel=33
+                    #print "adding " + str(self.track) + " " + str(channel) + " " + str(note) + " " + str(self.time) + " 1  127"
+                    MyMIDI.addNote(trackCt, channel, int(note)-1, self.time, 0.5, 127)
+                #trackCt=trackCt+1
 
             if len(lines.split(","))==6:
                 self.time=self.time+0.25
