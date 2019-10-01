@@ -30,12 +30,20 @@ class midWriter:
         self.tempo = 120  # In BPM
         self.volume = 100
 
+    def getCountIn(self):
+        retval=""
+        for i in range(4):
+            retval=retval+"36,36,36,36,48,48\n,,,,,\n,,,,,\n,,,,,\n"
+        return retval
+
     def writeSong(self,ascii_text):
         self.reset()
-        MyMIDI = MIDIFile(1)
+        MyMIDI = MIDIFile(16)
         MyMIDI.addTempo(0, 0, 120)
-        MyMIDI.numTracks = 16
+        MyMIDI.addProgramChange(4, 4, 0, 37)
+        MyMIDI.addProgramChange(5, 5, 0, 38)
 
+        ascii_text=self.getCountIn() + ascii_text
         trackCt=0
         for lines in ascii_text.split("\n"):
             trackCt=0
@@ -46,7 +54,7 @@ class midWriter:
                     if (trackCt<4):
                         channel=9
                     else:
-                        channel=33
+                        channel=trackCt
                     print "adding " + str(trackCt) + " " + str(channel) + " " + str(note) + " " + str(self.time) + " 1  127"
                     MyMIDI.addNote(trackCt, channel, int(note)-1, self.time, 0.5, 127)
                 trackCt=trackCt+1

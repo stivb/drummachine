@@ -544,9 +544,8 @@ class DrumMachine():
                     retval=retval+self.resolveMidiNum(note,transpose,i)+","
                 else:
                     retval = retval+","
-            retval=retval+
         retval = re.sub(r'^,,*$', '', retval)
-        while "\n\n" is in retval:
+        while "\n\n" in retval:
             retval.replace("\n\n","\n")
         retval = retval.strip()
 
