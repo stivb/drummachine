@@ -47,9 +47,9 @@ class midWriter:
                         channel=9
                     else:
                         channel=33
-                    #print "adding " + str(self.track) + " " + str(channel) + " " + str(note) + " " + str(self.time) + " 1  127"
+                    print "adding " + str(trackCt) + " " + str(channel) + " " + str(note) + " " + str(self.time) + " 1  127"
                     MyMIDI.addNote(trackCt, channel, int(note)-1, self.time, 0.5, 127)
-                #trackCt=trackCt+1
+                trackCt=trackCt+1
 
             if len(lines.split(","))==6:
                 self.time=self.time+0.25

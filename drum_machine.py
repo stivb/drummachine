@@ -544,7 +544,14 @@ class DrumMachine():
                     retval=retval+self.resolveMidiNum(note,transpose,i)+","
                 else:
                     retval = retval+","
-            retval=retval+"\n"
+            retval=retval+
+        retval = re.sub(r'^,,*$', '', retval)
+        while "\n\n" is in retval:
+            retval.replace("\n\n","\n")
+        retval = retval.strip()
+
+
+
         return retval
 
     def pattern_to_ascii_beat_by_beat(self,pattern_num,startAt=0,stopAt=32,transpose=0):
