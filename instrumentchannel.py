@@ -18,6 +18,13 @@ import ttk
 
 import pygame
 import pygame.midi
+import math
+import ConfigParser
+
+from idlelib.ToolTip import *
+
+from random import randint
+
 
 
 
@@ -34,6 +41,13 @@ class InstrumentChannel:
         self.parent = parentself
         self.currRow=0
         self.clmct=0
+
+        config = ConfigParser.RawConfigParser()
+        config.read('config.txt')
+
+        self.details_dict = dict(config.items('instruments'))
+
+
 
 
 
@@ -152,11 +166,25 @@ class InstrumentChannel:
         monty2 = ttk.LabelFrame(noteFrame2, text="Choose Voice")
         monty2.grid(column=0, row=0, padx=8, pady=4)
 
+        colors = []
+
+        for i in range(16):
+            colors.append('%06X' % randint(0, 0xFFFFFF))
 
         for i in range(4):
             for j in range(32):
-                btn = Button(monty2, text=str(i*32+j+1), width=3)
+                total=i*32+j
+                col="#" + str(colors[int(math.floor(total/8))])
+                btn = Button(monty2, text=str(total+1), width=3,bg=col)
                 btn.grid(column=j, row=i)
+                igroupbasenum= int(math.floor(total/8))
+                inststoshow = []
+                for q in range(total,total+8):
+                    if q>127:
+                        continue
+                    inststoshow.append(str(q+1) + " " + self.details_dict[str(q+1)])
+
+                tip = ListboxToolTip(btn, inststoshow)
 
 
 
