@@ -167,15 +167,21 @@ class InstrumentChannel:
         monty2.grid(column=0, row=0, padx=8, pady=4)
 
         colors = []
+        fcolors = []
 
         for i in range(16):
-            colors.append('%06X' % randint(0, 0xFFFFFF))
+            intcol = randint(0, 0xFFFFFF)
+            c = '%06X' % intcol
+            f = 0xFFFFFF-intcol
+            colors.append(c)
+            fcolors.append('%06X' % f)
 
         for i in range(4):
             for j in range(32):
                 total=i*32+j
                 col="#" + str(colors[int(math.floor(total/8))])
-                btn = Button(monty2, text=str(total+1), width=3,bg=col)
+                fcol = "#" + str(fcolors[int(math.floor(total/8))])
+                btn = Button(monty2, text=str(total+1), width=3,fg=fcol,bg=col,command=self.parent.playDemoInstrument(total))
                 btn.grid(column=j, row=i)
                 igroupbasenum= int(math.floor(total/8))
                 inststoshow = []

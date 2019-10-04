@@ -822,6 +822,16 @@ class DrumMachine():
         self.midi_out.note_on(note, 127, ch)
         self.notesOn.append((note, ch))
 
+    def playDemoInstrument(self,inst):
+        def callback():
+            print inst
+            self.midi_out.set_instrument(inst, 15)
+            self.midi_out.note_on(50, 127, 15)
+            time.sleep( 1 )
+            self.midi_out.note_off(50, 127, 15)
+        return callback
+
+
     def end_notes(self):
         for note in self.notesOn:
             self.midi_out.note_off(note[0], 0, note[1])
