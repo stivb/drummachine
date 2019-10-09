@@ -45,7 +45,8 @@ class InstrumentChannel:
         config = ConfigParser.RawConfigParser()
         config.read('config.txt')
 
-        self.details_dict = dict(config.items('instruments'))
+        self.instdetails_dict = dict(config.items('instruments'))
+        self.drumdetails_dict=dict(config.items('drums'))
 
 
 
@@ -188,9 +189,31 @@ class InstrumentChannel:
                 for q in range(total,total+8):
                     if q>127:
                         continue
-                    inststoshow.append(str(q+1) + " " + self.details_dict[str(q+1)])
+                    inststoshow.append(str(q+1) + " " + self.instdetails_dict[str(q + 1)])
 
                 tip = ListboxToolTip(btn, inststoshow)
+
+        noteFrame3 = ttk.Frame(note)
+
+        note.add(noteFrame3, text="Drum Choose")
+        note.pack(expand=1, fill="both")
+
+        monty3 = ttk.LabelFrame(noteFrame3, text="Choose Voice")
+        monty3.grid(column=0, row=0, padx=8, pady=4)
+
+        print self.drumdetails_dict
+
+        for i in range(35,82,6):
+            for j in range(8):
+                total = i +j
+                col = "#" + str(colors[int(math.floor((total-35) / 8))])
+                fcol = "#" + str(fcolors[int(math.floor((total-35) / 8))])
+                caption = str(total + 1) + ":" + self.drumdetails_dict[str(total)]
+                print caption
+                btn = Button(monty3, text=caption, width=15, fg="black", bg="white",
+                             command=self.parent.playDemoDrum(total))
+                roe = (total-35)/8
+                btn.grid(column=j, row=roe)
 
 
 
