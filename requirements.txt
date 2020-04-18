@@ -1,0 +1,13 @@
+backports.functools-lru-cache==1.5
+cycler==0.10.0
+kiwisolver==1.0.1
+matplotlib==2.2.3
+MIDIUtil==1.2.1
+numpy==1.15.4
+Pillow==5.4.1
+pygame==1.9.4
+pyparsing==2.3.0
+python-dateutil==2.7.5
+pytz==2018.7
+six==1.11.0
+ttkwidgets==0.10.0
