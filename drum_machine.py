@@ -121,8 +121,8 @@ class DrumMachine():
         self.transpose = 0
         self.hitList = {}
 
-        self.btnW = 4
-        self.btnH = 3
+        self.btnW = 3
+        self.btnH = 1
         self.prevTime = time.clock()
         self.channels = []
         self.channels.append(instrumentchannel.InstrumentChannel(self, 36 , 127, 9))
@@ -186,7 +186,7 @@ class DrumMachine():
                 pattStr = "patt" + str(j)
                 self.pattBtnz[j] = Button(self.monty, name=pattStr, bg='white', activebackground='white',
                                           text=str(j + 1),
-                                          width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(j))
+                                          width=self.btnW, height=self.btnH, command=self.patt_clicked(j))
                 self.pattBtnz[j].grid(column=j%32, row=1)
                 self.pattBtnz[j].bind('<Double-1>', self.pattDblClicked(j))
                 self.pattBtnz[j].bind('<Control-Button-1>', self.pattCtrlClicked(j))
@@ -212,13 +212,13 @@ class DrumMachine():
             pattStr = "patt" + str(i)
             self.pattBtnz[i] = Button(topbar_frame, name=pattStr, bg='white', activebackground='white',
                                       text=str(i + 1),
-                                      width=self.btnW, height=self.btnH / 2, command=self.patt_clicked(i))
+                                      width=self.btnW, height=self.btnH, command=self.patt_clicked(i))
             self.pattBtnz[i].grid(row=0, column=i + 1)
             self.pattBtnz[i].bind('<Double-1>', self.pattDblClicked(i))
             self.pattBtnz[i].bind('<Control-Button-1>', self.pattCtrlClicked(i))
 
         btn_newPattern = Button(topbar_frame, name="btn_newPattern", bg='white', text="+", width=self.btnW,
-                                height=self.btnH / 2, command=self.newPattern())
+                                height=self.btnH, command=self.newPattern())
         btn_newPattern.grid(row=0, column=i + 3, padx=10)
 
         self.units = IntVar()
@@ -290,9 +290,9 @@ class DrumMachine():
             btnName = "btnEnd" + str(q)
             f1 = Frame(right_frame)
             self.startBtnz[q] = Button(f1, name=btnStartName, bg='white', text=str(q + 1), width=self.btnW,
-                                       height=self.btnH / 2, command=self.start_clicked(q))
+                                       height=self.btnH, command=self.start_clicked(q))
             self.stopBtnz[q] = Button(f1, name=btnName, bg='white', text=str(q + 1), width=self.btnW,
-                                      height=self.btnH / 2, command=self.stop_clicked(q + 1))
+                                      height=self.btnH, command=self.stop_clicked(q + 1))
             self.startBtnz[q].grid(row=0, column=0)
             self.stopBtnz[q].grid(row=1, column=0)
             f1.grid(row=1, column=q)
@@ -308,7 +308,7 @@ class DrumMachine():
                                        height=self.btnH, command=self.trans_clicked(q))
             self.transbtnz[q].grid(row=3, column=q)
 
-        right_frame.grid_rowconfigure(3, minsize=20)
+        right_frame.grid_rowconfigure(2, minsize=20)
         row_base = 5
         Label(right_frame, text="Music").grid(row=4, column=0)
         for i in range(MAX_TRACK_NUM):
@@ -1450,6 +1450,12 @@ class soundThing():
 # ======================================================================
 if __name__ == '__main__':
     print "hello"
+
+    #
+    # application_window = tk.Tk()
+    #
+    # answer = simpledialog.askstring("Input", "What is your first name?",
+    #                                 parent=application_window)
     dm = DrumMachine()
     print "hello 2"
     dm.app()
