@@ -121,8 +121,8 @@ class DrumMachine():
         self.transpose = 0
         self.hitList = {}
 
-        self.btnW = 6
-        self.btnH = 4
+        self.btnW = 4
+        self.btnH = 3
         self.prevTime = time.clock()
         self.channels = []
         self.channels.append(instrumentchannel.InstrumentChannel(self, 36 , 127, 9))
@@ -167,7 +167,7 @@ class DrumMachine():
         topbar_frame.config(height=30)
         topbar_frame.grid_rowconfigure(3, minsize=20)
         topbar_frame.grid_columnconfigure(1, minsize=20)
-        topbar_frame.grid(row=0, column=0, padx=20, sticky=W)
+        topbar_frame.grid(row=0, column=0, padx=10, sticky=W)
 
         note = ttk.Notebook(topbar_frame)
 
