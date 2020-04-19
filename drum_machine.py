@@ -406,7 +406,10 @@ class DrumMachine:
 
         filename = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M.bt")
         filename = os.path.dirname(os.path.abspath(__file__)) + slash + "loops" + slash + filename
-        pickle.dump(self.pattern_list, open(filename[2:], "wb"))
+
+        #tkMessageBox.showinfo("Title", filename)
+
+        pickle.dump(self.pattern_list, open(filename, "wb"))
 
     def load_project(self):
         file_name = tkFileDialog.askopenfilename(filetypes=[('Drum Beat File', '*.bt')], title='Load Project')
