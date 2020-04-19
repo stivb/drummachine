@@ -7,6 +7,7 @@ adding comment
 """
 
 from Tkinter import *
+import SimpleDialog
 import tkFileDialog
 import listfiles
 import tkMessageBox
@@ -18,6 +19,7 @@ import copy
 import ConfigParser
 import copy
 import copybars
+import get_preferred_xy
 
 # modules for playing sounds
 import time
@@ -52,11 +54,14 @@ def after_startup():
     print "whatever"
 
 
-class DrumMachine():
+class DrumMachine:
 
-    def __init__(self):
+    def __init__(self, w, h):
 
         print "init"
+        self.btnW = w
+        self.btnH = h
+
         self.kbd = "awsdrftghujikol;[']#"
         self.kbdmappings = {'a':'A1','w':'A#1','s':'B1','d':'C2','r':'C#2','f':'D2','t':'D#2','g':'E2','h':'F2','u':'F#2','j':'G2','i':'G#2','k':'A2','o':'A#2','l':'B2',';':'C3','[':'C#3','\'':'D3',']':'D#3','#':'E3'}
         self.recordOnChange = True
@@ -121,8 +126,6 @@ class DrumMachine():
         self.transpose = 0
         self.hitList = {}
 
-        self.btnW = 4
-        self.btnH = 3
         self.prevTime = time.clock()
         self.channels = []
         self.channels.append(instrumentchannel.InstrumentChannel(self, 36 , 127, 9))
@@ -1450,7 +1453,20 @@ class soundThing():
 # ======================================================================
 if __name__ == '__main__':
     print "hello"
-    dm = DrumMachine()
+    # application_window = Tk()
+    #
+    # answer = SimpleDialog.askstring("Input", "Set Preferred Dimensions WxH",
+    #                                 parent=application_window)
+
+    w=3
+    h=3
+    print len(sys.argv)
+
+    if (len(sys.argv)==3):
+        w=int(sys.argv[1])
+        h=int(sys.argv[2])
+
+    dm = DrumMachine(w,h)
     print "hello 2"
     dm.app()
 
