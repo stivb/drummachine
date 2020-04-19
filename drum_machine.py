@@ -401,8 +401,11 @@ class DrumMachine:
 
     def save_tmpfile(self):
         self.record_pattern()
+        slash = os.path.sep
+        pathInQuestion = os.path.abspath(__file__)) + slash + "loops" + slash
+        
         filename = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M.bt")
-        filename = os.path.dirname(os.path.abspath(__file__)) + "\\loops\\" + filename
+        filename = os.path.dirname(os.path.abspath(__file__)) + slash + "loops" + slash + filename
         pickle.dump(self.pattern_list, open(filename[2:], "wb"))
 
     def load_project(self):
