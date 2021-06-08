@@ -4,7 +4,7 @@ kiwisolver==1.0.1
 matplotlib==2.2.3
 MIDIUtil==1.2.1
 numpy==1.15.4
-Pillow==5.4.1
+Pillow==8.2.0
 pygame==1.9.4
 pyparsing==2.3.0
 python-dateutil==2.7.5
